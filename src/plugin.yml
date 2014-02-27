@@ -1,0 +1,39 @@
+name: CLUtil
+main: de.craftlancer.craftlancerutil.CLUtil
+version: 0.1
+description: Some Utility Stuff for Craftlancer
+depend: [SpeedAPI, CLGroups, CLEco, TagAPI, SkillLevels, PermissionsEx]
+commands:
+  sneak:
+    description: Toggles sneak
+    usage: /sneak
+  statsme:
+    description: Shows K/D Stats
+    usage: /statsme
+  find:
+    description: Find other players with your compass
+    usage: /find <player>
+  clutil:
+    description: Reloads CLUtil Config
+    usage: /clutil
+  togglearrow:
+    description: Toggle usage of poison arrows
+    usage: /togglearrow
+  home:
+    description: Teleport to your home!
+    usage: /home
+permissions:
+    cl.util.krieger:
+        default: false
+    cl.util.berserk:
+        default: false
+    cl.util.waldlaufer:
+        default: false
+    cl.util.shear:
+        default: false
+    cl.util.reload:
+        default: op
+    cl.util.find:
+        default: false
+    cl.util.sneak:
+        default: false

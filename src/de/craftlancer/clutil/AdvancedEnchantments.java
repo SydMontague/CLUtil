@@ -62,7 +62,7 @@ public class AdvancedEnchantments implements Listener
     public void on(InventoryClickEvent e)
     {
         if (e.getInventory().getType() == InventoryType.ANVIL)
-            new AnvilUpdateTask(plugin, (CraftInventoryAnvil) e.getInventory()).runTaskLater(plugin, 1L);
+            new AnvilUpdateTask((CraftInventoryAnvil) e.getInventory()).runTaskLater(plugin, 1L);
         
     }
     
@@ -161,7 +161,7 @@ class AnvilUpdateTask extends BukkitRunnable
 {
     private CraftInventoryAnvil inventory;
     
-    public AnvilUpdateTask(CLUtil plugin, CraftInventoryAnvil inventory)
+    public AnvilUpdateTask(CraftInventoryAnvil inventory)
     {
         this.inventory = inventory;
     }

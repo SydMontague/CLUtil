@@ -36,8 +36,6 @@ public class ResourceAlgoTest
         }
     }
     
-    private int centerX = 0;
-    private int centerZ = 0;
     private int y = 4;
     private int radius = 320;
     private int min = 3;

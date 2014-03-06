@@ -1,5 +1,5 @@
 name: CLUtil
-main: de.craftlancer.craftlancerutil.CLUtil
+main: de.craftlancer.clutil.CLUtil
 version: 0.1
 description: Some Utility Stuff for Craftlancer
 depend: [SpeedAPI, CLGroups, CLEco, TagAPI, SkillLevels, PermissionsEx]

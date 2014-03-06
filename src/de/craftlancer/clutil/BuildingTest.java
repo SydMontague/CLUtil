@@ -2,10 +2,13 @@ package de.craftlancer.clutil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -43,6 +46,8 @@ public class BuildingTest extends BukkitRunnable implements Listener
     private int ymax;
     private int zmax;
     
+    private List<BlockState> undoList = new ArrayList<BlockState>();
+    
     public BuildingTest(CLUtil plugin)
     {
         this.plugin = plugin;
@@ -65,7 +70,16 @@ public class BuildingTest extends BukkitRunnable implements Listener
     @EventHandler
     public void onInteract(PlayerInteractEvent e)
     {
-        if (!e.hasItem() || e.getItem().getType() != Material.IRON_SWORD)
+        if (!e.hasItem())
+            return;
+        
+        if (e.getItem().getType() == Material.GOLD_SWORD)
+        {
+            for (BlockState state : undoList)
+                state.update(true);
+            return;
+        }
+        else if (e.getItem().getType() != Material.IRON_SWORD)
             return;
         
         try
@@ -149,22 +163,28 @@ public class BuildingTest extends BukkitRunnable implements Listener
             BaseBlock b = build.getBlock(new Vector(x, y, z));
             LocalWorld world = null;
             
-            for(LocalWorld w : WorldEdit.getInstance().getServer().getWorlds())
-                if(w.getName().equals(loc.getWorld().getName()))
+            for (LocalWorld w : WorldEdit.getInstance().getServer().getWorlds())
+                if (w.getName().equals(loc.getWorld().getName()))
                 {
                     world = w;
                     break;
                 }
             
-            if(world == null)
+            if (world == null)
                 throw new NullPointerException("This world should never be null!");
             
-            //world.set
-            //Block bb = loc.getRelative(x, y, z);
+            // world.set
+            // Block bb = loc.getRelative(x, y, z);
             // TODO support for NBT datas
             
             if (b.getType() == 0 || CraftItYourself.removeItemFromInventory(inventory, new ItemStack(b.getType(), 1)))
-                world.setBlock(new Vector(loc.getX() + x, loc.getY() + y, loc.getZ() + z), b, false);//bb.setTypeIdAndData(b.getType(), (byte) b.getData(), false);
+            {
+                undoList.add(loc.getWorld().getBlockAt(loc.getX() + x, loc.getY() + y, loc.getZ() + z).getState());
+                world.setBlock(new Vector(loc.getX() + x, loc.getY() + y, loc.getZ() + z), b, false);// bb.setTypeIdAndData(b.getType(),
+                                                                                                     // (byte)
+                                                                                                     // b.getData(),
+                                                                                                     // false);
+            }
             else
             {
                 Bukkit.getLogger().info("" + Material.getMaterial(b.getType()));

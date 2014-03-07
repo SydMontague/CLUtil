@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -16,6 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.CuboidClipboard;
@@ -67,6 +69,68 @@ public class BuildingTest extends BukkitRunnable implements Listener
         this.runTaskTimer(plugin, PERIOD, PERIOD);
     }
     
+    class FakeTask extends BukkitRunnable
+    {
+        Player player;
+        
+        public FakeTask(Plugin plugin, Player player)
+        {
+            try
+            {
+                build = SchematicFormat.MCEDIT.load(new File(plugin.getDataFolder(), "gasthaus.schematic"));
+            }
+            catch (IOException ee)
+            {
+                ee.printStackTrace();
+            }
+            catch (DataException ee)
+            {
+                ee.printStackTrace();
+            }
+            
+            this.player = player;
+            loc = player.getLocation().getBlock().getRelative(build.getOffset().getBlockX(), 0, build.getOffset().getBlockZ());
+            
+            xmax = build.getWidth() - 1;
+            ymax = build.getHeight() - 1;
+            zmax = build.getLength() - 1;
+            for (int x = 0; x <= xmax; x++)
+                for (int y = 0; y <= ymax; y++)
+                    for (int z = 0; z <= zmax; z++)
+                    {
+                        BaseBlock b = build.getBlock(new Vector(x, y, z));
+                        LocalWorld world = null;
+                        
+                        for (LocalWorld w : WorldEdit.getInstance().getServer().getWorlds())
+                            if (w.getName().equals(loc.getWorld().getName()))
+                            {
+                                world = w;
+                                break;
+                            }
+                        
+                        if (world == null)
+                            throw new NullPointerException("This world should never be null!");
+                        
+                        player.sendBlockChange(loc.getRelative(x, y, z).getLocation(), b.getType(), (byte) b.getData());
+                    }
+            
+            this.runTaskLater(plugin, 200L);
+        }
+        
+        @Override
+        public void run()
+        {
+            for (int x = 0; x <= xmax; x++)
+                for (int y = 0; y <= ymax; y++)
+                    for (int z = 0; z <= zmax; z++)
+                    {
+                        Block b = loc.getRelative(x, y, z);
+                        
+                        player.sendBlockChange(b.getLocation(), b.getType(), (byte) b.getData());
+                    }
+        }
+    }
+    
     @EventHandler
     public void onInteract(PlayerInteractEvent e)
     {
@@ -77,6 +141,11 @@ public class BuildingTest extends BukkitRunnable implements Listener
         {
             for (BlockState state : undoList)
                 state.update(true);
+            return;
+        }
+        else if (e.getItem().getType() == Material.DIAMOND_SWORD)
+        {
+            new FakeTask(plugin, e.getPlayer());
             return;
         }
         else if (e.getItem().getType() != Material.IRON_SWORD)

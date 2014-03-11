@@ -204,9 +204,15 @@ public class CraftItYourself
         return false;
     }
     
-    public static void removeItem(Inventory inventory, ItemStack... items)
+    public static List<ItemStack> removeItem(Inventory inventory, Collection<ItemStack> items)
+    {
+        return removeItem(inventory, items.toArray(new ItemStack[0]));
+    }
+    
+    public static List<ItemStack> removeItem(Inventory inventory, ItemStack... items)
     {
         Validate.notNull(items, "Items cannot be null");
+        List<ItemStack> leftover = new ArrayList<ItemStack>();
         
         for (ItemStack item : items)
         {
@@ -223,6 +229,7 @@ public class CraftItYourself
                     if (first == -1)
                     {
                         item.setAmount(toDelete);
+                        leftover.add(item);
                         break;
                     }
                     else
@@ -248,6 +255,8 @@ public class CraftItYourself
                 }
             }
         }
+        
+        return leftover;
     }
     
     public static ExchangeRecipe isCraftable(Inventory inv, ItemStack item)
@@ -295,6 +304,9 @@ public class CraftItYourself
     
     public static boolean removeItemFromInventory(Inventory inv, ItemStack item)
     {
+        if(item.getType() == Material.AIR)
+            return true;
+        
         item.setType(cleanupTechnical(item.getType()));
         
         if (containsAtLeast(inv, item, item.getAmount()))

@@ -92,7 +92,7 @@ public class BuildingTest extends BukkitRunnable implements Listener
         else if (e.getItem().getType() != Material.IRON_SWORD)
             return;
         
-        manager.startBuilding(e.getPlayer(), "gasthaus", null);
+        manager.startBuilding(e.getPlayer(), "gasthaus", e.getPlayer().getInventory());
         /*
         
         try

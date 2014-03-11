@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -15,9 +18,22 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import de.craftlancer.clutil.CLUtil;
 
+/*
+ * Building Definition - YAML
+ * 
+ * key:                                 #name of the building
+ *   schematic: <file path>             #path of the schematic file
+ *   initialCostMod: <double>           #same named variable
+ *   staticCosts:                       #a list of static start costs, format: <material> <data> <amount>
+ *     - <Material> <Data> <Amount>
+ *   feature:                           #defines the feature that will be automaticly attached to the building
+ *     name: <name>                     #the name of the feature, defined in another file
+ *     <block>: <x> <y> <z>             #coordinates relative to the schematic
+ */
 public class BuildingManager implements Listener
 {
     private static BuildingManager instance;
@@ -29,12 +45,66 @@ public class BuildingManager implements Listener
     private Map<String, Building> buildings = new HashMap<String, Building>();
     private List<BuildingProcess> processes = new ArrayList<BuildingProcess>();
     
+    private File configFile;
+    private FileConfiguration config;
+    
     private BuildingManager(CLUtil plugin)
     {
+        configFile = new File(plugin.getDataFolder(), "buildings.yml");
+        config = YamlConfiguration.loadConfiguration(configFile);
+        
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         
         this.plugin = plugin;
-        buildings.put("gasthaus", new Building(plugin, new File(plugin.getDataFolder(), "gasthaus.schematic")));
+        
+        loadBuildings();
+        
+    }
+    
+    private void loadBuildings()
+    {
+        for (String key : config.getKeys(false))
+        {
+            String schematic = config.getString(key + ".schematic");
+            double initialCostMod = config.getDouble(key + ".initialCostMod", 0D);
+            
+            List<ItemStack> staticCosts = new ArrayList<ItemStack>();
+            for (Object o : config.getList(key + ".staticCosts"))
+                staticCosts.add(getItemStack(o));
+            
+            String type = null;
+            Map<String, RelativeLocation> blockLoc = new HashMap<String, RelativeLocation>();
+            
+            for (String s : config.getConfigurationSection(key + ".feature").getKeys(false))
+            {
+                if (s.equalsIgnoreCase("type"))
+                    type = config.getString(key + ".feature." + s);
+                else
+                    blockLoc.put(s, RelativeLocation.parseString(config.getString(key + ".feature." + s)));
+            }
+            
+            FeatureBuilding feature = FeatureFactory.loadFeature(type, blockLoc);
+            
+            buildings.put(key, new Building(plugin, schematic, initialCostMod, staticCosts, feature));
+        }
+        
+    }
+    
+    @Deprecated
+    private ItemStack getItemStack(Object o)
+    {
+        String s = o.toString();
+        
+        String[] arr = s.split(" ");
+        
+        if (arr.length != 3)
+            throw new IllegalArgumentException();
+        
+        Material mat = Material.getMaterial(arr[0]);
+        short data = Short.parseShort(arr[1]);
+        int amount = Integer.parseInt(arr[2]);
+        
+        return new ItemStack(mat, amount, data);
     }
     
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

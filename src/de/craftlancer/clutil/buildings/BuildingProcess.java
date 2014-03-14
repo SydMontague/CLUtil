@@ -29,6 +29,7 @@ public class BuildingProcess extends BukkitRunnable
     private Inventory inventory;
     private int blocksPerTick;
     private List<BlockState> undoList = new ArrayList<BlockState>();
+    private CuboidClipboard schematic;
     
     private List<ItemStack> initialCosts = new ArrayList<ItemStack>();
     
@@ -36,6 +37,10 @@ public class BuildingProcess extends BukkitRunnable
     private int x = 0;
     private int y = 0;
     private int z = 0;
+    
+    private int xmax;
+    private int ymax;
+    private int zmax;
     
     public BuildingProcess(Building building, Block block)
     {
@@ -51,9 +56,32 @@ public class BuildingProcess extends BukkitRunnable
     {
         this.building = building;
         
-        CuboidClipboard build = building.getClipboard();
+        this.schematic = building.getClipboard();
         
-        this.block = player.getLocation().getBlock().getRelative(build.getOffset().getBlockX(), 0, build.getOffset().getBlockZ());
+        int facing = Math.abs((Math.round((player.getLocation().getYaw()) / 90)) % 4);
+        
+        switch (building.getBaseFacing())
+        {
+            case NORTH:
+                facing += 2;
+                break;
+            case EAST:
+                facing += 3;
+                break;
+            case SOUTH:
+                facing += 0;
+                break;
+            case WEST:
+                facing += 1;
+                break;
+        }
+        schematic.rotate2D(facing * 90);
+        
+        xmax = schematic.getWidth() - 1;
+        ymax = schematic.getHeight() - 1;
+        zmax = schematic.getLength() - 1;
+        
+        this.block = player.getLocation().getBlock().getRelative(schematic.getOffset().getBlockX(), 0, schematic.getOffset().getBlockZ());
         this.inventory = inventory;
         this.blocksPerTick = blocksPerTick;
         
@@ -92,7 +120,6 @@ public class BuildingProcess extends BukkitRunnable
     @Override
     public void run()
     {
-        
         if (buildState != BuildState.BUILDING)
         {
             cancel();
@@ -125,16 +152,14 @@ public class BuildingProcess extends BukkitRunnable
         if (world == null)
             throw new NullPointerException("This world should never be null!");
         
-        CuboidClipboard schematic = building.getClipboard();
-        
         for (int i = 0; i < blocksPerTick; i++)
         {
-            if (x == building.getMaxX() && y == building.getMaxY() && z == building.getMaxZ())
+            if (x == xmax && y == ymax && z == zmax)
             {
                 buildState = BuildState.FINISHED;
                 
                 if (building.getFeatureBuilding() != null)
-                    building.getFeatureBuilding().place(block);
+                    building.getFeatureBuilding().place(block, null);
                 
                 return;
             }
@@ -155,10 +180,10 @@ public class BuildingProcess extends BukkitRunnable
                 return;
             }
             
-            if (x == building.getMaxX())
+            if (x == xmax)
             {
                 x = 0;
-                if (z == building.getMaxZ())
+                if (z == zmax)
                 {
                     y++;
                     z = 0;
@@ -177,9 +202,9 @@ public class BuildingProcess extends BukkitRunnable
         if (buildState != BuildState.BUILDING)
             return false;
         
-        if (b.getX() >= block.getX() && b.getX() <= block.getX() + building.getMaxX())
-            if (b.getY() >= block.getY() && b.getY() <= block.getY() + building.getMaxY())
-                if (b.getZ() >= block.getZ() && b.getZ() <= block.getZ() + building.getMaxZ())
+        if (b.getX() >= block.getX() && b.getX() <= block.getX() + xmax)
+            if (b.getY() >= block.getY() && b.getY() <= block.getY() + ymax)
+                if (b.getZ() >= block.getZ() && b.getZ() <= block.getZ() + zmax)
                     return true;
         
         return false;

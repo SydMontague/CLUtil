@@ -1,12 +1,14 @@
 package de.craftlancer.clutil.buildings;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -28,6 +30,7 @@ import de.craftlancer.clutil.CLUtil;
  * key:                                 #name of the building
  *   schematic: <file path>             #path of the schematic file
  *   initialCostMod: <double>           #same named variable
+ *   facing: <facing>                   #the direction the player looked when taking the schematic, used for rotation (default: SOUTH)
  *   staticCosts:                       #a list of static start costs, format: <material> <data> <amount>
  *     - <Material> <Data> <Amount>
  *   feature:                           #defines the feature that will be automaticly attached to the building
@@ -38,8 +41,8 @@ public class BuildingManager implements Listener
 {
     private static BuildingManager instance;
     
-    private long defaultPeriod = 20L;
-    private int blocksPerPeriod = 5;
+    private long defaultPeriod = 2L;
+    private int blocksPerPeriod = 50;
     
     private CLUtil plugin;
     private Map<String, Building> buildings = new HashMap<String, Building>();
@@ -67,6 +70,7 @@ public class BuildingManager implements Listener
         {
             String schematic = config.getString(key + ".schematic");
             double initialCostMod = config.getDouble(key + ".initialCostMod", 0D);
+            BlockFace baseFacing = BlockFace.valueOf(config.getString(key + ".facing", "SOUTH"));
             
             List<ItemStack> staticCosts = new ArrayList<ItemStack>();
             for (Object o : config.getList(key + ".staticCosts"))
@@ -85,7 +89,7 @@ public class BuildingManager implements Listener
             
             FeatureBuilding feature = FeatureFactory.loadFeature(type, blockLoc);
             
-            buildings.put(key, new Building(plugin, schematic, initialCostMod, staticCosts, feature));
+            buildings.put(key, new Building(plugin, schematic, initialCostMod, baseFacing, staticCosts, feature));
         }
         
     }
@@ -188,4 +192,23 @@ public class BuildingManager implements Listener
     {
         return defaultPeriod;
     }
+    
+    protected FileConfiguration getConfig()
+    {
+        return config;
+    }
+    
+    protected void save()
+    {
+        try
+        {
+            config.save(configFile);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+   
 }

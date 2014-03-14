@@ -63,9 +63,8 @@ public class CLUtil extends JavaPlugin
         getCommand("togglearrow").setExecutor(waldl);
         getCommand("home").setExecutor(home);
         
-        //new ShadowStealth(this).runTaskTimer(this, 10L, 10L);
-        //new ResourceAlgoTest(this);
-        getServer().getPluginManager().registerEvents(new BuildingTest(this), this);  
+        // new ResourceAlgoTest(this);
+        getServer().getPluginManager().registerEvents(new BuildingTest(), this);
         
         getServer().getPluginManager().registerEvents(new UtilListener(this), this);
         getServer().getPluginManager().registerEvents(new PumpkinBandit(), this);
@@ -219,9 +218,9 @@ public class CLUtil extends JavaPlugin
             p.setLevel(level);
             p.setExp(progress);
             
-            for(ItemStack item : p.getInventory().addItem(new ItemStack(Material.EXP_BOTTLE, 1)).values())
+            for (ItemStack item : p.getInventory().addItem(new ItemStack(Material.EXP_BOTTLE, 1)).values())
                 p.getWorld().dropItem(p.getLocation(), item);
-                
+            
             p.updateInventory();
         }
         else

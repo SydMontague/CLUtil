@@ -18,7 +18,6 @@ public class FeatureFactory
                 return new XpToBottleFeature(blockLoc);
                 
         }
-        // TODO Auto-generated method stub
         return null;
     }
     

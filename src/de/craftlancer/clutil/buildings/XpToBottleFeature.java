@@ -6,6 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
+import de.craftlancer.groups.Town;
+
 public class XpToBottleFeature implements FeatureBuilding
 {
     private RelativeLocation sign;
@@ -19,12 +21,12 @@ public class XpToBottleFeature implements FeatureBuilding
     }
     
     @Override
-    public void place(Block block)
+    public void place(Block block, Town town)
     {
-        placeSign(block.getRelative(sign.getX(), sign.getY(), sign.getZ()));
+        placeSign(block.getRelative(sign.getX(), sign.getY(), sign.getZ()), town);
     }
     
-    private void placeSign(Block relative)
+    private void placeSign(Block relative, Town town)
     {
         relative.setType(Material.SIGN_POST);
         Sign sign = (Sign) relative.getState();
@@ -32,7 +34,7 @@ public class XpToBottleFeature implements FeatureBuilding
         sign.setLine(2, "Thats the question!");
         sign.update();
         // TODO Feature Backend
-        
+        FeatureManager.getInstance().addFeature(new XpToBottleInstance(town, relative));
     }
     
 }

@@ -35,7 +35,7 @@ import de.craftlancer.clutil.CLUtil;
  *     - <Material> <Data> <Amount>
  *   feature:                           #defines the feature that will be automaticly attached to the building
  *     name: <name>                     #the name of the feature, defined in another file
- *     <block>: <x> <y> <z>             #coordinates relative to the schematic
+ *     <block>: <x> <y> <z> <southData> <westData> <northData> <eastData>            #coordinates relative to the schematic
  */
 public class BuildingManager implements Listener
 {

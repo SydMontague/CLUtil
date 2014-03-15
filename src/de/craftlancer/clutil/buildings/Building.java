@@ -24,12 +24,8 @@ import de.craftlancer.clutil.CLUtil;
 public class Building
 {
     private Plugin plugin;
-    // private CuboidClipboard schematic;
     
     private File file;
-    // private int xmax;
-    // private int ymax;
-    // private int zmax;
     private BlockFace baseFacing;
     
     private double initialCostMod;
@@ -59,10 +55,6 @@ public class Building
             e.printStackTrace();
             throw new IllegalArgumentException("Could not load given schematic File!");
         }
-        //
-        // xmax = schematic.getWidth() - 1;
-        // ymax = schematic.getHeight() - 1;
-        // zmax = schematic.getLength() - 1;
     }
     
     private Building(Plugin plugin, String file)

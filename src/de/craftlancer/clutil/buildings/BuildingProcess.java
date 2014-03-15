@@ -42,6 +42,8 @@ public class BuildingProcess extends BukkitRunnable
     private int ymax;
     private int zmax;
     
+    private int playerFacing;
+    
     public BuildingProcess(Building building, Block block)
     {
         this(building, block, null);
@@ -59,6 +61,8 @@ public class BuildingProcess extends BukkitRunnable
         this.schematic = building.getClipboard();
         
         int facing = Math.abs((Math.round((player.getLocation().getYaw()) / 90)) % 4);
+        
+        playerFacing = facing;
         
         switch (building.getBaseFacing())
         {
@@ -159,7 +163,7 @@ public class BuildingProcess extends BukkitRunnable
                 buildState = BuildState.FINISHED;
                 
                 if (building.getFeatureBuilding() != null)
-                    building.getFeatureBuilding().place(block, null);
+                    building.getFeatureBuilding().place(block, null, playerFacing);
                 
                 return;
             }

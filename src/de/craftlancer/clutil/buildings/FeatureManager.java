@@ -1,6 +1,7 @@
 package de.craftlancer.clutil.buildings;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,6 +75,21 @@ public class FeatureManager
             default:
                 plugin.getLogger().warning("Unhandled, but valid, FeatureType detected! Inform the author please.");
                 return null;
+        }
+    }
+    
+    public void saveAll()
+    {
+        for (FeatureInstance feature : features)
+            feature.save(config);
+        
+        try
+        {
+            config.save(configFile);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 }

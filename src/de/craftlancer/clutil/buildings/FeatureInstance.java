@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 
-import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.groups.Town;
 import de.craftlancer.groups.managers.TownManager;
 

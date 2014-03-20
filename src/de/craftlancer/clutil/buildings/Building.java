@@ -33,8 +33,6 @@ public class Building
     
     private FeatureBuilding feature;
     
-    // TODO config loading and saving
-    
     private Building(Plugin plugin)
     {
         this.plugin = plugin;
@@ -86,7 +84,7 @@ public class Building
         switch (baseFacing)
         {
             case NORTH:
-                facing +=2;
+                facing += 2;
                 break;
             case EAST:
                 facing += 3;
@@ -97,9 +95,10 @@ public class Building
             case WEST:
                 facing += 1;
                 break;
+            default:
         }
         schematic.rotate2D(facing * 90);
-
+        
         initialBlock = initialBlock.getRelative(schematic.getOffset().getBlockX(), 0, schematic.getOffset().getBlockZ());
         int xmax = schematic.getWidth();
         int ymax = schematic.getHeight();
@@ -190,7 +189,7 @@ public class Building
                     }
         }
     }
-
+    
     public BlockFace getBaseFacing()
     {
         return baseFacing;

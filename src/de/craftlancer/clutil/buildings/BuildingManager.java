@@ -95,7 +95,7 @@ public class BuildingManager implements Listener
     }
     
     @Deprecated
-    private ItemStack getItemStack(Object o)
+    private static ItemStack getItemStack(Object o)
     {
         String s = o.toString();
         
@@ -206,7 +206,6 @@ public class BuildingManager implements Listener
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

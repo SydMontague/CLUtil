@@ -165,10 +165,7 @@ public class CraftItYourself
                 return Material.REDSTONE_ORE;
             case REDSTONE_TORCH_OFF:
                 return Material.REDSTONE_TORCH_ON;
-                
-            case COCOA:
-                return null; // TODO
-                
+                                
             default:
                 return mat;
         }

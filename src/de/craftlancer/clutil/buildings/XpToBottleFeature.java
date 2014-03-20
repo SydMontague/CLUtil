@@ -10,39 +10,40 @@ import de.craftlancer.groups.Town;
 
 public class XpToBottleFeature implements FeatureBuilding
 {
-    private RelativeLocation sign;
+    private RelativeLocation signLocation;
     
     public XpToBottleFeature(Map<String, RelativeLocation> blockLoc)
     {
         if (!blockLoc.containsKey("sign"))
             throw new IllegalArgumentException("The key 'sign' is not defined, but mandatory for this feature!");
         else
-            sign = blockLoc.get("sign");
+            signLocation = blockLoc.get("sign");
     }
     
     @Override
     public void place(Block block, Town town, int facing)
     {
         
-        placeSign(block.getRelative(sign.getX(), sign.getY(), sign.getZ()), town, facing);
+        placeSign(block.getRelative(signLocation.getX(), signLocation.getY(), signLocation.getZ()), town, facing);
     }
     
+    @SuppressWarnings("deprecation")
     private void placeSign(Block relative, Town town, int facing)
     {
         byte data;
         switch (facing % 4)
         {
             case 0:
-                data = sign.getSouthData();
+                data = signLocation.getSouthData();
                 break;
             case 1:
-                data = sign.getWestData();
+                data = signLocation.getWestData();
                 break;
             case 2:
-                data = sign.getNorthData();
+                data = signLocation.getNorthData();
                 break;
             case 3:
-                data = sign.getEastData();
+                data = signLocation.getEastData();
                 break;
             default:
                 data = 0;

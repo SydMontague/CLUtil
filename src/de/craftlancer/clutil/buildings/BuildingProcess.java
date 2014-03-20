@@ -78,6 +78,7 @@ public class BuildingProcess extends BukkitRunnable
             case WEST:
                 facing += 1;
                 break;
+            default:
         }
         schematic.rotate2D(facing * 90);
         

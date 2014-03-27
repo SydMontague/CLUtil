@@ -4,6 +4,5 @@ public enum BuildState
 {
     BUILDING,
     FINISHED,
-    REMOVED,
-    UNDOED;
+    REMOVED;
 }

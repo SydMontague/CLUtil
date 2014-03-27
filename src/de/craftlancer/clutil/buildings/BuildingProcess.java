@@ -1,13 +1,18 @@
 package de.craftlancer.clutil.buildings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -21,9 +26,16 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.blocks.BaseBlock;
 
 import de.craftlancer.clutil.CraftItYourself;
+import de.craftlancer.core.Utils;
+import de.craftlancer.groups.Town;
+import de.craftlancer.groups.managers.PlayerManager;
+import de.craftlancer.groups.managers.TownManager;
 
-public class BuildingProcess extends BukkitRunnable
+public class BuildingProcess extends BukkitRunnable implements ConfigurationSerializable
 {
+    // TOTEST save to config when not finished
+    private Town owner;
+    
     private Building building;
     private Block block;
     private Inventory inventory;
@@ -32,8 +44,10 @@ public class BuildingProcess extends BukkitRunnable
     private CuboidClipboard schematic;
     
     private List<ItemStack> initialCosts = new ArrayList<ItemStack>();
+    private Map<Material, Integer> alreadyPaid = new HashMap<Material, Integer>();
     
     private BuildState buildState;
+    private int blocksSet = 0;
     private int x = 0;
     private int y = 0;
     private int z = 0;
@@ -44,20 +58,21 @@ public class BuildingProcess extends BukkitRunnable
     
     private int playerFacing;
     
-    public BuildingProcess(Building building, Block block)
-    {
-        this(building, block, null);
-    }
-    
-    public BuildingProcess(Building building, Block block, Inventory inventory)
-    {
-        this(building, block, inventory, BuildingManager.getInstance().getBlocksPerTick());
-    }
+    /*
+     * public BuildingProcess(Building building, Block block)
+     * {
+     * this(building, block, null);
+     * }
+     * public BuildingProcess(Building building, Block block, Inventory inventory)
+     * {
+     * this(building, block, inventory, BuildingManager.getInstance().getBlocksPerTick());
+     * }
+     */
     
     public BuildingProcess(Building building, Player player, Inventory inventory, int blocksPerTick)
     {
+        this.owner = PlayerManager.getGroupPlayer(player.getName()).getTown();
         this.building = building;
-        
         this.schematic = building.getClipboard();
         
         int facing = Math.abs((Math.round((player.getLocation().getYaw()) / 90)) % 4);
@@ -102,23 +117,28 @@ public class BuildingProcess extends BukkitRunnable
         this(building, player, inventory, BuildingManager.getInstance().getBlocksPerTick());
     }
     
-    public BuildingProcess(Building building, Block block, Inventory inventory, int blocksPerTick)
-    {
-        this.building = building;
-        this.block = block;
-        this.inventory = inventory;
-        this.blocksPerTick = blocksPerTick;
-        
-        buildState = BuildState.BUILDING;
-    }
+    /*
+     * public BuildingProcess(Building building, Block block, Inventory inventory, int blocksPerTick)
+     * {
+     * this.building = building;
+     * this.block = block;
+     * this.inventory = inventory;
+     * this.blocksPerTick = blocksPerTick;
+     * buildState = BuildState.BUILDING;
+     * }
+     */
     
     public void undo()
     {
         for (BlockState state : undoList)
             state.update(true);
         
+        // TOTEST regrant resource usage
+        for (Entry<Material, Integer> entry : alreadyPaid.entrySet())
+            block.getWorld().dropItem(block.getLocation(), new ItemStack(entry.getKey(), entry.getValue()));
+        
         undoList.clear();
-        buildState = BuildState.UNDOED;
+        buildState = BuildState.REMOVED;
     }
     
     @SuppressWarnings("deprecation")
@@ -166,6 +186,7 @@ public class BuildingProcess extends BukkitRunnable
                 if (building.getFeatureBuilding() != null)
                     building.getFeatureBuilding().place(block, null, playerFacing);
                 
+                blocksSet++;
                 return;
             }
             
@@ -173,11 +194,19 @@ public class BuildingProcess extends BukkitRunnable
             
             if (inventory == null || b.getType() == 0 || CraftItYourself.removeItemFromInventory(inventory, new ItemStack(b.getType(), 1)))
             {
-                undoList.add(block.getWorld().getBlockAt(block.getX() + x, block.getY() + y, block.getZ() + z).getState());
-                world.setBlock(new Vector(block.getX() + x, block.getY() + y, block.getZ() + z), b, false);
+                BlockState orgiBlock = block.getWorld().getBlockAt(block.getX() + x, block.getY() + y, block.getZ() + z).getState();
                 
-                for (Player p : Bukkit.getOnlinePlayers())
-                    p.sendBlockChange(new Location(block.getWorld(), block.getX() + x, block.getY() + y, block.getZ() + z), b.getType(), (byte) b.getData());
+                if (b.getType() == 0 && orgiBlock.getType() == Material.AIR)
+                    i--;
+                else
+                {
+                    undoList.add(orgiBlock);
+                    world.setBlock(new Vector(block.getX() + x, block.getY() + y, block.getZ() + z), b, false);
+                    increasePaid(Material.matchMaterial(String.valueOf(b.getType())));
+                    
+                    for (Player p : Bukkit.getOnlinePlayers())
+                        p.sendBlockChange(new Location(block.getWorld(), block.getX() + x, block.getY() + y, block.getZ() + z), b.getType(), (byte) b.getData());
+                }
             }
             else
             {
@@ -198,7 +227,17 @@ public class BuildingProcess extends BukkitRunnable
             }
             else
                 x++;
+            
+            blocksSet++;
         }
+    }
+    
+    private void increasePaid(Material matchMaterial)
+    {
+        if (!alreadyPaid.containsKey(matchMaterial))
+            alreadyPaid.put(matchMaterial, 0);
+        
+        alreadyPaid.put(matchMaterial, alreadyPaid.get(matchMaterial) + 1);
     }
     
     public boolean isProtected(Block b)
@@ -215,4 +254,141 @@ public class BuildingProcess extends BukkitRunnable
         return false;
     }
     
+    public Town getOwningTown()
+    {
+        return owner;
+    }
+    
+    public Building getBuilding()
+    {
+        return building;
+    }
+    
+    public int getBlocksSet()
+    {
+        return blocksSet;
+    }
+    
+    @Override
+    public Map<String, Object> serialize()
+    {
+        Map<String, Object> map = new HashMap<String, Object>();
+        
+        map.put("owner", owner.getName());
+        map.put("building", building.getName());
+        map.put("block", Utils.getLocationString(block.getLocation()));
+        map.put("inventory", Utils.getLocationString(((Chest) inventory).getLocation()));
+        map.put("blocksPerTick", blocksPerTick);
+        map.put("blocksSet", blocksSet);
+        map.put("playerFacing", playerFacing);
+        
+        return map;
+    }
+    
+    /**
+     * Deserialize
+     * @param map
+     */
+    public BuildingProcess(Map<String, Object> map)
+    {
+        String[] arr = { "owner", "building", "block", "inventory", "blocksPerTick", "blocksSet", "playerFacing" };
+        
+        for (String key : arr)
+            if (!map.containsKey(key))
+                throw new IllegalArgumentException("The given map is not suitable to be deserialized to a BuildingProcess");
+        
+        owner = TownManager.getTown(map.get("owner").toString());
+        building = BuildingManager.getInstance().getBuilding(map.get("building").toString());
+        schematic = building.getClipboard();
+        
+        block = Utils.parseLocation(map.get("block").toString()).getBlock();
+        inventory = ((Chest) Utils.parseLocation(map.get("inventory").toString()).getBlock()).getInventory();
+        blocksPerTick = (Integer) map.get("blocksPerTick");
+        
+        int facing = (Integer) map.get("playerFacing");
+        playerFacing = facing;
+        
+        switch (building.getBaseFacing())
+        {
+            case NORTH:
+                facing += 2;
+                break;
+            case EAST:
+                facing += 3;
+                break;
+            case SOUTH:
+                facing += 0;
+                break;
+            case WEST:
+                facing += 1;
+                break;
+            default:
+        }
+        schematic.rotate2D(facing * 90);
+        
+        xmax = schematic.getWidth() - 1;
+        ymax = schematic.getHeight() - 1;
+        zmax = schematic.getLength() - 1;
+        
+        blocksSet = (Integer) map.get("blocksSet");
+        // x = (Integer) map.get("x");
+        // y = (Integer) map.get("y");
+        // z = (Integer) map.get("z");
+        
+        LocalWorld world = null;
+        for (LocalWorld w : WorldEdit.getInstance().getServer().getWorlds())
+            if (w.getName().equals(block.getWorld().getName()))
+            {
+                world = w;
+                break;
+            }
+        
+        if (world == null)
+            throw new NullPointerException("This world should never be null!");
+        
+        for (int i = 0; i < blocksSet; i++)
+        {
+            if (x == xmax && y == ymax && z == zmax)
+            {
+                buildState = BuildState.FINISHED;
+                
+                if (building.getFeatureBuilding() != null)
+                    building.getFeatureBuilding().place(block, null, playerFacing);
+                
+                blocksSet++;
+                return;
+            }
+            
+            BaseBlock b = schematic.getBlock(new Vector(x, y, z));
+            
+            BlockState orgiBlock = block.getWorld().getBlockAt(block.getX() + x, block.getY() + y, block.getZ() + z).getState();
+            
+            if (b.getType() == 0 && orgiBlock.getType() == Material.AIR)
+                i--;
+            else
+            {
+                undoList.add(orgiBlock);
+                world.setBlock(new Vector(block.getX() + x, block.getY() + y, block.getZ() + z), b, false);
+                increasePaid(Material.matchMaterial(String.valueOf(b.getType())));
+            }
+            
+            if (x == xmax)
+            {
+                x = 0;
+                if (z == zmax)
+                {
+                    y++;
+                    z = 0;
+                }
+                else
+                    z++;
+            }
+            else
+                x++;
+            
+            blocksSet++;
+        }
+        
+        this.buildState = BuildState.BUILDING;
+    }
 }

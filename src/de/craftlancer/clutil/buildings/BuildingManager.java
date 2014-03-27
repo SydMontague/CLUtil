@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -23,6 +24,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.craftlancer.clutil.CLUtil;
+import de.craftlancer.clutil.buildings.commands.BuildingCommandHandler;
 
 /*
  * Building Definition - YAML
@@ -41,12 +43,13 @@ public class BuildingManager implements Listener
 {
     private static BuildingManager instance;
     
+    private int buildingIndex = 1;
     private long defaultPeriod = 2L;
     private int blocksPerPeriod = 50;
     
     private CLUtil plugin;
     private Map<String, Building> buildings = new HashMap<String, Building>();
-    private List<BuildingProcess> processes = new ArrayList<BuildingProcess>();
+    private Map<Integer, BuildingProcess> processes = new HashMap<Integer, BuildingProcess>();
     
     private File configFile;
     private FileConfiguration config;
@@ -62,6 +65,7 @@ public class BuildingManager implements Listener
         
         loadBuildings();
         
+        plugin.getCommand("building").setExecutor(new BuildingCommandHandler(plugin));
     }
     
     private void loadBuildings()
@@ -73,23 +77,30 @@ public class BuildingManager implements Listener
             BlockFace baseFacing = BlockFace.valueOf(config.getString(key + ".facing", "SOUTH"));
             
             List<ItemStack> staticCosts = new ArrayList<ItemStack>();
-            for (Object o : config.getList(key + ".staticCosts"))
-                staticCosts.add(getItemStack(o));
+            if (config.isConfigurationSection(key + ".staticCosts"))
+                for (Object o : config.getList(key + ".staticCosts"))
+                    staticCosts.add(getItemStack(o));
             
             String type = null;
             Map<String, RelativeLocation> blockLoc = new HashMap<String, RelativeLocation>();
+            List<String> cat = config.getStringList(key + ".categories");
+            String desc = config.getString(key + ".description");
             
-            for (String s : config.getConfigurationSection(key + ".feature").getKeys(false))
+            FeatureBuilding feature = null;
+            
+            if (config.isConfigurationSection(key + ".feature"))
             {
-                if (s.equalsIgnoreCase("type"))
-                    type = config.getString(key + ".feature." + s);
-                else
-                    blockLoc.put(s, RelativeLocation.parseString(config.getString(key + ".feature." + s)));
+                for (String s : config.getConfigurationSection(key + ".feature").getKeys(false))
+                {
+                    if (s.equalsIgnoreCase("type"))
+                        type = config.getString(key + ".feature." + s);
+                    else
+                        blockLoc.put(s, RelativeLocation.parseString(config.getString(key + ".feature." + s)));
+                }
+                feature = FeatureFactory.loadFeature(type, blockLoc);
             }
             
-            FeatureBuilding feature = FeatureFactory.loadFeature(type, blockLoc);
-            
-            buildings.put(key, new Building(plugin, schematic, initialCostMod, baseFacing, staticCosts, feature));
+            buildings.put(key, new Building(plugin, key, schematic, initialCostMod, baseFacing, staticCosts, feature, cat, desc));
         }
         
     }
@@ -125,7 +136,7 @@ public class BuildingManager implements Listener
     
     public <T extends BlockEvent & Cancellable> void handleBlockEvent(T event)
     {
-        for (BuildingProcess pro : processes)
+        for (BuildingProcess pro : processes.values())
             if (pro.isProtected(event.getBlock()))
                 event.setCancelled(true);
     }
@@ -152,7 +163,7 @@ public class BuildingManager implements Listener
     {
         BuildingProcess proc = new BuildingProcess(getBuilding(building), player, inventory);
         
-        processes.add(proc);
+        processes.put(buildingIndex++, proc);
         proc.runTaskTimer(plugin, period, period);
     }
     
@@ -163,7 +174,11 @@ public class BuildingManager implements Listener
     
     public Building getBuilding(String name)
     {
-        return buildings.get(name);
+        for (Entry<String, Building> b : buildings.entrySet())
+            if (b.getKey().equalsIgnoreCase(name))
+                return b.getValue();
+        
+        return null;
     }
     
     public void undoLastBuilding()
@@ -209,5 +224,38 @@ public class BuildingManager implements Listener
             e.printStackTrace();
         }
     }
-   
+    
+    public List<Building> getBuildings()
+    {
+        return new ArrayList<Building>(buildings.values());
+    }
+    
+    public boolean hasBuilding(String name)
+    {
+        for (String b : buildings.keySet())
+            if (b.equalsIgnoreCase(name))
+                return true;
+        
+        return false;
+    }
+    
+    public Map<Integer, BuildingProcess> getProcesses()
+    {
+        return processes;
+    }
+    
+    public BuildingProcess getProcess(int index)
+    {
+        return processes.get(index);
+    }
+    
+    public boolean undoProcess(int index)
+    {
+        BuildingProcess process = getProcess(index);
+        if (process == null)
+            return false;
+        
+        process.undo();
+        return true;
+    }
 }

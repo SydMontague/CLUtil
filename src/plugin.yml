@@ -22,6 +22,9 @@ commands:
   home:
     description: Teleport to your home!
     usage: /home
+  building:
+    description: Build
+    usage: /building
 permissions:
     cl.util.krieger:
         default: false

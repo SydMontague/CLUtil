@@ -21,10 +21,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import de.craftlancer.clutil.speed.ArmorSpeedModifier;
 import de.craftlancer.clutil.speed.BerserkSpeedModifier;
 import de.craftlancer.clutil.speed.WaldSpeedModifier;
+import de.craftlancer.core.CLPlugin;
 import de.craftlancer.speedapi.SpeedAPI;
 
 //TODO enderpearl after death fix
-public class CLUtil extends JavaPlugin
+public class CLUtil extends JavaPlugin implements CLPlugin
 {
     private static CLUtil instance;
     private CommandStatsMe stats;

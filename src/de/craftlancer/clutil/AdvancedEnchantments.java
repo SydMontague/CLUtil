@@ -7,8 +7,8 @@ import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftInventoryAnvil;
+import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -169,8 +169,8 @@ class AnvilUpdateTask extends BukkitRunnable
     @Override
     public void run()
     {
-        net.minecraft.server.v1_7_R1.ItemStack nmsi1 = inventory.getIngredientsInventory().getItem(0);
-        net.minecraft.server.v1_7_R1.ItemStack nmsi2 = inventory.getIngredientsInventory().getItem(1);
+        net.minecraft.server.v1_7_R2.ItemStack nmsi1 = inventory.getIngredientsInventory().getItem(0);
+        net.minecraft.server.v1_7_R2.ItemStack nmsi2 = inventory.getIngredientsInventory().getItem(1);
         
         ItemStack i1 = nmsi1 != null ? CraftItemStack.asCraftMirror(nmsi1) : null;
         ItemStack i2 = nmsi2 != null ? CraftItemStack.asCraftMirror(nmsi2) : null;

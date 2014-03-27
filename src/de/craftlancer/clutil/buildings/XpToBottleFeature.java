@@ -10,6 +10,8 @@ import de.craftlancer.groups.Town;
 
 public class XpToBottleFeature implements FeatureBuilding
 {
+    private static final String NAME = "XP2Bottle";
+    
     private RelativeLocation signLocation;
     
     public XpToBottleFeature(Map<String, RelativeLocation> blockLoc)
@@ -23,7 +25,6 @@ public class XpToBottleFeature implements FeatureBuilding
     @Override
     public void place(Block block, Town town, int facing)
     {
-        
         placeSign(block.getRelative(signLocation.getX(), signLocation.getY(), signLocation.getZ()), town, facing);
     }
     
@@ -58,5 +59,11 @@ public class XpToBottleFeature implements FeatureBuilding
         sign.update();
         
         FeatureManager.getInstance().addFeature(new XpToBottleInstance(town, relative));
+    }
+    
+    @Override
+    public String getName()
+    {
+        return NAME;
     }
 }

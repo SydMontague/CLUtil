@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.sk89q.worldedit.Countable;
 import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -25,6 +27,7 @@ public class Building
 {
     private Plugin plugin;
     
+    private String name;
     private File file;
     private BlockFace baseFacing;
     
@@ -32,6 +35,13 @@ public class Building
     private List<ItemStack> staticCosts = new ArrayList<ItemStack>();
     
     private FeatureBuilding feature;
+    private List<String> categories = new ArrayList<String>();
+    
+    private int numBlocks;
+    private int width;
+    private int height;
+    private int lenght;
+    private String description;
     
     private Building(Plugin plugin)
     {
@@ -60,14 +70,30 @@ public class Building
         this(plugin, new File(plugin.getDataFolder(), file));
     }
     
-    public Building(CLUtil plugin, String schematic, double initialCostMod, BlockFace baseFacing, List<ItemStack> staticCosts, FeatureBuilding feature)
+    public Building(CLUtil plugin, String name, String schematic, double initialCostMod, BlockFace baseFacing, List<ItemStack> staticCosts, FeatureBuilding feature, List<String> categories, String description)
     {
         this(plugin, schematic);
         
+        this.name = name;
         this.baseFacing = baseFacing;
         this.initialCostMod = initialCostMod;
         this.staticCosts = staticCosts;
         this.feature = feature;
+        this.categories = categories;
+        this.description = description;
+        
+        CuboidClipboard clip = getClipboard();
+        for (Countable<Integer> i : clip.getBlockDistribution())
+        {
+            if (i.getID() == Material.AIR.getId())
+                continue;
+            
+            numBlocks += i.getAmount();
+        }
+        
+        width = clip.getWidth();
+        height = clip.getHeight();
+        lenght = clip.getLength();
     }
     
     @SuppressWarnings("deprecation")
@@ -193,5 +219,39 @@ public class Building
     public BlockFace getBaseFacing()
     {
         return baseFacing;
+    }
+    
+    public boolean hasCategory(String category)
+    {
+        for (String s : categories)
+            if (s.equalsIgnoreCase(category))
+                return true;
+        
+        return false;
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public int getNumBlocks()
+    {
+        return numBlocks;
+    }
+    
+    public int getTotalBlocks()
+    {
+        return width*height*lenght;
+    }
+    
+    public String getSizeString()
+    {
+        return width + "x" + height + "x" + lenght;
+    }
+
+    public String getDescription()
+    {
+        return description;
     }
 }

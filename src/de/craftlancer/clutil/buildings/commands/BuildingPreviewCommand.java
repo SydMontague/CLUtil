@@ -31,7 +31,7 @@ public class BuildingPreviewCommand extends SubCommand
             
         GroupPlayer gp = PlayerManager.getGroupPlayer(sender.getName());
         Town t = gp.getTown();
-        //TODO in town check
+        
         if (t == null)
             return "You are in no Town"; // TODO externalise
             
@@ -39,6 +39,10 @@ public class BuildingPreviewCommand extends SubCommand
             return "You don't have the permission to place buildings."; // TODO externalise
             
         Building build = BuildingManager.getInstance().getBuilding(args[1]);
+        
+        if (!build.isInTown((Player) sender, t))
+            return "This whole building needs to be on claimed area!"; // TODO externalise
+        
         build.createPreview((Player) sender);
         
         return "Zeige Vorschau des Gebäudes \"" + build.getName() + "\""; // TODO externalise

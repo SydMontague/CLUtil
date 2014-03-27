@@ -25,7 +25,6 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.blocks.BaseBlock;
 
-import de.craftlancer.clutil.CraftItYourself;
 import de.craftlancer.core.Utils;
 import de.craftlancer.groups.Town;
 import de.craftlancer.groups.managers.PlayerManager;

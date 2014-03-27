@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -22,6 +23,8 @@ import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.SchematicFormat;
 
 import de.craftlancer.clutil.CLUtil;
+import de.craftlancer.groups.Town;
+import de.craftlancer.groups.managers.PlotManager;
 
 public class Building
 {
@@ -99,7 +102,6 @@ public class Building
     @SuppressWarnings("deprecation")
     public void createPreview(Player player, Block initialBlock, long ticks)
     {
-        
         if (player == null || initialBlock == null || ticks <= 0)
             throw new IllegalArgumentException(player + " " + initialBlock + " " + ticks);
         
@@ -242,16 +244,59 @@ public class Building
     
     public int getTotalBlocks()
     {
-        return width*height*lenght;
+        return width * height * lenght;
     }
     
     public String getSizeString()
     {
         return width + "x" + height + "x" + lenght;
     }
-
+    
     public String getDescription()
     {
         return description;
+    }
+    
+    public boolean isInTown(Player player, Town town)
+    {
+        CuboidClipboard schematic = getClipboard();
+        Block initialBlock = player.getLocation().getBlock();
+        
+        int facing = Math.abs((Math.round((player.getLocation().getYaw()) / 90)) % 4);
+        
+        switch (baseFacing)
+        {
+            case NORTH:
+                facing += 2;
+                break;
+            case EAST:
+                facing += 3;
+                break;
+            case SOUTH:
+                facing += 0;
+                break;
+            case WEST:
+                facing += 1;
+                break;
+            default:
+        }
+        schematic.rotate2D(facing * 90);
+        
+        initialBlock = initialBlock.getRelative(schematic.getOffset().getBlockX(), 0, schematic.getOffset().getBlockZ());
+        
+        Location loc1 = initialBlock.getLocation();
+        Location loc2 = new Location(loc1.getWorld(), loc1.getBlockX() + schematic.getWidth(), 0, loc1.getBlockZ() + schematic.getLength());
+        
+        int chunkXmin = Math.min(loc1.getChunk().getX(), loc2.getChunk().getX());
+        int chunkXmax = Math.max(loc1.getChunk().getX(), loc2.getChunk().getX());
+        int chunkZmin = Math.min(loc1.getChunk().getZ(), loc2.getChunk().getZ());
+        int chunkZmax = Math.max(loc1.getChunk().getZ(), loc2.getChunk().getZ());
+        
+        for (int x = chunkXmin; x < chunkXmax; x++)
+            for (int z = chunkZmin; z < chunkZmax; z++)
+                if (!town.equals(PlotManager.getPlot(x, z, loc1.getWorld().getName()).getTown()))
+                    return false;
+        
+        return true;
     }
 }

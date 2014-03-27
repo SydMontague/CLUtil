@@ -1,4 +1,4 @@
-package de.craftlancer.clutil;
+package de.craftlancer.clutil.buildings;
 
 import java.util.ArrayList;
 import java.util.Arrays;

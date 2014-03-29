@@ -2,9 +2,11 @@ package de.craftlancer.clutil.buildings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,9 +14,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -37,7 +41,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
     
     private Building building;
     private Block block;
-    private Inventory inventory;
+    private MassChestInventory inventory;
     private int blocksPerTick;
     private List<BlockState> undoList = new ArrayList<BlockState>();
     private CuboidClipboard schematic;
@@ -68,7 +72,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
      * }
      */
     
-    public BuildingProcess(Building building, Player player, Inventory inventory, int blocksPerTick)
+    public BuildingProcess(Building building, Player player, MassChestInventory inventory, int blocksPerTick)
     {
         this.owner = PlayerManager.getGroupPlayer(player.getName()).getTown();
         this.building = building;
@@ -111,7 +115,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         buildState = BuildState.BUILDING;
     }
     
-    public BuildingProcess(Building building, Player player, Inventory inventory)
+    public BuildingProcess(Building building, Player player, MassChestInventory inventory)
     {
         this(building, player, inventory, BuildingManager.getInstance().getBlocksPerTick());
     }
@@ -134,10 +138,18 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         
         // TOTEST regrant resource usage
         for (Entry<Material, Integer> entry : alreadyPaid.entrySet())
+            if(entry.getKey() != Material.AIR)
             block.getWorld().dropItem(block.getLocation(), new ItemStack(entry.getKey(), entry.getValue()));
         
         undoList.clear();
         buildState = BuildState.REMOVED;
+    }
+    
+    public void prepareForShutdown()
+    {
+        this.cancel();
+        for (BlockState state : undoList)
+            state.update(true);
     }
     
     @SuppressWarnings("deprecation")
@@ -253,6 +265,11 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         return false;
     }
     
+    public BuildState getState()
+    {
+        return buildState;
+    }
+    
     public Town getOwningTown()
     {
         return owner;
@@ -276,7 +293,21 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         map.put("owner", owner.getName());
         map.put("building", building.getName());
         map.put("block", Utils.getLocationString(block.getLocation()));
-        map.put("inventory", Utils.getLocationString(((Chest) inventory).getLocation()));
+        
+        Set<String> list = new HashSet<String>();
+        for (Inventory inv : inventory.getInventories())
+        {
+            InventoryHolder holder = inv.getHolder();
+            if (holder instanceof DoubleChest)
+            {
+                list.add(Utils.getLocationString(((Chest) ((DoubleChest) holder).getLeftSide()).getLocation()));
+                list.add(Utils.getLocationString(((Chest) ((DoubleChest) holder).getRightSide()).getLocation()));
+            }
+            else
+                list.add(Utils.getLocationString(((Chest) holder).getLocation()));
+        }
+        
+        map.put("inventory", new ArrayList<String>(list));
         map.put("blocksPerTick", blocksPerTick);
         map.put("blocksSet", blocksSet);
         map.put("playerFacing", playerFacing);
@@ -286,6 +317,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
     
     /**
      * Deserialize
+     * 
      * @param map
      */
     public BuildingProcess(Map<String, Object> map)
@@ -301,7 +333,14 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         schematic = building.getClipboard();
         
         block = Utils.parseLocation(map.get("block").toString()).getBlock();
-        inventory = ((Chest) Utils.parseLocation(map.get("inventory").toString()).getBlock()).getInventory();
+        Object o = map.get("inventory");
+        
+        Set<Inventory> inv = new HashSet<Inventory>();
+        for (Object obj : (List<?>) o)
+            inv.add(((Chest) Utils.parseLocation(obj.toString()).getBlock().getState()).getInventory());
+        
+        inventory = new MassChestInventory(building.getName(), building.getName(), inv);
+        
         blocksPerTick = (Integer) map.get("blocksPerTick");
         
         int facing = (Integer) map.get("playerFacing");
@@ -329,7 +368,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         ymax = schematic.getHeight() - 1;
         zmax = schematic.getLength() - 1;
         
-        blocksSet = (Integer) map.get("blocksSet");
+        int localBlocksSet = (Integer) map.get("blocksSet");
         // x = (Integer) map.get("x");
         // y = (Integer) map.get("y");
         // z = (Integer) map.get("z");
@@ -345,7 +384,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         if (world == null)
             throw new NullPointerException("This world should never be null!");
         
-        for (int i = 0; i < blocksSet; i++)
+        for (int i = 0; i < localBlocksSet; i++)
         {
             if (x == xmax && y == ymax && z == zmax)
             {
@@ -354,7 +393,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
                 if (building.getFeatureBuilding() != null)
                     building.getFeatureBuilding().place(block, null, playerFacing);
                 
-                blocksSet++;
+                this.blocksSet++;
                 return;
             }
             
@@ -362,9 +401,9 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
             
             BlockState orgiBlock = block.getWorld().getBlockAt(block.getX() + x, block.getY() + y, block.getZ() + z).getState();
             
-            if (b.getType() == 0 && orgiBlock.getType() == Material.AIR)
-                i--;
-            else
+            //if (b.getType() == 0 && orgiBlock.getType() == Material.AIR)
+            //    i--;
+           // else
             {
                 undoList.add(orgiBlock);
                 world.setBlock(new Vector(block.getX() + x, block.getY() + y, block.getZ() + z), b, false);
@@ -385,7 +424,7 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
             else
                 x++;
             
-            blocksSet++;
+            this.blocksSet++;
         }
         
         this.buildState = BuildState.BUILDING;

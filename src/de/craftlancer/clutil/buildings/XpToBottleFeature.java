@@ -5,6 +5,7 @@ import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import de.craftlancer.groups.Town;
 
@@ -65,5 +66,20 @@ public class XpToBottleFeature implements FeatureBuilding
     public String getName()
     {
         return NAME;
+    }
+    
+    public FeatureType getType()
+    {
+        return FeatureType.XPTOBOTTLE;
+    }
+
+    @Override
+    public void save(String name, FileConfiguration config)
+    {
+        config.set(name + ".feature.type", getType().name());
+        
+        config.set(name + ".feature.sign", signLocation.toString());
+        // TODO Auto-generated method stub
+        
     }
 }

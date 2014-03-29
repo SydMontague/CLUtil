@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -20,7 +22,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.craftlancer.clutil.CLUtil;
@@ -54,18 +55,45 @@ public class BuildingManager implements Listener
     private File configFile;
     private FileConfiguration config;
     
+    private File processFile;
+    private FileConfiguration processConfig;
+    
     private BuildingManager(CLUtil plugin)
     {
-        configFile = new File(plugin.getDataFolder(), "buildings.yml");
-        config = YamlConfiguration.loadConfiguration(configFile);
-        
+        instance = this;
+        ConfigurationSerialization.registerClass(BuildingProcess.class);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         
         this.plugin = plugin;
         
+        configFile = new File(plugin.getDataFolder(), "buildings.yml");
+        config = YamlConfiguration.loadConfiguration(configFile);
         loadBuildings();
         
+        processFile = new File(plugin.getDataFolder(), "processes.yml");
+        processConfig = YamlConfiguration.loadConfiguration(processFile);
+        loadProcesses();
+        
         plugin.getCommand("building").setExecutor(new BuildingCommandHandler(plugin));
+    }
+    
+    private void loadProcesses()
+    {
+        int maxId = 0;
+        for (String key : processConfig.getKeys(false))
+        {
+            int id = Integer.parseInt(key);
+            BuildingProcess process = (BuildingProcess) processConfig.get(key);
+            
+            Bukkit.getLogger().info(processConfig.get(key) + " " + process + " " + id + " " + key);
+            
+            processes.put(id, process);
+            process.runTaskTimer(plugin, getDefaultPeriod(), getDefaultPeriod());
+            if (maxId < id)
+                maxId = id;
+        }
+        
+        buildingIndex = maxId + 1;
     }
     
     private void loadBuildings()
@@ -81,12 +109,13 @@ public class BuildingManager implements Listener
                 for (Object o : config.getList(key + ".staticCosts"))
                     staticCosts.add(getItemStack(o));
             
-            String type = null;
-            Map<String, RelativeLocation> blockLoc = new HashMap<String, RelativeLocation>();
             List<String> cat = config.getStringList(key + ".categories");
             String desc = config.getString(key + ".description");
             
+            String type = null;
+            
             FeatureBuilding feature = null;
+            Map<String, RelativeLocation> blockLoc = new HashMap<String, RelativeLocation>();
             
             if (config.isConfigurationSection(key + ".feature"))
             {
@@ -101,6 +130,7 @@ public class BuildingManager implements Listener
             }
             
             buildings.put(key, new Building(plugin, key, schematic, initialCostMod, baseFacing, staticCosts, feature, cat, desc));
+            Bukkit.getLogger().info(key);
         }
         
     }
@@ -149,17 +179,17 @@ public class BuildingManager implements Listener
     public static synchronized BuildingManager getInstance()
     {
         if (instance == null)
-            instance = new BuildingManager(CLUtil.getInstance());
+            new BuildingManager(CLUtil.getInstance());
         
         return instance;
     }
     
-    public void startBuilding(Player player, String building, Inventory inventory)
+    public void startBuilding(Player player, String building, MassChestInventory inventory)
     {
         startBuilding(player, building, inventory, getDefaultPeriod());
     }
     
-    public void startBuilding(Player player, String building, Inventory inventory, long period)
+    public void startBuilding(Player player, String building, MassChestInventory inventory, long period)
     {
         BuildingProcess proc = new BuildingProcess(getBuilding(building), player, inventory);
         
@@ -167,16 +197,21 @@ public class BuildingManager implements Listener
         proc.runTaskTimer(plugin, period, period);
     }
     
-    public void startBuilding(Player player, String building)
-    {
-        startBuilding(player, building, player.getInventory());
-    }
+    // public void startBuilding(Player player, String building)
+    // {
+    // startBuilding(player, building, player.getInventory());
+    // }
     
     public Building getBuilding(String name)
     {
         for (Entry<String, Building> b : buildings.entrySet())
+        {
+            Bukkit.getLogger().info(b.getKey() + " " + name);
             if (b.getKey().equalsIgnoreCase(name))
+            {
                 return b.getValue();
+            }
+        }
         
         return null;
     }
@@ -213,11 +248,43 @@ public class BuildingManager implements Listener
         return config;
     }
     
-    protected void save()
+    public void save(boolean isShutdown)
     {
+        saveBuildings();
+        saveProcesses(isShutdown);
+    }
+    
+    protected void saveBuildings()
+    {
+        for (Building build : buildings.values())
+            build.save(config);
+        
         try
         {
             config.save(configFile);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public void saveProcesses(boolean isShutdown)
+    {
+        for (String key : processConfig.getKeys(false))
+            processConfig.set(key, null);
+        
+        for (Entry<Integer, BuildingProcess> entry : processes.entrySet())
+            if (entry.getValue().getState() == BuildState.BUILDING)
+            {
+                if (isShutdown)
+                    entry.getValue().prepareForShutdown();
+                processConfig.set(entry.getKey().toString(), entry.getValue());
+            }
+        
+        try
+        {
+            processConfig.save(processFile);
         }
         catch (IOException e)
         {

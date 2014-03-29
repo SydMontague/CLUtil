@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -298,5 +301,28 @@ public class Building
                     return false;
         
         return true;
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void save(FileConfiguration config)
+    {
+        config.set(getName() + ".schematic", file.getName());
+        config.set(getName() + ".initialCostMod", initialCostMod);
+        config.set(getName() + ".baseFacing", baseFacing.name());
+        
+        List<String> stat = new ArrayList<String>();
+        for (ItemStack item : staticCosts)
+            stat.add(item.getType().name() + " " + item.getData().getData() + " " + item.getAmount());
+        
+        config.set(getName() + ".staticCosts", stat);
+        config.set(getName() + ".categories", categories);
+        config.set(getName() + ".description", description);
+        
+        config.set(getName() + ".schematic", file.getName());
+        
+        if (feature != null)
+            feature.save(getName(), config);
+        // TODO Auto-generated method stub
+        
     }
 }

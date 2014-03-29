@@ -47,7 +47,7 @@ public class BuildingUndoCommand extends SubCommand
             return "You need to specify an index!";// TODO externalise
         }
         
-        if (BuildingManager.getInstance().undoProcess(index))
+        if (!BuildingManager.getInstance().undoProcess(index))
             return "There is no process with the specified index!"; // TODO externalise
             
         return "Undoed building process!"; // TODO externalise

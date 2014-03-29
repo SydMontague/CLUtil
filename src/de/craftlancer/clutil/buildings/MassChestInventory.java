@@ -65,6 +65,11 @@ public class MassChestInventory implements Inventory
         return bool;
     }
     
+    public List<Inventory> getInventories()
+    {
+        return inventories;
+    }
+    
     @Override
     public HashMap<Integer, ItemStack> addItem(ItemStack... items) throws IllegalArgumentException
     {
@@ -75,6 +80,7 @@ public class MassChestInventory implements Inventory
         
         for (ItemStack item : items)
         {
+            item = item.clone();
             for (Inventory inventory : inventories)
             {
                 if (item.getAmount() == 0)
@@ -380,7 +386,7 @@ public class MassChestInventory implements Inventory
     @Override
     public ListIterator<ItemStack> iterator(int index)
     {
-        if (index < 0) 
+        if (index < 0)
             index += getSize() + 1;
         
         return new InventoryIterator(this, index);
@@ -475,7 +481,6 @@ public class MassChestInventory implements Inventory
     {
         throw new UnsupportedOperationException("We do not permit changing the MaxStackSize yet.");
     }
-    
     
 }
 

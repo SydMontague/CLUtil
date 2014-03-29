@@ -165,7 +165,7 @@ public class CraftItYourself
                 return Material.REDSTONE_ORE;
             case REDSTONE_TORCH_OFF:
                 return Material.REDSTONE_TORCH_ON;
-                                
+                
             default:
                 return mat;
         }
@@ -205,12 +205,12 @@ public class CraftItYourself
     {
         return removeItem(inventory, items.toArray(new ItemStack[0]));
     }
-    
+
     public static List<ItemStack> removeItem(Inventory inventory, ItemStack... items)
     {
         Validate.notNull(items, "Items cannot be null");
         List<ItemStack> leftover = new ArrayList<ItemStack>();
-        
+                
         for (ItemStack item : items)
         {
             if (!ignoreDataAndMetaValues(item))
@@ -270,7 +270,6 @@ public class CraftItYourself
         
         if (!exchange.containsKey(item.getType()))
             return null;
-        
         for (ExchangeRecipe recipe : exchange.get(item.getType()))
         {
             int rounds = (int) Math.ceil((double) item.getAmount() / recipe.getResult().getAmount());
@@ -301,7 +300,7 @@ public class CraftItYourself
     
     public static boolean removeItemFromInventory(Inventory inv, ItemStack item)
     {
-        if(item.getType() == Material.AIR)
+        if (item.getType() == Material.AIR)
             return true;
         
         item.setType(cleanupTechnical(item.getType()));
@@ -316,9 +315,8 @@ public class CraftItYourself
         
         if (recipe == null)
             return false;
-        
-        int rounds = (int) Math.ceil((double) item.getAmount() / recipe.getResult().getAmount());
-        craft(inv, recipe, rounds);
+
+        craft(inv, recipe, item.getAmount());
         removeItem(inv, item);
         return true;
     }
@@ -326,7 +324,7 @@ public class CraftItYourself
     public static void craft(Inventory inv, ExchangeRecipe recipe, int amount)
     {
         int rounds = (int) Math.ceil((double) amount / recipe.getResult().getAmount());
-        
+
         for (ItemStack i : recipe.getItems())
             for (int j = 0; j < rounds; j++)
                 removeItem(inv, i);
@@ -343,8 +341,7 @@ class ExchangeRecipe
     
     public ExchangeRecipe(ItemStack result, ItemStack... items)
     {
-        this.result = result;
-        this.items = Arrays.asList(items);
+        this(result, Arrays.asList(items));
     }
     
     public ExchangeRecipe(ItemStack result, Collection<ItemStack> items)

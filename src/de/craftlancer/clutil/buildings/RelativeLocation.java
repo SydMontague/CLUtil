@@ -53,6 +53,12 @@ public class RelativeLocation
         return new RelativeLocation(x, y, z, southData, westData, northData, eastData);
     }
     
+    @Override
+    public String toString()
+    {
+        return x + " " + y + " " + z + " " + " " + southData + " " + westData + " " + northData + " " + eastData;
+    }
+    
     public int getX()
     {
         return x;

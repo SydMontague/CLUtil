@@ -18,6 +18,7 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import de.craftlancer.clutil.buildings.BuildingManager;
 import de.craftlancer.clutil.speed.ArmorSpeedModifier;
 import de.craftlancer.clutil.speed.BerserkSpeedModifier;
 import de.craftlancer.clutil.speed.WaldSpeedModifier;
@@ -108,6 +109,8 @@ public class CLUtil extends JavaPlugin implements CLPlugin
     @Override
     public void onDisable()
     {
+        BuildingManager.getInstance().save(true);
+        
         home.save();
         stats.saveStats();
         config = null;

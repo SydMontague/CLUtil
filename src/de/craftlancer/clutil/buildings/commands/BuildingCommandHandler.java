@@ -26,7 +26,7 @@ public class BuildingCommandHandler extends CommandHandler
         registerSubCommand("undo", new BuildingUndoCommand(UNDO_PERM, plugin));
         registerSubCommand("progress", new BuildingProgressCommand(PROGRESS_PERM, plugin));
         registerSubCommand("preview", new BuildingPreviewCommand(PREVIEW_PERM, plugin));
-        //registerSubCommand("set", new BuildingProgressCommand(SET_PERM, plugin));
-        //registerSubCommand("create", new BuildingProgressCommand(CREATE_PERM, plugin));
+        registerSubCommand("set", new BuildingSetCommand(SET_PERM, plugin));
+        registerSubCommand("create", new BuildingCreateCommand(CREATE_PERM, plugin));
     }
 }

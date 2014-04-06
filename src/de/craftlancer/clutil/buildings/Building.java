@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,6 +47,8 @@ public class Building
     private int lenght;
     private String description;
     
+    private boolean isBuildable;
+    
     private Building(Plugin plugin)
     {
         this.plugin = plugin;
@@ -73,9 +73,10 @@ public class Building
     
     private Building(Plugin plugin, String file)
     {
-        this(plugin, new File(plugin.getDataFolder(), file));
+        this(plugin, new File(plugin.getDataFolder(), "schematics" + File.separator + file));
     }
     
+    @SuppressWarnings("deprecation")
     public Building(CLUtil plugin, String name, String schematic, double initialCostMod, BlockFace baseFacing, List<ItemStack> staticCosts, FeatureBuilding feature, List<String> categories, String description)
     {
         this(plugin, schematic);
@@ -322,7 +323,20 @@ public class Building
         
         if (feature != null)
             feature.save(getName(), config);
-        // TODO Auto-generated method stub
-        
+    }
+    
+    public boolean isBuildable(boolean bool)
+    {
+        return isBuildable;
+    }
+    
+    public void setBuildable(boolean bool)
+    {
+        this.isBuildable = bool;
+    }
+    
+    public void setDescription(String string)
+    {
+        this.description = string;
     }
 }

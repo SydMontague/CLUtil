@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
-
 import de.craftlancer.skilllevels.event.SkillLevelUpEvent;
 
 public class AutoLevelUp implements Listener
@@ -112,13 +113,15 @@ public class AutoLevelUp implements Listener
         if (!map.containsKey(e.getNewLevel()))
             return;
         
-        if (plugin.getServer().getPlayerExact(e.getUser()) == null)
+        if (plugin.getServer().getPlayer(e.getUser().getUUID()) == null)
             return;
         
+        Player user = Bukkit.getPlayer(e.getUser().getUUID());
+        
         for (String s : map.get(e.getNewLevel()))
-            PermissionsEx.getPermissionManager().getUser(e.getUser()).removePermission(s);
+            PermissionsEx.getPermissionManager().getUser(user).removePermission(s);
         
         if(levelUpString.containsKey(e.getNewLevel()))
-            plugin.getServer().getPlayerExact(e.getUser()).sendMessage(levelUpString.get(e.getNewLevel()));
+            user.sendMessage(levelUpString.get(e.getNewLevel()));
     }
 }

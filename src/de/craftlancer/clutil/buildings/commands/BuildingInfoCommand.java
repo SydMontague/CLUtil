@@ -35,6 +35,9 @@ public class BuildingInfoCommand extends SubCommand
          * Feature:
          * Description:
          * Costs:
+         * 
+         * Kosten, für jedes Block einen Grundkosten Wert erhöhen
+         * 
          */
         Building build = BuildingManager.getInstance().getBuilding(args[1]);
         

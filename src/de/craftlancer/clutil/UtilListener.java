@@ -236,11 +236,11 @@ public class UtilListener implements Listener
     @EventHandler
     public void onLevelUp(SkillLevelUpEvent e)
     {
-        if (plugin.getServer().getPlayerExact(e.getUser()) == null)
+        if (plugin.getServer().getPlayer(e.getUser().getUUID()) == null)
             return;
         
         int gold = (e.getNewLevel() - e.getOldLevel()) * plugin.getConfig().getInt("goldPerLevel", 50);
-        CLEco.getInstance().depositBalance(plugin.getServer().getPlayerExact(e.getUser()).getInventory(), gold);
+        CLEco.getInstance().depositBalance(plugin.getServer().getPlayer(e.getUser().getUUID()).getInventory(), gold);
         
     }
     

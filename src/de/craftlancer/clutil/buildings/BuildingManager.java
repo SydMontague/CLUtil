@@ -85,8 +85,6 @@ public class BuildingManager implements Listener
             int id = Integer.parseInt(key);
             BuildingProcess process = (BuildingProcess) processConfig.get(key);
             
-            Bukkit.getLogger().info(processConfig.get(key) + " " + process + " " + id + " " + key);
-            
             processes.put(id, process);
             process.runTaskTimer(plugin, getDefaultPeriod(), getDefaultPeriod());
             if (maxId < id)
@@ -129,10 +127,13 @@ public class BuildingManager implements Listener
                 feature = FeatureFactory.loadFeature(type, blockLoc);
             }
             
-            buildings.put(key, new Building(plugin, key, schematic, initialCostMod, baseFacing, staticCosts, feature, cat, desc));
-            Bukkit.getLogger().info(key);
+            addBuilding(key, new Building(plugin, key, schematic, initialCostMod, baseFacing, staticCosts, feature, cat, desc));
         }
-        
+    }
+    
+    public void addBuilding(String key, Building building)
+    {
+        buildings.put(key, building);
     }
     
     @Deprecated
@@ -156,6 +157,13 @@ public class BuildingManager implements Listener
     public void onBlockBreak(BlockBreakEvent e)
     {
         handleBlockEvent(e);
+        List<Integer> remove = new ArrayList<Integer>();
+        for (Entry<Integer, BuildingProcess> entry : processes.entrySet())
+            if (entry.getValue().changedFinished(e.getBlock()))
+                remove.add(entry.getKey());
+        
+        for (int i : remove)
+            processes.remove(i);
     }
     
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -179,7 +187,7 @@ public class BuildingManager implements Listener
     public static synchronized BuildingManager getInstance()
     {
         if (instance == null)
-            new BuildingManager(CLUtil.getInstance());
+            return new BuildingManager(CLUtil.getInstance());
         
         return instance;
     }

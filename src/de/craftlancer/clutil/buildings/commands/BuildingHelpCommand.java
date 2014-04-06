@@ -14,7 +14,6 @@ public class BuildingHelpCommand extends HelpCommand
     public BuildingHelpCommand(String permission, CLPlugin plugin, Map<String, SubCommand> map)
     {
         super(permission, plugin, map);
-        // TODO Auto-generated constructor stub
     }
 
     @Override

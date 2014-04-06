@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -15,14 +16,14 @@ public class XpToBottleFeature implements FeatureBuilding
     
     private RelativeLocation signLocation;
     
-    public XpToBottleFeature(Map<String, RelativeLocation> blockLoc)
+    public XpToBottleFeature(Map<String, ?> blockLoc, BlockFace facing)
     {
         if (!blockLoc.containsKey("sign"))
             throw new IllegalArgumentException("The key 'sign' is not defined, but mandatory for this feature!");
-        else
-            signLocation = blockLoc.get("sign");
+        
+        signLocation = RelativeLocation.craftRelativeLocation(blockLoc.get("sign"), Material.WALL_SIGN, facing);
+        
     }
-    
     @Override
     public void place(Block block, Town town, int facing)
     {
@@ -72,14 +73,13 @@ public class XpToBottleFeature implements FeatureBuilding
     {
         return FeatureType.XPTOBOTTLE;
     }
-
+    
     @Override
     public void save(String name, FileConfiguration config)
     {
         config.set(name + ".feature.type", getType().name());
         
         config.set(name + ".feature.sign", signLocation.toString());
-        // TODO Auto-generated method stub
         
     }
 }

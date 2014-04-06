@@ -2,6 +2,8 @@ package de.craftlancer.clutil.buildings;
 
 import java.util.Map;
 
+import org.bukkit.block.BlockFace;
+
 public class FeatureFactory
 {
     
@@ -15,10 +17,19 @@ public class FeatureFactory
         switch (ftype)
         {
             case XPTOBOTTLE:
-                return new XpToBottleFeature(blockLoc);
+                return new XpToBottleFeature(blockLoc, null);
                 
         }
         return null;
     }
     
+    public static FeatureBuilding createFeature(FeatureType type, Map<String, BlockWrapper> blockLoc, BlockFace facing)
+    {
+        switch (type)
+        {
+            case XPTOBOTTLE:
+                return new XpToBottleFeature(blockLoc, facing);
+        }
+        return null;
+    }
 }

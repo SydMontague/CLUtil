@@ -138,8 +138,8 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
         
         // TOTEST regrant resource usage
         for (Entry<Material, Integer> entry : alreadyPaid.entrySet())
-            if(entry.getKey() != Material.AIR)
-            block.getWorld().dropItem(block.getLocation(), new ItemStack(entry.getKey(), entry.getValue()));
+            if (entry.getKey() != Material.AIR)
+                block.getWorld().dropItem(block.getLocation(), new ItemStack(entry.getKey(), entry.getValue()));
         
         undoList.clear();
         buildState = BuildState.REMOVED;
@@ -253,8 +253,20 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
     
     public boolean isProtected(Block b)
     {
-        
         if (buildState != BuildState.BUILDING)
+            return false;
+        
+        if (b.getX() >= block.getX() && b.getX() <= block.getX() + xmax)
+            if (b.getY() >= block.getY() && b.getY() <= block.getY() + ymax)
+                if (b.getZ() >= block.getZ() && b.getZ() <= block.getZ() + zmax)
+                    return true;
+        
+        return false;
+    }
+    
+    public boolean changedFinished(Block b)
+    {
+        if(buildState != BuildState.FINISHED)
             return false;
         
         if (b.getX() >= block.getX() && b.getX() <= block.getX() + xmax)
@@ -401,9 +413,9 @@ public class BuildingProcess extends BukkitRunnable implements ConfigurationSeri
             
             BlockState orgiBlock = block.getWorld().getBlockAt(block.getX() + x, block.getY() + y, block.getZ() + z).getState();
             
-            //if (b.getType() == 0 && orgiBlock.getType() == Material.AIR)
-            //    i--;
-           // else
+            // if (b.getType() == 0 && orgiBlock.getType() == Material.AIR)
+            // i--;
+            // else
             {
                 undoList.add(orgiBlock);
                 world.setBlock(new Vector(block.getX() + x, block.getY() + y, block.getZ() + z), b, false);

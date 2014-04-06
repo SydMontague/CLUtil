@@ -16,7 +16,6 @@ public class BuildingUndoCommand extends SubCommand
     public BuildingUndoCommand(String permission, CLPlugin plugin)
     {
         super(permission, plugin, false);
-        // TODO Auto-generated constructor stub
     }
     
     @Override

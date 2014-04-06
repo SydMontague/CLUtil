@@ -1,5 +1,10 @@
 package de.craftlancer.clutil.buildings;
 
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
+
+import com.sk89q.worldedit.blocks.BlockData;
+
 public class RelativeLocation
 {
     private int x;
@@ -92,5 +97,56 @@ public class RelativeLocation
     public byte getEastData()
     {
         return eastData;
+    }
+    
+    public static RelativeLocation craftRelativeLocation(Object object, Material target, BlockFace facing)
+    {
+        if (object instanceof RelativeLocation)
+            return (RelativeLocation) object;
+        
+        if (!(object instanceof BlockWrapper))
+            throw new IllegalArgumentException("Object does not match requirements in class.");
+        
+        BlockWrapper block = (BlockWrapper) object;
+        
+        byte north;
+        byte east;
+        byte south;
+        byte west;
+        
+        int initialData = block.getData();
+        int typeId = block.getTypeId();
+        
+        switch (facing)
+        {
+            case NORTH:
+                north = (byte) initialData;
+                east = (byte) BlockData.rotate90(typeId, initialData);
+                south = (byte) BlockData.rotate90(typeId, east);
+                west = (byte) BlockData.rotate90(typeId, south);
+                break;
+            case EAST:
+                east = (byte) initialData;
+                south = (byte) BlockData.rotate90(typeId, initialData);
+                west = (byte) BlockData.rotate90(typeId, south);
+                north = (byte) BlockData.rotate90(typeId, west);
+                break;
+            case SOUTH:
+                south = (byte) initialData;
+                west = (byte) BlockData.rotate90(typeId, initialData);
+                north = (byte) BlockData.rotate90(typeId, west);
+                east = (byte) BlockData.rotate90(typeId, north);
+                break;
+            case WEST:
+                west = (byte) initialData;
+                north = (byte) BlockData.rotate90(typeId, initialData);
+                east = (byte) BlockData.rotate90(typeId, north);
+                south = (byte) BlockData.rotate90(typeId, east);
+                break;
+            default:
+                throw new IllegalArgumentException("Facing must be either NORTH, EAST, SOUTH or WEST");
+        }
+        
+        return new RelativeLocation(block.getX(), block.getY(), block.getZ(), south, west, north, east);
     }
 }

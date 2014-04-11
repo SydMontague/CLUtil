@@ -18,7 +18,8 @@ public class FeatureFactory
         {
             case XPTOBOTTLE:
                 return new XpToBottleFeature(blockLoc, null);
-                
+            case CLASSCHANGE:
+                return new ClassChangeFeature(blockLoc, null);
         }
         return null;
     }
@@ -29,6 +30,8 @@ public class FeatureFactory
         {
             case XPTOBOTTLE:
                 return new XpToBottleFeature(blockLoc, facing);
+            case CLASSCHANGE:
+                return new ClassChangeFeature(blockLoc, facing);
         }
         return null;
     }

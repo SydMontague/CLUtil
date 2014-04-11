@@ -71,6 +71,8 @@ public class FeatureManager
         {
             case XPTOBOTTLE:
                 return new XpToBottleInstance(key, config);
+            case CLASSCHANGE:
+                return new ClassChangeInstance(key, config);
             default:
                 plugin.getLogger().warning("Unhandled, but valid, FeatureType detected! Inform the author please.");
                 return null;

@@ -2,17 +2,18 @@ package de.craftlancer.clutil.buildings;
 
 public enum FeatureType
 {
-    XPTOBOTTLE;
-
+    XPTOBOTTLE,
+    CLASSCHANGE;
+    
     public static FeatureType getFeatureType(String type)
     {
-        if(type == null)
+        if (type == null)
             return null;
         
-        for(FeatureType f : values())
-            if(type.equalsIgnoreCase(f.name()))
+        for (FeatureType f : values())
+            if (type.equalsIgnoreCase(f.name()))
                 return f;
-
+        
         return null;
     }
     

@@ -69,6 +69,7 @@ public class XpToBottleFeature implements FeatureBuilding
         return NAME;
     }
     
+    @Override
     public FeatureType getType()
     {
         return FeatureType.XPTOBOTTLE;

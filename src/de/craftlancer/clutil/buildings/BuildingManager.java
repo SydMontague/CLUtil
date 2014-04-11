@@ -205,11 +205,6 @@ public class BuildingManager implements Listener
         proc.runTaskTimer(plugin, period, period);
     }
     
-    // public void startBuilding(Player player, String building)
-    // {
-    // startBuilding(player, building, player.getInventory());
-    // }
-    
     public Building getBuilding(String name)
     {
         for (Entry<String, Building> b : buildings.entrySet())

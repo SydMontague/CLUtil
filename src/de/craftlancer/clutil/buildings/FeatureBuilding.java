@@ -10,6 +10,8 @@ public interface FeatureBuilding
     public void place(Block block, Town town, int playerFacing);
     
     public String getName();
+    
+    public FeatureType getType();
 
     public void save(String name, FileConfiguration config);
 }

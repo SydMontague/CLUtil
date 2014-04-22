@@ -7,8 +7,6 @@ import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,12 +17,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class AdvancedEnchantments implements Listener
 {
+    private static int ITEM_SLOT = 0;
+    private static int BOOK_SLOT = 1;
+    private static int RESULT_SLOT = 2;
+    
     private CLUtil plugin;
     private Map<Enchantment, ValueWrapper> xpMap = new HashMap<Enchantment, ValueWrapper>();
     
@@ -62,7 +65,7 @@ public class AdvancedEnchantments implements Listener
     public void on(InventoryClickEvent e)
     {
         if (e.getInventory().getType() == InventoryType.ANVIL)
-            new AnvilUpdateTask((CraftInventoryAnvil) e.getInventory()).runTaskLater(plugin, 1L);
+            new AnvilUpdateTask((AnvilInventory) e.getInventory()).runTaskLater(plugin, 1L);
         
     }
     
@@ -92,7 +95,7 @@ public class AdvancedEnchantments implements Listener
     {
         if (e.getInventory().getType() == InventoryType.ANVIL && e.getSlotType() == SlotType.RESULT && e.getCursor().getType() == Material.AIR)
         {
-            if (CraftItemStack.asCraftMirror(((CraftInventoryAnvil) e.getInventory()).getResultInventory().getItem(0)).getType() == Material.ENCHANTED_BOOK)
+            if (e.getInventory().getItem(RESULT_SLOT).getType() == Material.ENCHANTED_BOOK)
             {
                 ItemStack i1 = e.getInventory().getItem(0);
                 
@@ -114,9 +117,9 @@ public class AdvancedEnchantments implements Listener
                     break;
                 }
                 result.setItemMeta(meta);
-                ((CraftInventoryAnvil) e.getInventory()).getResultInventory().setItem(0, CraftItemStack.asNMSCopy(result));
+                e.getInventory().setItem(RESULT_SLOT, result);
                 
-                e.getWhoClicked().setItemOnCursor(CraftItemStack.asCraftMirror(((CraftInventoryAnvil) e.getInventory()).getResultInventory().getItem(0)));
+                e.getWhoClicked().setItemOnCursor(e.getInventory().getItem(RESULT_SLOT));
                 e.getInventory().setItem(0, null);
                 ItemStack i2 = e.getInventory().getItem(1);
                 i2.setAmount(i2.getAmount() - 1);
@@ -155,32 +158,31 @@ public class AdvancedEnchantments implements Listener
         e.getPlayer().giveExp(value);
         e.getPlayer().setItemInHand(new ItemStack(Material.AIR));
     }
-}
-
-class AnvilUpdateTask extends BukkitRunnable
-{
-    private CraftInventoryAnvil inventory;
     
-    public AnvilUpdateTask(CraftInventoryAnvil inventory)
+    class AnvilUpdateTask extends BukkitRunnable
     {
-        this.inventory = inventory;
+        private AnvilInventory inventory;
+        
+        public AnvilUpdateTask(AnvilInventory inventory)
+        {
+            this.inventory = inventory;
+            
+        }
+        
+        @Override
+        public void run()
+        {
+            ItemStack i1 = inventory.getItem(ITEM_SLOT);
+            ItemStack i2 = inventory.getItem(BOOK_SLOT);
+            
+            if (i1 == null || i2 == null || !i1.getItemMeta().hasEnchants() || i2.getType() != Material.BOOK)
+                return;
+            
+            ItemStack result = new ItemStack(Material.ENCHANTED_BOOK);
+            inventory.setItem(RESULT_SLOT, result);
+        }
     }
     
-    @Override
-    public void run()
-    {
-        net.minecraft.server.v1_7_R2.ItemStack nmsi1 = inventory.getIngredientsInventory().getItem(0);
-        net.minecraft.server.v1_7_R2.ItemStack nmsi2 = inventory.getIngredientsInventory().getItem(1);
-        
-        ItemStack i1 = nmsi1 != null ? CraftItemStack.asCraftMirror(nmsi1) : null;
-        ItemStack i2 = nmsi2 != null ? CraftItemStack.asCraftMirror(nmsi2) : null;
-        
-        if (i1 == null || i2 == null || !i1.getItemMeta().hasEnchants() || i2.getType() != Material.BOOK)
-            return;
-        
-        ItemStack result = new ItemStack(Material.ENCHANTED_BOOK);
-        inventory.getResultInventory().setItem(0, CraftItemStack.asNMSCopy(result));
-    }
 }
 
 class ValueWrapper

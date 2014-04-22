@@ -24,7 +24,7 @@ public class CommandFind implements CommandExecutor
         
         Player p = (Player) sender;
         
-        if (args.length < 1 || !plugin.getServer().getOfflinePlayer(args[0]).isOnline())
+        if (args.length < 1 || plugin.getServer().getPlayer(args[0]) == null)
             sender.sendMessage("Der Angegebene Spieler existiert nicht bzw. ist nicht online!");
         else if (!p.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 3))
             sender.sendMessage("Du musst 3 Eisenbarren im Inventar haben, um diesen Skill zu nutzen!");

@@ -7,10 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -40,8 +43,8 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
 {
     private final CLUtil plugin;
     
-    private Map<String, Location> homes = new HashMap<String, Location>();
-    private Map<String, WaitingPlayer> waitingPlayers = new HashMap<String, WaitingPlayer>();
+    private Map<UUID, Location> homes = new HashMap<UUID, Location>();
+    private Map<UUID, WaitingPlayer> waitingPlayers = new HashMap<UUID, WaitingPlayer>();
     private long runTime = 0;
     
     private final long homeCooldown;
@@ -59,8 +62,8 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
     
     public void save()
     {
-        for (Entry<String, Location> set : homes.entrySet())
-            config.set(set.getKey(), CLUtil.getLocationString(set.getValue()));
+        for (Entry<UUID, Location> set : homes.entrySet())
+            config.set(set.getKey().toString(), CLUtil.getLocationString(set.getValue()));
         
         try
         {
@@ -74,8 +77,30 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
     
     public void load()
     {
+        boolean updated = false;
         for (String s : config.getKeys(false))
-            homes.put(s, CLUtil.parseLocation(config.getString(s)));
+            try
+            {
+                homes.put(UUID.fromString(s), CLUtil.parseLocation(config.getString(s)));
+            }
+            catch (IllegalArgumentException e)
+            {
+                OfflinePlayer player = Bukkit.getOfflinePlayer(s);
+                if (player.hasPlayedBefore())
+                {
+                    homes.put(player.getUniqueId(), CLUtil.parseLocation(config.getString(s)));
+                    updated = true;
+                }
+            }
+        
+        if (updated)
+        {
+            for (String key : config.getKeys(false))
+                config.set(key, false);
+            
+            save();
+        }
+        
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -95,14 +120,14 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent e)
     {
-        if (homes.containsKey(e.getPlayer().getName()))
-            e.setRespawnLocation(homes.get(e.getPlayer().getName()));
+        if (homes.containsKey(e.getPlayer().getUniqueId()))
+            e.setRespawnLocation(homes.get(e.getPlayer().getUniqueId()));
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent e)
     {
-        if (e.getEntityType() == EntityType.PLAYER && (waitingPlayers.containsKey(((Player) e.getEntity()).getName())))
+        if (e.getEntityType() == EntityType.PLAYER && (waitingPlayers.containsKey(((Player) e.getEntity()).getUniqueId())))
             cancelHome((Player) e.getEntity());
     }
     
@@ -116,7 +141,7 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         else if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player)
             p = (Player) ((Projectile) e.getDamager()).getShooter();
         
-        if (p == null || !waitingPlayers.containsKey(p.getName()))
+        if (p == null || !waitingPlayers.containsKey(p.getUniqueId()))
             return;
         
         cancelHome(p);
@@ -125,33 +150,33 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e)
     {
-        if (waitingPlayers.containsKey(e.getPlayer().getName()))
+        if (waitingPlayers.containsKey(e.getPlayer().getUniqueId()))
             cancelHome(e.getPlayer());
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e)
     {
-        if (waitingPlayers.containsKey(e.getPlayer().getName()))
+        if (waitingPlayers.containsKey(e.getPlayer().getUniqueId()))
             cancelHome(e.getPlayer());
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e)
     {
-        if (waitingPlayers.containsKey(e.getPlayer().getName()))
+        if (waitingPlayers.containsKey(e.getPlayer().getUniqueId()))
             cancelHome(e.getPlayer());
     }
     
     private void cancelHome(Player p)
     {
-        waitingPlayers.remove(p.getName());
+        waitingPlayers.remove(p.getUniqueId());
         p.sendMessage(ChatColor.RED + "Teleportation abgebrochen!");
     }
     
     private void setHome(Player player, Location location)
     {
-        homes.put(player.getName(), location);
+        homes.put(player.getUniqueId(), location);
         player.sendMessage(ChatColor.GOLD + "Homepunkt erfolgreich gesetzt!");
     }
     
@@ -160,11 +185,11 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
     {
         if (!(sender instanceof Player))
             sender.sendMessage(ChatColor.RED + "Dieser Befehl kann nur von Spielern benutzt werden!");
-        else if (args.length == 0 && !homes.containsKey(sender.getName()))
+        else if (args.length == 0 && !homes.containsKey(((Player) sender).getUniqueId()))
             sender.sendMessage(ChatColor.RED + "Du hast keinen Homepunkt gesetzt!");
         else if (args.length >= 1 && !sender.hasPermission("cl.util.admin"))
             sender.sendMessage(ChatColor.RED + "Du musst Admin sein, um diesen Befehl auszuführen!");
-        else if (args.length >= 1 && !homes.containsKey(args[0]))
+        else if (args.length >= 1 && !homes.containsKey(Bukkit.getOfflinePlayer(args[0]).getUniqueId()))
             sender.sendMessage(ChatColor.RED + "Dieser Spieler hat keinen Homepunkt.");
         else if (((Player) sender).hasMetadata("clutil.home.cooldown") && ((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() > System.currentTimeMillis())
             sender.sendMessage(ChatColor.RED + "Dieser Befehl muss für weitere " + Utils.getTimeString(((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() - System.currentTimeMillis()) + " abkühlen.");
@@ -172,11 +197,11 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         {
             if (args.length == 0)
             {
-                waitingPlayers.put(sender.getName(), new WaitingPlayer(System.currentTimeMillis() + getTeleportTime(), ((Player) sender).getLocation()));
+                waitingPlayers.put(((Player) sender).getUniqueId(), new WaitingPlayer(System.currentTimeMillis() + getTeleportTime(), ((Player) sender).getLocation()));
                 sender.sendMessage(ChatColor.GOLD + "Du wirst in " + teleportTime + " Sekunden teleportiert.");
             }
             else if (args.length >= 1)
-                ((Player) sender).teleport(homes.get(args[0]));
+                ((Player) sender).teleport(homes.get(Bukkit.getOfflinePlayer(args[0]).getUniqueId()));
         }
         
         return true;
@@ -193,9 +218,9 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         List<Player> cancelList = new LinkedList<Player>();
         List<Player> teleportList = new LinkedList<Player>();
         
-        for (Entry<String, WaitingPlayer> e : waitingPlayers.entrySet())
+        for (Entry<UUID, WaitingPlayer> e : waitingPlayers.entrySet())
         {
-            Player p = plugin.getServer().getPlayerExact(e.getKey());
+            Player p = plugin.getServer().getPlayer(e.getKey());
             
             if (e.getValue().getLocation().distance(p.getLocation()) > 1)
                 cancelList.add(p);
@@ -214,9 +239,9 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         
         for (Player p : teleportList)
         {
-            p.teleport(homes.get(p.getName()));
+            p.teleport(homes.get(p.getUniqueId()));
             p.setMetadata("clutil.home.cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + getHomeCooldown()));
-            waitingPlayers.remove(p.getName());
+            waitingPlayers.remove(p.getUniqueId());
         }
         
         if (runTime % 3600 == 0)

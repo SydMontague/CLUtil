@@ -1,6 +1,7 @@
 package de.craftlancer.clutil.speed;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -20,7 +21,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
     private float speedStep;
     private double dmgStep;
     protected long duration;
-    protected HashMap<String, BerserkValue> berserkPlayers = new HashMap<String, BerserkValue>();
+    protected HashMap<UUID, BerserkValue> berserkPlayers = new HashMap<UUID, BerserkValue>();
     
     public BerserkSpeedModifier(int priority, CLUtil plugin)
     {
@@ -60,10 +61,10 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
     
     public BerserkValue getBerserkValue(Player p)
     {
-        return getBerserkValue(p.getName());
+        return getBerserkValue(p.getUniqueId());
     }
     
-    public BerserkValue getBerserkValue(String p)
+    public BerserkValue getBerserkValue(UUID p)
     {
         if (!berserkPlayers.containsKey(p))
             berserkPlayers.put(p, new BerserkValue());

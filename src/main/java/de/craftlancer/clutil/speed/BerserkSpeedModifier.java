@@ -10,27 +10,26 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.speedapi.SpeedModifier;
 
 public class BerserkSpeedModifier extends SpeedModifier implements Listener
 {
     private double maxDmg;
     private float maxSpeed;
-    private int maxCombo;
+    //private int maxCombo;
     private float speedStep;
     private double dmgStep;
     protected long duration;
     protected HashMap<UUID, BerserkValue> berserkPlayers = new HashMap<UUID, BerserkValue>();
     
-    public BerserkSpeedModifier(int priority, CLUtil plugin)
+    public BerserkSpeedModifier(int priority, float maxSpeed, double maxDmg, int maxCombo, long duration)
     {
         super(priority);
         
-        maxSpeed = (float) plugin.getConfig().getDouble("berserk_speed", 0.5);
-        maxDmg = plugin.getConfig().getDouble("berserk_dmg", 2);
-        maxCombo = plugin.getConfig().getInt("berserk_combo", 7);
-        duration = plugin.getConfig().getLong("berserk_duration", 10000L);
+        this.maxSpeed = maxSpeed;
+        this.maxDmg = maxDmg;
+        //this.maxCombo = maxCombo;
+        this.duration = duration;
         
         speedStep = (maxSpeed) / maxCombo;
         dmgStep = (maxDmg - 1) / maxCombo;

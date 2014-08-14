@@ -5,3 +5,5 @@ modules:
     HEADHUNT: true
     PUMPKINBANDIT: true
     OWNHEALTH: true
+    HOME: true
+    SPEED: true

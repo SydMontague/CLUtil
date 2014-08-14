@@ -18,9 +18,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import de.craftlancer.clutil.modules.AdvancedEnchantments;
 import de.craftlancer.clutil.modules.EffectWeapons;
 import de.craftlancer.clutil.modules.HeadHunter;
+import de.craftlancer.clutil.modules.Home;
 import de.craftlancer.clutil.modules.OreStones;
 import de.craftlancer.clutil.modules.OwnHealth;
 import de.craftlancer.clutil.modules.PumpkinBandit;
+import de.craftlancer.clutil.modules.Speed;
 import de.craftlancer.clutil.speed.BerserkSpeedModifier;
 import de.craftlancer.clutil.speed.SneakSpeedModifier;
 import de.craftlancer.clutil.speed.WaldSpeedModifier;
@@ -32,11 +34,9 @@ public class CLUtil extends JavaPlugin
     private CommandStatsMe stats;
     private CommandSneak sneak;
     private CommandWaldlaeufer waldl;
-    private CommandHome home;
     private GriefBlock gblock;
     private FileConfiguration config;
     public Logger log;
-    public HashMap<Material, HashMap<Material, Double>> oreStones;
     
     private HashMap<ModuleType, Module> modules = new HashMap<>();
     
@@ -51,19 +51,16 @@ public class CLUtil extends JavaPlugin
         stats = new CommandStatsMe(this);
         sneak = new CommandSneak(this);
         waldl = new CommandWaldlaeufer(this);
-        home = new CommandHome(this);
         gblock = new GriefBlock();
         gblock.runTaskTimer(this, 1200L, 1200L);
         config = getConfig();
         log = getLogger();
         
-        loadOreStones();
         getCommand("sneak").setExecutor(sneak);
         getCommand("statsme").setExecutor(stats);
         getCommand("find").setExecutor(new CommandFind(this));
         getCommand("clutil").setExecutor(new CommandCLUtil(this));
         getCommand("togglearrow").setExecutor(waldl);
-        getCommand("home").setExecutor(home);
         
         // new ResourceAlgoTest(this);
         // getServer().getPluginManager().registerEvents(new BuildingTest(), this);
@@ -77,17 +74,7 @@ public class CLUtil extends JavaPlugin
         getServer().getPluginManager().registerEvents(new AutoLevelUp(this), this);
         getServer().getPluginManager().registerEvents(new RollChange(), this);
         getServer().getPluginManager().registerEvents(gblock, this);
-        getServer().getPluginManager().registerEvents(home, this);
         getServer().getPluginManager().registerEvents(new FarmRebalance(), this);
-        
-        home.runTaskTimer(this, 10L, 10L);
-        
-        BerserkSpeedModifier berserk = new BerserkSpeedModifier(3, this);
-        getServer().getPluginManager().registerEvents(berserk, this);
-        SpeedAPI.addModifier("berserk", berserk);
-        SpeedAPI.addModifier("wald", new WaldSpeedModifier(3, (float) getConfig().getDouble("walds_speed", 0.1)));
-        // SpeedAPI.addModifier("armor", new ArmorSpeedModifier(2, this));
-        SpeedAPI.addModifier("sneak", new SneakSpeedModifier(3, (float) getConfig().getDouble("sneak_speed", 0.05)));
         
         ItemStack arrow = new ItemStack(Material.ARROW, 2);
         ItemMeta meta = arrow.getItemMeta();
@@ -136,6 +123,10 @@ public class CLUtil extends JavaPlugin
                 return new OwnHealth(this);
             case PUMPKINBANDIT:
                 return new PumpkinBandit(this);
+            case HOME:
+                return new Home(this);
+            case SPEED:
+                return new Speed(this);
         }
         
         throw new IllegalArgumentException("Illegal ModuleType detected!");
@@ -146,7 +137,9 @@ public class CLUtil extends JavaPlugin
     {
         // BuildingManager.getInstance().save(true);
         
-        home.save();
+        for(Module mod : modules.values())
+            mod.onDisable();
+        
         stats.saveStats();
         config = null;
         getServer().getScheduler().cancelTasks(this);
@@ -177,31 +170,6 @@ public class CLUtil extends JavaPlugin
     private static boolean isUsingPoisonArrow(String name)
     {
         return getInstance().waldl.isUsingPoisonArrow(name);
-    }
-    
-    private void loadOreStones()
-    {
-        oreStones = new HashMap<Material, HashMap<Material, Double>>();
-        if (config.getConfigurationSection("oreStones") != null)
-            for (String tool : config.getConfigurationSection("oreStones").getKeys(false))
-            {
-                Material mat = Material.getMaterial(tool);
-                if (mat == null)
-                    continue;
-                
-                HashMap<Material, Double> helpmap = new HashMap<Material, Double>();
-                
-                for (String ore : config.getConfigurationSection("oreStones." + tool).getKeys(false))
-                {
-                    Material mat2 = Material.getMaterial(ore);
-                    if (mat2 == null)
-                        continue;
-                    
-                    helpmap.put(mat2, config.getDouble("oreStones." + tool + "." + ore, 0D));
-                }
-                
-                oreStones.put(mat, helpmap);
-            }
     }
     
     public static Location parseLocation(String loc)

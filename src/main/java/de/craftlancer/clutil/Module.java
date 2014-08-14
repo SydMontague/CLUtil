@@ -38,6 +38,10 @@ public abstract class Module
         }
     }
     
+    public void onDisable()
+    {
+    }
+    
     public CLUtil getPlugin()
     {
         return plugin;

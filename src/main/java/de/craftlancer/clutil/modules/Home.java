@@ -1,7 +1,5 @@
-package de.craftlancer.clutil;
+package de.craftlancer.clutil.modules;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,12 +11,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -35,72 +30,54 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import de.craftlancer.clutil.CLUtil;
+import de.craftlancer.clutil.Module;
+import de.craftlancer.clutil.ModuleType;
 import de.craftlancer.core.Utils;
 import de.craftlancer.groups.Plot;
 import de.craftlancer.groups.managers.PlotManager;
 
-public class CommandHome extends BukkitRunnable implements CommandExecutor, Listener
+public class Home extends Module implements CommandExecutor, Listener
 {
-    private final CLUtil plugin;
-    
     private Map<UUID, Location> homes = new HashMap<UUID, Location>();
     private Map<UUID, WaitingPlayer> waitingPlayers = new HashMap<UUID, WaitingPlayer>();
-    private long runTime = 0;
     
     private final long homeCooldown;
     private final long teleportTime;
-    private FileConfiguration config;
     
-    public CommandHome(CLUtil plugin)
+    private HomeTask homeTask = new HomeTask();
+    
+    public Home(CLUtil plugin)
     {
-        this.plugin = plugin;
-        this.homeCooldown = plugin.getConfig().getLong("homeCooldown", 10800L);
-        this.teleportTime = plugin.getConfig().getLong("teleportTime", 60);
-        this.config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "homes.yml"));
+        super(plugin);
+        this.homeCooldown = getConfig().getLong("config.homeCooldown", 10800L);
+        this.teleportTime = getConfig().getLong("config.teleportTime", 60);
         load();
+        
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
+        getPlugin().getCommand("home").setExecutor(this);
+        homeTask.runTaskTimer(getPlugin(), 10L, 10L);
+    }
+    
+    @Override
+    public void onDisable()
+    {
+        save();
     }
     
     public void save()
     {
         for (Entry<UUID, Location> set : homes.entrySet())
-            config.set(set.getKey().toString(), CLUtil.getLocationString(set.getValue()));
+            getConfig().set(set.getKey().toString(), CLUtil.getLocationString(set.getValue()));
         
-        try
-        {
-            config.save(new File(plugin.getDataFolder(), "homes.yml"));
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        saveConfig();
     }
     
     public void load()
     {
-        boolean updated = false;
-        for (String s : config.getKeys(false))
-            try
-            {
-                homes.put(UUID.fromString(s), CLUtil.parseLocation(config.getString(s)));
-            }
-            catch (IllegalArgumentException e)
-            {
-                OfflinePlayer player = Bukkit.getOfflinePlayer(s);
-                if (player.hasPlayedBefore())
-                {
-                    homes.put(player.getUniqueId(), CLUtil.parseLocation(config.getString(s)));
-                    updated = true;
-                }
-            }
-        
-        if (updated)
-        {
-            for (String key : config.getKeys(false))
-                config.set(key, false);
-            
-            save();
-        }
-        
+        if (getConfig().isConfigurationSection("homes"))
+            for (String s : getConfig().getConfigurationSection("homes").getKeys(false))
+                homes.put(UUID.fromString(s), CLUtil.parseLocation(getConfig().getString("homes." + s)));
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -168,7 +145,7 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
             cancelHome(e.getPlayer());
     }
     
-    private void cancelHome(Player p)
+    protected void cancelHome(Player p)
     {
         waitingPlayers.remove(p.getUniqueId());
         p.sendMessage(ChatColor.RED + "Teleportation abgebrochen!");
@@ -180,6 +157,7 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         player.sendMessage(ChatColor.GOLD + "Homepunkt erfolgreich gesetzt!");
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
@@ -212,45 +190,60 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         return teleportTime * 1000;
     }
     
-    @Override
-    public void run()
+    protected Map<UUID, WaitingPlayer> getWaitingPlayers()
     {
-        List<Player> cancelList = new LinkedList<Player>();
-        List<Player> teleportList = new LinkedList<Player>();
-        
-        for (Entry<UUID, WaitingPlayer> e : waitingPlayers.entrySet())
-        {
-            Player p = plugin.getServer().getPlayer(e.getKey());
-            
-            if (e.getValue().getLocation().distance(p.getLocation()) > 1)
-                cancelList.add(p);
-            else if (e.getValue().getTime() <= System.currentTimeMillis())
-                teleportList.add(p);
-            else if (runTime % 20 == 0)
-            {
-                long time = e.getValue().getTime() - System.currentTimeMillis();
-                p.sendMessage(ChatColor.GOLD + "Noch " + (time / 1000) + "s bis zum Teleport!");
-            }
-            
-        }
-        
-        for (Player p : cancelList)
-            cancelHome(p);
-        
-        for (Player p : teleportList)
-        {
-            p.teleport(homes.get(p.getUniqueId()));
-            p.setMetadata("clutil.home.cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + getHomeCooldown()));
-            waitingPlayers.remove(p.getUniqueId());
-        }
-        
-        if (runTime % 3600 == 0)
-            save();
-        
-        runTime++;
+        return waitingPlayers;
     }
     
-    private long getHomeCooldown()
+    public Location getHome(UUID uuid)
+    {
+        return homes.get(uuid);
+    }
+    
+    class HomeTask extends BukkitRunnable
+    {
+        private long runTime = 0;
+        
+        @Override
+        public void run()
+        {
+            List<Player> cancelList = new LinkedList<Player>();
+            List<Player> teleportList = new LinkedList<Player>();
+            
+            for (Entry<UUID, WaitingPlayer> e : getWaitingPlayers().entrySet())
+            {
+                Player p = getPlugin().getServer().getPlayer(e.getKey());
+                
+                if (e.getValue().getLocation().distance(p.getLocation()) > 1)
+                    cancelList.add(p);
+                else if (e.getValue().getTime() <= System.currentTimeMillis())
+                    teleportList.add(p);
+                else if (runTime % 20 == 0)
+                {
+                    long time = e.getValue().getTime() - System.currentTimeMillis();
+                    p.sendMessage(ChatColor.GOLD + "Noch " + (time / 1000) + "s bis zum Teleport!");
+                }
+                
+            }
+            
+            for (Player p : cancelList)
+                cancelHome(p);
+            
+            for (Player p : teleportList)
+            {
+                p.teleport(getHome(p.getUniqueId()));
+                p.setMetadata("clutil.home.cooldown", new FixedMetadataValue(getPlugin(), System.currentTimeMillis() + getHomeCooldown()));
+                getWaitingPlayers().remove(p.getUniqueId());
+            }
+            
+            if (runTime % 3600 == 0)
+                save();
+            
+            runTime++;
+        }
+    }
+    
+    protected long getHomeCooldown()
     {
         return homeCooldown * 1000;
     }
@@ -275,6 +268,12 @@ public class CommandHome extends BukkitRunnable implements CommandExecutor, List
         {
             return loc;
         }
+    }
+    
+    @Override
+    public ModuleType getName()
+    {
+        return ModuleType.HOME;
     }
     
 }

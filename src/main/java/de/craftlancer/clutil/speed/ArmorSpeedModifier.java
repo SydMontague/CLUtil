@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.speedapi.SpeedModifier;
 
 public class ArmorSpeedModifier extends SpeedModifier
@@ -15,18 +14,18 @@ public class ArmorSpeedModifier extends SpeedModifier
     private Map<Material, Double> slowArmor = new HashMap<Material, Double>();
     private Map<Material, String> slowPermission = new HashMap<Material, String>();
     
-    public ArmorSpeedModifier(int priority, CLUtil plugin)
+    public ArmorSpeedModifier(int priority, double ironSpeed, double diaSpeed)
     {
         super(priority);
         
-        slowArmor.put(Material.IRON_HELMET, plugin.getConfig().getDouble("ironspeed", 0.18D));
-        slowArmor.put(Material.IRON_CHESTPLATE, plugin.getConfig().getDouble("ironspeed", 0.18D));
-        slowArmor.put(Material.IRON_LEGGINGS, plugin.getConfig().getDouble("ironspeed", 0.18D));
-        slowArmor.put(Material.IRON_BOOTS, plugin.getConfig().getDouble("ironspeed", 0.18D));
-        slowArmor.put(Material.DIAMOND_HELMET, plugin.getConfig().getDouble("diaspeed", 0.16D));
-        slowArmor.put(Material.DIAMOND_CHESTPLATE, plugin.getConfig().getDouble("diaspeed", 0.16D));
-        slowArmor.put(Material.DIAMOND_LEGGINGS, plugin.getConfig().getDouble("diaspeed", 0.16D));
-        slowArmor.put(Material.DIAMOND_BOOTS, plugin.getConfig().getDouble("diaspeed", 0.16D));
+        slowArmor.put(Material.IRON_HELMET, ironSpeed);
+        slowArmor.put(Material.IRON_CHESTPLATE, ironSpeed);
+        slowArmor.put(Material.IRON_LEGGINGS, ironSpeed);
+        slowArmor.put(Material.IRON_BOOTS, ironSpeed);
+        slowArmor.put(Material.DIAMOND_HELMET, diaSpeed);
+        slowArmor.put(Material.DIAMOND_CHESTPLATE, diaSpeed);
+        slowArmor.put(Material.DIAMOND_LEGGINGS, diaSpeed);
+        slowArmor.put(Material.DIAMOND_BOOTS, diaSpeed);
         
         slowPermission.put(Material.IRON_HELMET, "cl.util.armor.iron");
         slowPermission.put(Material.IRON_CHESTPLATE, "cl.util.armor.iron");

@@ -7,7 +7,9 @@ public enum ModuleType
     ORESTONES,
     HEADHUNT,
     PUMPKINBANDIT, 
-    OWNHEALTH;
+    OWNHEALTH, 
+    HOME, 
+    SPEED;
     
     private final String config;
     

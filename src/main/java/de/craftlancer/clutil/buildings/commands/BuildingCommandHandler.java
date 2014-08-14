@@ -19,6 +19,7 @@ public class BuildingCommandHandler extends CommandHandler
     
     public BuildingCommandHandler(CLUtil plugin)
     {
+        super(plugin);
         registerSubCommand("help", new BuildingHelpCommand(HELP_PERM, plugin, getCommands()));
         registerSubCommand("list", new BuildingListCommand(LIST_PERM, plugin));
         registerSubCommand("info", new BuildingInfoCommand(INFO_PERM, plugin));

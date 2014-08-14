@@ -31,5 +31,11 @@ public class WaldSpeedModifier extends SpeedModifier
         
         return false;
     }
+
+    @Override
+    public boolean isInstant(Player p)
+    {
+        return false;
+    }
     
 }

@@ -6,9 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.buildings.BuildingManager;
 import de.craftlancer.clutil.buildings.BuildingProcess;
-import de.craftlancer.core.CLPlugin;
 import de.craftlancer.core.command.SubCommand;
 import de.craftlancer.groups.GroupPlayer;
 import de.craftlancer.groups.Town;
@@ -17,7 +17,7 @@ import de.craftlancer.groups.managers.PlayerManager;
 public class BuildingProgressCommand extends SubCommand
 {
     
-    public BuildingProgressCommand(String permission, CLPlugin plugin)
+    public BuildingProgressCommand(String permission, CLUtil plugin)
     {
         super(permission, plugin, false);
     }

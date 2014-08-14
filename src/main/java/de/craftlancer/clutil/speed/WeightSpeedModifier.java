@@ -31,5 +31,11 @@ public class WeightSpeedModifier extends SpeedModifier
     {
         return true;
     }
+
+    @Override
+    public boolean isInstant(Player p)
+    {
+        return false;
+    }
     
 }

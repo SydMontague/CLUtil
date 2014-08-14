@@ -30,13 +30,12 @@ import de.craftlancer.clutil.buildings.BuildingManager;
 import de.craftlancer.clutil.buildings.FeatureBuilding;
 import de.craftlancer.clutil.buildings.FeatureFactory;
 import de.craftlancer.clutil.buildings.FeatureType;
-import de.craftlancer.core.CLPlugin;
 import de.craftlancer.core.command.SubCommand;
 
 public class BuildingCreateCommand extends SubCommand
 {
     
-    public BuildingCreateCommand(String permission, CLPlugin plugin)
+    public BuildingCreateCommand(String permission, CLUtil plugin)
     {
         super(permission, plugin, false);
     }

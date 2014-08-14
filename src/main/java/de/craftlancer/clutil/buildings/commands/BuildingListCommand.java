@@ -6,9 +6,9 @@ import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.buildings.Building;
 import de.craftlancer.clutil.buildings.BuildingManager;
-import de.craftlancer.core.CLPlugin;
 import de.craftlancer.core.command.SubCommand;
 
 public class BuildingListCommand extends SubCommand
@@ -16,7 +16,7 @@ public class BuildingListCommand extends SubCommand
     // TODO externalise
     private static int ITEMS_PER_PAGE = 5;
     
-    public BuildingListCommand(String permission, CLPlugin plugin)
+    public BuildingListCommand(String permission, CLUtil plugin)
     {
         super(permission, plugin, true);
     }

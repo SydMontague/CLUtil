@@ -10,10 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 
+import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.buildings.Building;
 import de.craftlancer.clutil.buildings.BuildingManager;
 import de.craftlancer.clutil.buildings.MassChestInventory;
-import de.craftlancer.core.CLPlugin;
 import de.craftlancer.core.command.SubCommand;
 import de.craftlancer.groups.GroupPlayer;
 import de.craftlancer.groups.Town;
@@ -22,7 +22,7 @@ import de.craftlancer.groups.managers.PlayerManager;
 public class BuildingBuildCommand extends SubCommand
 {
     
-    public BuildingBuildCommand(String permission, CLPlugin plugin)
+    public BuildingBuildCommand(String permission, CLUtil plugin)
     {
         super(permission, plugin, false);
     }

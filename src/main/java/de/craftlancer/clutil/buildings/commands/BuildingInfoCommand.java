@@ -3,16 +3,16 @@ package de.craftlancer.clutil.buildings.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.buildings.Building;
 import de.craftlancer.clutil.buildings.BuildingManager;
-import de.craftlancer.core.CLPlugin;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.SubCommand;
 
 public class BuildingInfoCommand extends SubCommand
 {
     
-    public BuildingInfoCommand(String permission, CLPlugin plugin)
+    public BuildingInfoCommand(String permission, CLUtil plugin)
     {
         super(permission, plugin, true);
     }

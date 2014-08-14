@@ -131,4 +131,10 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
             return time;
         }
     }
+
+    @Override
+    public boolean isInstant(Player p)
+    {
+        return false;
+    }
 }

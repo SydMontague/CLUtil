@@ -4,9 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.buildings.Building;
 import de.craftlancer.clutil.buildings.BuildingManager;
-import de.craftlancer.core.CLPlugin;
 import de.craftlancer.core.command.SubCommand;
 import de.craftlancer.groups.GroupPlayer;
 import de.craftlancer.groups.Town;
@@ -15,7 +15,7 @@ import de.craftlancer.groups.managers.PlayerManager;
 public class BuildingPreviewCommand extends SubCommand
 {
     
-    public BuildingPreviewCommand(String permission, CLPlugin plugin)
+    public BuildingPreviewCommand(String permission, CLUtil plugin)
     {
         super(permission, plugin, false);
     }

@@ -1,4 +1,4 @@
-package de.craftlancer.clutil;
+package de.craftlancer.clutil.modules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,8 +6,10 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,15 +24,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class AdvancedEnchantments implements Listener
+import de.craftlancer.clutil.CLUtil;
+import de.craftlancer.clutil.Module;
+import de.craftlancer.clutil.ModuleType;
+
+public class AdvancedEnchantments extends Module implements Listener
 {
-    private static int ITEM_SLOT = 0;
-    private static int BOOK_SLOT = 1;
-    private static int RESULT_SLOT = 2;
+    private static final int ITEM_SLOT = 0;
+    private static final int BOOK_SLOT = 1;
+    private static final int RESULT_SLOT = 2;
     
-    private CLUtil plugin;
-    private Map<Enchantment, ValueWrapper> xpMap = new HashMap<Enchantment, ValueWrapper>();
+    private static final Map<Enchantment, ValueWrapper> xpMap = new HashMap<Enchantment, ValueWrapper>();
     
+    static
     {
         xpMap.put(Enchantment.ARROW_DAMAGE, new ValueWrapper(5));
         xpMap.put(Enchantment.ARROW_FIRE, new ValueWrapper(50));
@@ -58,40 +64,19 @@ public class AdvancedEnchantments implements Listener
     
     public AdvancedEnchantments(CLUtil plugin)
     {
-        this.plugin = plugin;
+        super(plugin);
+        getPlugin().getServer().getPluginManager().registerEvents(this, plugin);
     }
     
-    @EventHandler(priority = EventPriority.LOW)
-    public void on(InventoryClickEvent e)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onAnvilFill(InventoryClickEvent e)
     {
         if (e.getInventory().getType() == InventoryType.ANVIL)
-            new AnvilUpdateTask((AnvilInventory) e.getInventory()).runTaskLater(plugin, 1L);
-        
-    }
-    
-    @EventHandler
-    public void onSignClick(PlayerInteractEvent e)
-    {
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
-            return;
-        
-        if (plugin.expsigns.contains(e.getClickedBlock().getLocation()))
-            plugin.fillXPBottle(e.getPlayer(), 1);
-        
-    }
-    
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onSignChange(SignChangeEvent e)
-    {
-        if (e.getLine(1).equals("[Enchant2XP]") && !e.getPlayer().hasPermission("cl.util.admin"))
-            e.setCancelled(true);
-        
-        if (e.getLine(1).equals("[Exp2Bottle]") && !e.getPlayer().hasPermission("cl.util.admin"))
-            e.setCancelled(true);
+            new AnvilUpdateTask((AnvilInventory) e.getInventory()).runTaskLater(getPlugin(), 1L);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void on2(InventoryClickEvent e)
+    public void onAnvilTake(InventoryClickEvent e)
     {
         if (e.getInventory().getType() == InventoryType.ANVIL && e.getSlotType() == SlotType.RESULT && e.getCursor().getType() == Material.AIR)
         {
@@ -128,8 +113,35 @@ public class AdvancedEnchantments implements Listener
         }
     }
     
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onSignChange(SignChangeEvent e)
+    {
+        if (e.getLine(1).equals("[Enchant2XP]") && !e.getPlayer().hasPermission("cl.util.admin"))
+            e.setCancelled(true);
+        
+        if (e.getLine(1).equals("[Exp2Bottle]") && !e.getPlayer().hasPermission("cl.util.admin"))
+            e.setCancelled(true);
+    }
+    
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onSignInteract(PlayerInteractEvent e)
+    public void onExp2Bottle(PlayerInteractEvent e)
+    {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.hasBlock())
+            return;
+        
+        if (!isSign(e.getClickedBlock()))
+            return;
+        
+        Sign sign = (Sign) e.getClickedBlock().getState();
+        
+        if (!sign.getLine(1).equals("[Exp2Bottle]"))
+            return;
+        
+        fillXPBottle(e.getPlayer(), 1);
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEnchant2XP(PlayerInteractEvent e)
     {
         if (!e.hasBlock() || !e.hasItem() || e.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
@@ -159,7 +171,119 @@ public class AdvancedEnchantments implements Listener
         e.getPlayer().setItemInHand(new ItemStack(Material.AIR));
     }
     
-    class AnvilUpdateTask extends BukkitRunnable
+    @Override
+    public ModuleType getName()
+    {
+        return ModuleType.ADVENCHANTMENTS;
+    }
+    
+    @SuppressWarnings("deprecation")
+    public static void fillXPBottle(Player p, int amount)
+    {
+        int exp = getExp((p.getLevel() + p.getExp()));
+        
+        if (exp >= amount * 10 && p.getLevel() > 0)
+        {
+            exp -= (amount * 10);
+            
+            int level = (int) Math.floor(getLevel(exp));
+            float progress = (float) (getLevel(exp) - Math.floor(getLevel(exp)));
+            
+            p.setLevel(level);
+            p.setExp(progress);
+            
+            for (ItemStack item : p.getInventory().addItem(new ItemStack(Material.EXP_BOTTLE, 1)).values())
+                p.getWorld().dropItem(p.getLocation(), item);
+            
+            p.updateInventory();
+        }
+        else
+            p.sendMessage("You don't have enough EXP");
+    }
+    
+    // TODO update for 1.8
+    private static int getExp(double level)
+    {
+        int exp = 0;
+        
+        double nlevel = Math.ceil(level);
+        
+        if (nlevel - 32 > 0)
+            exp += (1 - (nlevel - level)) * (65 + (nlevel - 32) * 7);
+        else if (nlevel - 16 > 0)
+            exp += (1 - (nlevel - level)) * (17 + (level - 16) * 3);
+        else
+            exp += (1 - (nlevel - level)) * 17;
+        
+        level = Math.ceil(level - 1);
+        
+        while (level > 0)
+        {
+            if (level - 32 > 0)
+                exp += 65 + (level - 32) * 7;
+            else if (level - 16 > 0)
+                exp += 17 + (level - 16) * 3;
+            else
+                exp += 17;
+            
+            level--;
+        }
+        
+        return exp;
+    }
+    
+    // TODO update for 1.8
+    private static double getLevel(int exp)
+    {
+        double i = 0;
+        boolean stop = true;
+        
+        while (stop)
+        {
+            i++;
+            
+            if (i - 32 > 0)
+            {
+                if (exp - (65 + (i - 32) * 7) > 0)
+                    exp = (int) (exp - (65 + (i - 32) * 7));
+                else
+                    stop = false;
+            }
+            else if (i - 16 > 0)
+            {
+                if (exp - (17 + (i - 16) * 3) > 0)
+                    exp = (int) (exp - (17 + (i - 16) * 3));
+                else
+                    stop = false;
+            }
+            else if (exp > 17)
+                exp -= 17;
+            else
+                stop = false;
+        }
+        
+        if (exp != 0)
+            if (i - 32 > 0)
+                i += exp / (65 + (i - 32) * 7);
+            else if (i - 16 > 0)
+                i += exp / (17 + (i - 16) * 3);
+            else
+                i += exp / 17D;
+        
+        if (exp == 0)
+            i--;
+        
+        i--;
+        return i;
+    }
+    
+    private static boolean isSign(Block block)
+    {
+        Material type = block.getType();
+        return type == Material.WALL_SIGN || type == Material.SIGN_POST || type == Material.SIGN;
+    }
+    
+    private class AnvilUpdateTask extends BukkitRunnable
     {
         private AnvilInventory inventory;
         
@@ -183,19 +307,18 @@ public class AdvancedEnchantments implements Listener
         }
     }
     
-}
-
-class ValueWrapper
-{
-    private int base;
-    
-    public ValueWrapper(int base)
+    private static class ValueWrapper
     {
-        this.base = base;
-    }
-    
-    public int getValue(int level)
-    {
-        return base * level * level;
+        private int base;
+        
+        public ValueWrapper(int base)
+        {
+            this.base = base;
+        }
+        
+        public int getValue(int level)
+        {
+            return base * level * level;
+        }
     }
 }

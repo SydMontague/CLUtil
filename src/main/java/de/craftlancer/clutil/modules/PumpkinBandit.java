@@ -1,4 +1,4 @@
-package de.craftlancer.clutil;
+package de.craftlancer.clutil.modules;
 
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -14,10 +14,19 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
 import org.kitteh.tag.TagAPI;
 
+import de.craftlancer.clutil.CLUtil;
+import de.craftlancer.clutil.Module;
+import de.craftlancer.clutil.ModuleType;
 import de.craftlancer.groups.CLGroups;
 
-public class PumpkinBandit implements Listener
+public class PumpkinBandit extends Module implements Listener
 {
+    public PumpkinBandit(CLUtil plugin)
+    {
+        super(plugin);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
+    }
+    
     @EventHandler(priority = EventPriority.LOWEST)
     public void onNameTag(AsyncPlayerReceiveNameTagEvent e)
     {
@@ -50,7 +59,7 @@ public class PumpkinBandit implements Listener
                 
                 TagAPI.refreshPlayer((Player) e.getPlayer());
             }
-        }.runTask(CLUtil.getInstance());
+        }.runTask(getPlugin());
     }
     
     @EventHandler(priority = EventPriority.NORMAL)
@@ -62,5 +71,11 @@ public class PumpkinBandit implements Listener
             return;
         
         e.setFormat(CLGroups.getInstance().getChatManager().getActiveChannel(p).getPlayerFormat("PumpkinBandit"));
+    }
+
+    @Override
+    public ModuleType getName()
+    {
+        return ModuleType.PUMPKINBANDIT;
     }
 }

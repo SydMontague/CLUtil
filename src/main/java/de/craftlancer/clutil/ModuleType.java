@@ -3,9 +3,11 @@ package de.craftlancer.clutil;
 public enum ModuleType
 {
     ADVENCHANTMENTS,
-    EFFECTWEAPONS, 
-    ORESTONES, 
-    HEADHUNT;
+    EFFECTWEAPONS,
+    ORESTONES,
+    HEADHUNT,
+    PUMPKINBANDIT, 
+    OWNHEALTH;
     
     private final String config;
     

@@ -19,6 +19,8 @@ import de.craftlancer.clutil.modules.AdvancedEnchantments;
 import de.craftlancer.clutil.modules.EffectWeapons;
 import de.craftlancer.clutil.modules.HeadHunter;
 import de.craftlancer.clutil.modules.OreStones;
+import de.craftlancer.clutil.modules.OwnHealth;
+import de.craftlancer.clutil.modules.PumpkinBandit;
 import de.craftlancer.clutil.speed.BerserkSpeedModifier;
 import de.craftlancer.clutil.speed.SneakSpeedModifier;
 import de.craftlancer.clutil.speed.WaldSpeedModifier;
@@ -69,8 +71,6 @@ public class CLUtil extends JavaPlugin
         loadModules();
         
         getServer().getPluginManager().registerEvents(new UtilListener(this), this);
-        getServer().getPluginManager().registerEvents(new PumpkinBandit(), this);
-        getServer().getPluginManager().registerEvents(new OwnHealth(), this);
         getServer().getPluginManager().registerEvents(stats, this);
         getServer().getPluginManager().registerEvents(sneak, this);
         getServer().getPluginManager().registerEvents(waldl, this);
@@ -132,6 +132,10 @@ public class CLUtil extends JavaPlugin
                 return new HeadHunter(this);
             case ORESTONES:
                 return new OreStones(this);
+            case OWNHEALTH:
+                return new OwnHealth(this);
+            case PUMPKINBANDIT:
+                return new PumpkinBandit(this);
         }
         
         throw new IllegalArgumentException("Illegal ModuleType detected!");

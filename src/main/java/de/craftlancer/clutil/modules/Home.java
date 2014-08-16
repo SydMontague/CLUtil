@@ -271,7 +271,7 @@ public class Home extends Module implements CommandExecutor, Listener
     }
     
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.HOME;
     }

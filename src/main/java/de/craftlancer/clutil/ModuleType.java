@@ -9,7 +9,9 @@ public enum ModuleType
     PUMPKINBANDIT, 
     OWNHEALTH, 
     HOME, 
-    SPEED;
+    SPEED, 
+    DISTANCESHOT, 
+    RANDOMCHESTS, CUSTOMENCHANTS;
     
     private final String config;
     

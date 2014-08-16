@@ -15,6 +15,8 @@ import de.craftlancer.clutil.ModuleType;
 
 public class HeadHunter extends Module implements Listener
 {
+    private double extraMod = 2;
+    
     public HeadHunter(CLUtil plugin)
     {
         super(plugin);
@@ -52,7 +54,7 @@ public class HeadHunter extends Module implements Listener
         }
         
         if (p.hasPermission("cl.util.headhuntDouble"))
-            chance *= 2;
+            chance *= extraMod;
         
         if (chance > Math.random())
         {
@@ -66,7 +68,7 @@ public class HeadHunter extends Module implements Listener
     }
     
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.HEADHUNT;
     }

@@ -15,7 +15,7 @@ public abstract class Module
     public Module(CLUtil plugin)
     {
         this.plugin = plugin;
-        this.configFile = new File(plugin.getDataFolder(), "modules" + File.separator + getName().getConfigName() + ".yml");
+        this.configFile = new File(plugin.getDataFolder(), "modules" + File.separator + getType().getConfigName() + ".yml");
     }
     
     public FileConfiguration getConfig()
@@ -47,5 +47,5 @@ public abstract class Module
         return plugin;
     }
     
-    public abstract ModuleType getName();
+    public abstract ModuleType getType();
 }

@@ -59,7 +59,7 @@ public class Speed extends Module
     }
     
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.SPEED;
     }

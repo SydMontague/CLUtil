@@ -390,7 +390,7 @@ public class EffectWeapons extends Module implements Listener
     }
     
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.EFFECTWEAPONS;
     }

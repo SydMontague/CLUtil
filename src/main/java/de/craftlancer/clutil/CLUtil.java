@@ -16,24 +16,21 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clutil.modules.AdvancedEnchantments;
+import de.craftlancer.clutil.modules.DistanceShot;
 import de.craftlancer.clutil.modules.EffectWeapons;
 import de.craftlancer.clutil.modules.HeadHunter;
 import de.craftlancer.clutil.modules.Home;
 import de.craftlancer.clutil.modules.OreStones;
 import de.craftlancer.clutil.modules.OwnHealth;
 import de.craftlancer.clutil.modules.PumpkinBandit;
+import de.craftlancer.clutil.modules.RandomChests;
 import de.craftlancer.clutil.modules.Speed;
-import de.craftlancer.clutil.speed.BerserkSpeedModifier;
-import de.craftlancer.clutil.speed.SneakSpeedModifier;
-import de.craftlancer.clutil.speed.WaldSpeedModifier;
-import de.craftlancer.speedapi.SpeedAPI;
 
 public class CLUtil extends JavaPlugin
 {
     private static CLUtil instance;
     private CommandStatsMe stats;
     private CommandSneak sneak;
-    private CommandWaldlaeufer waldl;
     private GriefBlock gblock;
     private FileConfiguration config;
     public Logger log;
@@ -50,7 +47,6 @@ public class CLUtil extends JavaPlugin
         
         stats = new CommandStatsMe(this);
         sneak = new CommandSneak(this);
-        waldl = new CommandWaldlaeufer(this);
         gblock = new GriefBlock();
         gblock.runTaskTimer(this, 1200L, 1200L);
         config = getConfig();
@@ -60,7 +56,6 @@ public class CLUtil extends JavaPlugin
         getCommand("statsme").setExecutor(stats);
         getCommand("find").setExecutor(new CommandFind(this));
         getCommand("clutil").setExecutor(new CommandCLUtil(this));
-        getCommand("togglearrow").setExecutor(waldl);
         
         // new ResourceAlgoTest(this);
         // getServer().getPluginManager().registerEvents(new BuildingTest(), this);
@@ -70,7 +65,6 @@ public class CLUtil extends JavaPlugin
         getServer().getPluginManager().registerEvents(new UtilListener(this), this);
         getServer().getPluginManager().registerEvents(stats, this);
         getServer().getPluginManager().registerEvents(sneak, this);
-        getServer().getPluginManager().registerEvents(waldl, this);
         getServer().getPluginManager().registerEvents(new AutoLevelUp(this), this);
         getServer().getPluginManager().registerEvents(new RollChange(), this);
         getServer().getPluginManager().registerEvents(gblock, this);
@@ -99,12 +93,13 @@ public class CLUtil extends JavaPlugin
                 continue;
             
             modules.put(type, craftModule(type));
+            getLogger().info("Module " + type.name() + " loaded!");
         }
     }
     
     private boolean isDeactivated(ModuleType type)
     {
-        return config.getBoolean("modules." + type.name(), true);
+        return !config.getBoolean("modules." + type.name(), true);
     }
     
     private Module craftModule(ModuleType type)
@@ -127,6 +122,10 @@ public class CLUtil extends JavaPlugin
                 return new Home(this);
             case SPEED:
                 return new Speed(this);
+            case DISTANCESHOT:
+                return new DistanceShot(this);
+            case RANDOMCHESTS:
+                return new RandomChests(this);
         }
         
         throw new IllegalArgumentException("Illegal ModuleType detected!");
@@ -160,16 +159,6 @@ public class CLUtil extends JavaPlugin
     public static boolean isSneaking(String name)
     {
         return getInstance().sneak.isSneaking(name);
-    }
-    
-    public static boolean isUsingPoisonArrow(Player p)
-    {
-        return isUsingPoisonArrow(p.getName());
-    }
-    
-    private static boolean isUsingPoisonArrow(String name)
-    {
-        return getInstance().waldl.isUsingPoisonArrow(name);
     }
     
     public static Location parseLocation(String loc)

@@ -172,7 +172,7 @@ public class AdvancedEnchantments extends Module implements Listener
     }
     
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.ADVENCHANTMENTS;
     }

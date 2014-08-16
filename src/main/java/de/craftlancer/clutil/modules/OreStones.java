@@ -106,7 +106,7 @@ public class OreStones extends Module implements Listener
     }
     
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.ORESTONES;
     }

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -337,5 +338,23 @@ public class UtilListener implements Listener
                 e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 10));
             }
         }.runTaskLater(plugin, 1);
+    }
+    
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onDamage(EntityDamageByEntityEvent e)
+    {
+        if (!e.getDamager().getType().equals(EntityType.ARROW) || !(e.getEntity() instanceof LivingEntity))
+            return;
+        
+        if (!(((Arrow) e.getDamager()).getShooter() instanceof Player))
+            return;
+        
+        Player p = (Player) ((Arrow) e.getDamager()).getShooter();
+        
+        if (p.hasPermission("cl.util.wald.dmgmod"))
+            e.setDamage(e.getDamage() * plugin.getConfig().getDouble("waldl_arrow_mod", 1.5D));
+        
+        if (e.getDamager().hasMetadata("poisonArrow"))
+            ((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.POISON, plugin.getConfig().getInt("waldl_duration", 10) * 20, plugin.getConfig().getInt("waldl_strenght", 0)));
     }
 }

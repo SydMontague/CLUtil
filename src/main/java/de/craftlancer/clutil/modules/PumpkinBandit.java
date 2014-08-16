@@ -74,7 +74,7 @@ public class PumpkinBandit extends Module implements Listener
     }
 
     @Override
-    public ModuleType getName()
+    public ModuleType getType()
     {
         return ModuleType.PUMPKINBANDIT;
     }

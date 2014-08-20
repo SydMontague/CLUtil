@@ -7,4 +7,7 @@ modules:
     OWNHEALTH: true
     HOME: true
     SPEED: true
-    HEADSHOT: true
+    DISTANCESHOT: true
+    RANDOMCHESTS: true
+    CUSTOMENCHANTS: true
+    TOKEN: true

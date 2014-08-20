@@ -13,9 +13,6 @@ commands:
   find:
     description: Find other players with your compass
     usage: /find <player>
-  clutil:
-    description: Reloads CLUtil Config
-    usage: /clutil
   togglearrow:
     description: Toggle usage of poison arrows
     usage: /togglearrow

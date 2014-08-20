@@ -34,43 +34,62 @@ public class AdvancedEnchantments extends Module implements Listener
     private static final int BOOK_SLOT = 1;
     private static final int RESULT_SLOT = 2;
     
-    private static final Map<Enchantment, ValueWrapper> xpMap = new HashMap<Enchantment, ValueWrapper>();
+    private final Map<Enchantment, ValueWrapper> xpMap = new HashMap<Enchantment, ValueWrapper>();
     
-    static
-    {
-        xpMap.put(Enchantment.ARROW_DAMAGE, new ValueWrapper(5));
-        xpMap.put(Enchantment.ARROW_FIRE, new ValueWrapper(50));
-        xpMap.put(Enchantment.ARROW_INFINITE, new ValueWrapper(50));
-        xpMap.put(Enchantment.ARROW_KNOCKBACK, new ValueWrapper(20));
-        xpMap.put(Enchantment.DAMAGE_ALL, new ValueWrapper(5));
-        xpMap.put(Enchantment.DAMAGE_ARTHROPODS, new ValueWrapper(5));
-        xpMap.put(Enchantment.DAMAGE_UNDEAD, new ValueWrapper(5));
-        xpMap.put(Enchantment.DIG_SPEED, new ValueWrapper(5));
-        xpMap.put(Enchantment.DURABILITY, new ValueWrapper(11));
-        xpMap.put(Enchantment.FIRE_ASPECT, new ValueWrapper(10));
-        xpMap.put(Enchantment.KNOCKBACK, new ValueWrapper(5));
-        xpMap.put(Enchantment.LOOT_BONUS_BLOCKS, new ValueWrapper(11));
-        xpMap.put(Enchantment.LOOT_BONUS_MOBS, new ValueWrapper(11));
-        xpMap.put(Enchantment.OXYGEN, new ValueWrapper(10));
-        xpMap.put(Enchantment.PROTECTION_ENVIRONMENTAL, new ValueWrapper(7));
-        xpMap.put(Enchantment.PROTECTION_EXPLOSIONS, new ValueWrapper(7));
-        xpMap.put(Enchantment.PROTECTION_FALL, new ValueWrapper(7));
-        xpMap.put(Enchantment.PROTECTION_FIRE, new ValueWrapper(7));
-        xpMap.put(Enchantment.PROTECTION_PROJECTILE, new ValueWrapper(7));
-        xpMap.put(Enchantment.SILK_TOUCH, new ValueWrapper(30));
-        xpMap.put(Enchantment.THORNS, new ValueWrapper(20));
-        xpMap.put(Enchantment.WATER_WORKER, new ValueWrapper(10));
-    }
+    private boolean enableXP2Bottle;
+    private boolean enableEnchant2XP;
+    private boolean enableEnchant2Books;
+    
+    /*
+     * static
+     * {
+     * xpMap.put(Enchantment.ARROW_DAMAGE, new ValueWrapper(5));
+     * xpMap.put(Enchantment.ARROW_FIRE, new ValueWrapper(50));
+     * xpMap.put(Enchantment.ARROW_INFINITE, new ValueWrapper(50));
+     * xpMap.put(Enchantment.ARROW_KNOCKBACK, new ValueWrapper(20));
+     * xpMap.put(Enchantment.DAMAGE_ALL, new ValueWrapper(5));
+     * xpMap.put(Enchantment.DAMAGE_ARTHROPODS, new ValueWrapper(5));
+     * xpMap.put(Enchantment.DAMAGE_UNDEAD, new ValueWrapper(5));
+     * xpMap.put(Enchantment.DIG_SPEED, new ValueWrapper(5));
+     * xpMap.put(Enchantment.DURABILITY, new ValueWrapper(11));
+     * xpMap.put(Enchantment.FIRE_ASPECT, new ValueWrapper(10));
+     * xpMap.put(Enchantment.KNOCKBACK, new ValueWrapper(5));
+     * xpMap.put(Enchantment.LOOT_BONUS_BLOCKS, new ValueWrapper(11));
+     * xpMap.put(Enchantment.LOOT_BONUS_MOBS, new ValueWrapper(11));
+     * xpMap.put(Enchantment.OXYGEN, new ValueWrapper(10));
+     * xpMap.put(Enchantment.PROTECTION_ENVIRONMENTAL, new ValueWrapper(7));
+     * xpMap.put(Enchantment.PROTECTION_EXPLOSIONS, new ValueWrapper(7));
+     * xpMap.put(Enchantment.PROTECTION_FALL, new ValueWrapper(7));
+     * xpMap.put(Enchantment.PROTECTION_FIRE, new ValueWrapper(7));
+     * xpMap.put(Enchantment.PROTECTION_PROJECTILE, new ValueWrapper(7));
+     * xpMap.put(Enchantment.SILK_TOUCH, new ValueWrapper(30));
+     * xpMap.put(Enchantment.THORNS, new ValueWrapper(20));
+     * xpMap.put(Enchantment.WATER_WORKER, new ValueWrapper(10));
+     * }
+     */
     
     public AdvancedEnchantments(CLUtil plugin)
     {
         super(plugin);
+        
+        if (getConfig().isConfigurationSection("values"))
+            for (String key : getConfig().getConfigurationSection("values").getKeys(false))
+                if (Enchantment.getByName(key) != null)
+                    xpMap.put(Enchantment.getByName(key), new ValueWrapper(getConfig().getInt("values." + key)));
+        
+        enableEnchant2Books = getConfig().getBoolean("enable.enchanttobooks", true);
+        enableEnchant2XP = getConfig().getBoolean("enable.enchanttoxp", true);
+        enableXP2Bottle = getConfig().getBoolean("enable.xptobottle", true);
+        
         getPlugin().getServer().getPluginManager().registerEvents(this, plugin);
     }
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onAnvilFill(InventoryClickEvent e)
     {
+        if (!enableEnchant2Books)
+            return;
+        
         if (e.getInventory().getType() == InventoryType.ANVIL)
             new AnvilUpdateTask((AnvilInventory) e.getInventory()).runTaskLater(getPlugin(), 1L);
     }
@@ -78,6 +97,9 @@ public class AdvancedEnchantments extends Module implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAnvilTake(InventoryClickEvent e)
     {
+        if (!enableEnchant2Books)
+            return;
+        
         if (e.getInventory().getType() == InventoryType.ANVIL && e.getSlotType() == SlotType.RESULT && e.getCursor().getType() == Material.AIR)
         {
             if (e.getInventory().getItem(RESULT_SLOT).getType() == Material.ENCHANTED_BOOK)
@@ -116,16 +138,21 @@ public class AdvancedEnchantments extends Module implements Listener
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onSignChange(SignChangeEvent e)
     {
-        if (e.getLine(1).equals("[Enchant2XP]") && !e.getPlayer().hasPermission("cl.util.admin"))
-            e.setCancelled(true);
+        if (enableEnchant2XP)
+            if (e.getLine(1).equals("[Enchant2XP]") && !e.getPlayer().hasPermission("cl.util.admin"))
+                e.setCancelled(true);
         
-        if (e.getLine(1).equals("[Exp2Bottle]") && !e.getPlayer().hasPermission("cl.util.admin"))
-            e.setCancelled(true);
+        if (enableXP2Bottle)
+            if (e.getLine(1).equals("[Exp2Bottle]") && !e.getPlayer().hasPermission("cl.util.admin"))
+                e.setCancelled(true);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onExp2Bottle(PlayerInteractEvent e)
     {
+        if (!enableXP2Bottle)
+            return;
+        
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.hasBlock())
             return;
         
@@ -143,6 +170,9 @@ public class AdvancedEnchantments extends Module implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEnchant2XP(PlayerInteractEvent e)
     {
+        if (!enableEnchant2XP)
+            return;
+        
         if (!e.hasBlock() || !e.hasItem() || e.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
         
@@ -171,12 +201,6 @@ public class AdvancedEnchantments extends Module implements Listener
         e.getPlayer().setItemInHand(new ItemStack(Material.AIR));
     }
     
-    @Override
-    public ModuleType getType()
-    {
-        return ModuleType.ADVENCHANTMENTS;
-    }
-    
     @SuppressWarnings("deprecation")
     public static void fillXPBottle(Player p, int amount)
     {
@@ -199,6 +223,12 @@ public class AdvancedEnchantments extends Module implements Listener
         }
         else
             p.sendMessage("You don't have enough EXP");
+    }
+    
+    @Override
+    public ModuleType getType()
+    {
+        return ModuleType.ADVENCHANTMENTS;
     }
     
     // TODO update for 1.8

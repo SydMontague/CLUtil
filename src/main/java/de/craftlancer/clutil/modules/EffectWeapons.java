@@ -96,16 +96,24 @@ public class EffectWeapons extends Module implements Listener
         getPlugin().getServer().getPluginManager().registerEvents(this, plugin);
     }
     
-    private ItemStack getSelectedArrow(Player player)
+    //select arrow type
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerInteract(PlayerInteractEvent event)
     {
-        return selectedArrows.get(player.getUniqueId()).clone();
+        if (!event.hasItem() || !(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
+            return;
+        
+        if (event.getItem().getType() != Material.ARROW || !event.getItem().hasItemMeta() || !event.getItem().getItemMeta().hasLore())
+            return;
+        
+        if (getPotionEffect(event.getItem().getItemMeta().getLore().get(0)) == null)
+            return;
+        
+        setSelectedArrow(event.getPlayer(), event.getItem());
+        event.getPlayer().sendMessage("Arrow selected!");
     }
     
-    private void setSelectedArrow(Player player, ItemStack item)
-    {
-        selectedArrows.put(player.getUniqueId(), item.clone());
-    }
-    
+    //handle arrow effects
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBowShoot(EntityShootBowEvent event)
@@ -144,29 +152,7 @@ public class EffectWeapons extends Module implements Listener
             player.sendMessage("Spezialpfeile Aufgebraucht!");
     }
     
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
-        if (!event.hasItem() || !(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
-            return;
-        
-        if (event.getItem().getType() != Material.ARROW || !event.getItem().hasItemMeta() || !event.getItem().getItemMeta().hasLore())
-            return;
-        
-        if (getPotionEffect(event.getItem().getItemMeta().getLore().get(0)) == null)
-            return;
-        
-        setSelectedArrow(event.getPlayer(), event.getItem());
-        event.getPlayer().sendMessage("Arrow selected!");
-    }
-    
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onInventoryInteract(InventoryClickEvent event)
-    {
-        if (event.getInventory().getType() == InventoryType.ANVIL)
-            new AnvilUpdateTask((AnvilInventory) event.getInventory()).runTaskLater(getPlugin(), 1L);
-    }
-    
+    //handle giving effects to victim
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event)
     {
@@ -212,14 +198,12 @@ public class EffectWeapons extends Module implements Listener
         ((LivingEntity) event.getEntity()).addPotionEffect(effect, true);
     }
     
-    private static String getUsesString(int uses)
+    //handle crafting
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onInventoryInteract(InventoryClickEvent event)
     {
-        return String.valueOf(uses);
-    }
-    
-    private static int getRemainingUses(String string)
-    {
-        return Integer.parseInt(string);
+        if (event.getInventory().getType() == InventoryType.ANVIL)
+            new AnvilUpdateTask((AnvilInventory) event.getInventory()).runTaskLater(getPlugin(), 1L);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -237,36 +221,14 @@ public class EffectWeapons extends Module implements Listener
         e.getInventory().setItem(RESULT_SLOT, null);
     }
     
-    class AnvilUpdateTask extends BukkitRunnable
+    private ItemStack getSelectedArrow(Player player)
     {
-        private AnvilInventory inventory;
-        
-        public AnvilUpdateTask(AnvilInventory inventory)
-        {
-            this.inventory = inventory;
-        }
-        
-        @Override
-        public void run()
-        {
-            ItemStack i1 = inventory.getItem(WEAPON_SLOT);
-            ItemStack i2 = inventory.getItem(POTION_SLOT);
-            
-            if (i1 == null || i2 == null)
-                return;
-            
-            if (!isApplicableWeapon(i1) || !isApplicablePotion(i2))
-                return;
-            
-            ItemStack result = i1.clone();
-            ItemMeta meta = result.getItemMeta();
-            if (i1.getType() == Material.ARROW)
-                meta.setLore(Arrays.asList(getEffectLore(i2)));
-            else
-                meta.setLore(Arrays.asList(getEffectLore(i2), String.valueOf(getUses())));
-            result.setItemMeta(meta);
-            inventory.setItem(RESULT_SLOT, result);
-        }
+        return selectedArrows.get(player.getUniqueId()).clone();
+    }
+    
+    private void setSelectedArrow(Player player, ItemStack item)
+    {
+        selectedArrows.put(player.getUniqueId(), item.clone());
     }
     
     private PotionEffect getPotionEffect(String lore)
@@ -314,18 +276,6 @@ public class EffectWeapons extends Module implements Listener
         return str.toString();
     }
     
-    private static String getDurationString(int duration)
-    {
-        duration /= 20;
-        int seconds = duration % 60;
-        return "(" + duration / 60 + ":" + (seconds < 10 ? "0" : "") + seconds + ")";
-    }
-    
-    private static String getPotionEffectString(PotionEffectType type)
-    {
-        return type.getName();
-    }
-    
     public boolean isApplicablePotion(ItemStack i2)
     {
         if (i2.getType() != Material.POTION)
@@ -340,6 +290,45 @@ public class EffectWeapons extends Module implements Listener
             return false;
         
         return true;
+    }
+    
+    private int parseDuration(String string)
+    {
+        if (string.startsWith("(") && string.endsWith(")"))
+        {
+            String[] s = string.substring(1, string.length() - 1).split(":");
+            if (s.length == 2)
+            {
+                int minutes = Integer.parseInt(s[0]);
+                int seconds = Integer.parseInt(s[1]);
+                
+                return (int) ((minutes * 60 + seconds) * 20 * durationModifier);
+            }
+        }
+        
+        throw new NumberFormatException(string + "is not a valid time string!");
+    }
+    
+    private static String getUsesString(int uses)
+    {
+        return String.valueOf(uses);
+    }
+    
+    private static int getRemainingUses(String string)
+    {
+        return Integer.parseInt(string);
+    }
+    
+    private static String getDurationString(int duration)
+    {
+        duration /= 20;
+        int seconds = duration % 60;
+        return "(" + duration / 60 + ":" + (seconds < 10 ? "0" : "") + seconds + ")";
+    }
+    
+    private static String getPotionEffectString(PotionEffectType type)
+    {
+        return type.getName();
     }
     
     public static boolean isApplicableWeapon(ItemStack item)
@@ -363,23 +352,6 @@ public class EffectWeapons extends Module implements Listener
         return Integer.parseInt(string);
     }
     
-    private int parseDuration(String string)
-    {
-        if (string.startsWith("(") && string.endsWith(")"))
-        {
-            String[] s = string.substring(1, string.length() - 1).split(":");
-            if (s.length == 2)
-            {
-                int minutes = Integer.parseInt(s[0]);
-                int seconds = Integer.parseInt(s[1]);
-                
-                return (int) ((minutes * 60 + seconds) * 20 * durationModifier);
-            }
-        }
-        
-        throw new NumberFormatException(string + "is not a valid time string!");
-    }
-    
     private static PotionEffectType getPotionEffectType(String input)
     {
         PotionEffectType type = PotionEffectType.getByName(input);
@@ -393,5 +365,37 @@ public class EffectWeapons extends Module implements Listener
     public ModuleType getType()
     {
         return ModuleType.EFFECTWEAPONS;
+    }
+    
+    class AnvilUpdateTask extends BukkitRunnable
+    {
+        private AnvilInventory inventory;
+        
+        public AnvilUpdateTask(AnvilInventory inventory)
+        {
+            this.inventory = inventory;
+        }
+        
+        @Override
+        public void run()
+        {
+            ItemStack i1 = inventory.getItem(WEAPON_SLOT);
+            ItemStack i2 = inventory.getItem(POTION_SLOT);
+            
+            if (i1 == null || i2 == null)
+                return;
+            
+            if (!isApplicableWeapon(i1) || !isApplicablePotion(i2))
+                return;
+            
+            ItemStack result = i1.clone();
+            ItemMeta meta = result.getItemMeta();
+            if (i1.getType() == Material.ARROW)
+                meta.setLore(Arrays.asList(getEffectLore(i2)));
+            else
+                meta.setLore(Arrays.asList(getEffectLore(i2), String.valueOf(getUses())));
+            result.setItemMeta(meta);
+            inventory.setItem(RESULT_SLOT, result);
+        }
     }
 }

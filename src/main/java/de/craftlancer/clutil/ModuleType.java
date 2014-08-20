@@ -6,12 +6,14 @@ public enum ModuleType
     EFFECTWEAPONS,
     ORESTONES,
     HEADHUNT,
-    PUMPKINBANDIT, 
-    OWNHEALTH, 
-    HOME, 
-    SPEED, 
-    DISTANCESHOT, 
-    RANDOMCHESTS, CUSTOMENCHANTS;
+    PUMPKINBANDIT,
+    OWNHEALTH,
+    HOME,
+    SPEED,
+    DISTANCESHOT,
+    RANDOMCHESTS,
+    CUSTOMENCHANTS,
+    TOKEN;
     
     private final String config;
     

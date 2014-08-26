@@ -225,12 +225,6 @@ public class AdvancedEnchantments extends Module implements Listener
             p.sendMessage("You don't have enough EXP");
     }
     
-    @Override
-    public ModuleType getType()
-    {
-        return ModuleType.ADVENCHANTMENTS;
-    }
-    
     // TODO update for 1.8
     private static int getExp(double level)
     {
@@ -350,5 +344,11 @@ public class AdvancedEnchantments extends Module implements Listener
         {
             return base * level * level;
         }
+    }
+        
+    @Override
+    public ModuleType getType()
+    {
+        return ModuleType.ADVENCHANTMENTS;
     }
 }

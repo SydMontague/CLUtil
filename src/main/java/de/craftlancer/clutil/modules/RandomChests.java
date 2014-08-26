@@ -86,6 +86,8 @@ public class RandomChests extends Module
             maxValue += weight;
             valueMap.put(item, value);
         }
+        
+        new ChestTask().runTaskTimer(plugin, 20, 20);
     }
     
     protected void spawnChest(int value)

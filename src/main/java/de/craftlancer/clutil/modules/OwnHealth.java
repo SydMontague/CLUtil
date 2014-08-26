@@ -57,7 +57,7 @@ public class OwnHealth extends Module implements Listener
         LivingEntity ent = e.getEntity();
         EntityType type = e.getEntityType();
         
-        if (!mobs.containsKey(e.getEntityType()))
+        if (!mobs.containsKey(type))
             return;
         
         switch (type)

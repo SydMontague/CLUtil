@@ -35,7 +35,7 @@ public class Speed extends Module
             float maxSpeed = (float) getConfig().getDouble("berserker.maxSpeed", 0.5);
             int maxCombo = getConfig().getInt("berserker.maxCombo", 7);
             long duration = getConfig().getLong("berserker.duration", 10000L);
-            int priority = getConfig().getInt("berserker.priority", 5);
+            int priority = getConfig().getInt("berserker.priority", 4);
             
             berserkMod = new BerserkSpeedModifier(priority, maxSpeed, maxDmg, maxCombo, duration);
             SpeedAPI.addModifier("berserker", berserkMod);

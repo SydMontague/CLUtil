@@ -25,7 +25,9 @@ public class DistanceShot extends Module implements Listener
     public DistanceShot(CLUtil plugin)
     {
         super(plugin);
-        getConfig().getDouble("damageMod", 1.5);
+        damage = new ValueWrapper(getConfig().getString("damageMod", "0.01*x"));
+        minDistance = getConfig().getInt("minDistance", 10);
+        maxDistance = getConfig().getInt("maxDistance", 100);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     

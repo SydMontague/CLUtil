@@ -13,7 +13,8 @@ public enum ModuleType
     DISTANCESHOT,
     RANDOMCHESTS,
     CUSTOMENCHANTS,
-    TOKEN;
+    TOKEN,
+    TRACKING;
     
     private final String config;
     

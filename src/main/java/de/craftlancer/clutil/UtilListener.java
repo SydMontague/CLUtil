@@ -1,21 +1,16 @@
 package de.craftlancer.clutil;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -24,23 +19,16 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import ru.tehkode.permissions.bukkit.PermissionsEx;
-import de.craftlancer.economy.CLEco;
-import de.craftlancer.skilllevels.event.SkillLevelUpEvent;
-
 public class UtilListener implements Listener
 {
     private CLUtil plugin;
-    private Set<String> startPerms = new HashSet<String>()
+    /*private Set<String> startPerms = new HashSet<String>()
     {
         private static final long serialVersionUID = 1L;
         {
@@ -72,7 +60,7 @@ public class UtilListener implements Listener
             add("-cl.util.sneak");
             add("-allowlockpicking.canpick");
         }
-    };
+    };*/
     
     public UtilListener(CLUtil plugin)
     {
@@ -81,12 +69,14 @@ public class UtilListener implements Listener
     
     private HashMap<String, Long> map = new HashMap<String, Long>();
     
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onEnderPearl(PlayerInteractEvent e)
-    {
-        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && e.getItem().getType() == Material.ENDER_PEARL)
-            e.setCancelled(true);
-    }
+    /*
+     * @EventHandler(priority = EventPriority.MONITOR)
+     * public void onEnderPearl(PlayerInteractEvent e)
+     * {
+     * if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && e.getItem().getType() == Material.ENDER_PEARL)
+     * e.setCancelled(true);
+     * }
+     */
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDragonDeath(EntityDeathEvent e)
@@ -178,37 +168,36 @@ public class UtilListener implements Listener
         Player p = (Player) e.getDamager();
         long time;
         
-        if (p.getItemInHand().getType() == Material.SHEARS)
-            time = plugin.getConfig().getLong("shortnodamage", 600L);
-        else
+        //if (p.getItemInHand().getType() == Material.SHEARS)
+        //    time = plugin.getConfig().getLong("shortnodamage", 600L);
+        //else
             time = plugin.getConfig().getLong("nodamage", 1000L);
         
         map.put(p.getName(), System.currentTimeMillis() + time);
     }
     
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void damage(EntityDamageByEntityEvent e)
-    {
-        if (e.getDamager() instanceof Player && ((Player) e.getDamager()).getItemInHand().getType() == Material.SHEARS)
-            if (((Player) e.getDamager()).hasPermission("cl.util.shear"))
-                e.setDamage(e.getDamage() + 3.5);
-    }
-    
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void damageMonitor(EntityDamageByEntityEvent e)
-    {
-        if (!(e.getDamager() instanceof Player) || ((Player) e.getDamager()).getItemInHand().getType() != Material.SHEARS)
-            return;
-        
-        short dura = (short) (((HumanEntity) e.getDamager()).getItemInHand().getDurability() + 1);
-        ((HumanEntity) e.getDamager()).getItemInHand().setDurability(dura);
-        
-        if (dura > 238)
-        {
-            ((HumanEntity) e.getDamager()).setItemInHand(new ItemStack(Material.AIR));
-            ((Player) e.getDamager()).playSound(e.getDamager().getLocation(), Sound.ITEM_BREAK, 0.5F, 0.5F);
-        }
-    }
+    /*
+     * @EventHandler(priority = EventPriority.LOWEST)
+     * public void damage(EntityDamageByEntityEvent e)
+     * {
+     * if (e.getDamager() instanceof Player && ((Player) e.getDamager()).getItemInHand().getType() == Material.SHEARS)
+     * if (((Player) e.getDamager()).hasPermission("cl.util.shear"))
+     * e.setDamage(e.getDamage() + 3.5);
+     * }
+     * @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+     * public void damageMonitor(EntityDamageByEntityEvent e)
+     * {
+     * if (!(e.getDamager() instanceof Player) || ((Player) e.getDamager()).getItemInHand().getType() != Material.SHEARS)
+     * return;
+     * short dura = (short) (((HumanEntity) e.getDamager()).getItemInHand().getDurability() + 1);
+     * ((HumanEntity) e.getDamager()).getItemInHand().setDurability(dura);
+     * if (dura > 238)
+     * {
+     * ((HumanEntity) e.getDamager()).setItemInHand(new ItemStack(Material.AIR));
+     * ((Player) e.getDamager()).playSound(e.getDamager().getLocation(), Sound.ITEM_BREAK, 0.5F, 0.5F);
+     * }
+     * }
+     */
     
     // PvP rebalance end
     
@@ -219,13 +208,15 @@ public class UtilListener implements Listener
             e.setCancelled(true);
     }
     
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onFirstJoin(PlayerJoinEvent e)
-    {
-        if (!e.getPlayer().hasPlayedBefore())
-            for (String s : startPerms)
-                PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
-    }
+    /*
+     * @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+     * public void onFirstJoin(PlayerJoinEvent e)
+     * {
+     * if (!e.getPlayer().hasPlayedBefore())
+     * for (String s : startPerms)
+     * PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
+     * }
+     */
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onHealthPot(EntityRegainHealthEvent e)
@@ -234,16 +225,16 @@ public class UtilListener implements Listener
             e.setAmount(e.getAmount() * 2.5);
     }
     
-    @EventHandler
-    public void onLevelUp(SkillLevelUpEvent e)
-    {
-        if (plugin.getServer().getPlayer(e.getUser().getUUID()) == null)
-            return;
-        
-        int gold = (e.getNewLevel() - e.getOldLevel()) * plugin.getConfig().getInt("goldPerLevel", 50);
-        CLEco.getInstance().depositBalance(plugin.getServer().getPlayer(e.getUser().getUUID()).getInventory(), gold);
-        
-    }
+    /*
+     * @EventHandler
+     * public void onLevelUp(SkillLevelUpEvent e)
+     * {
+     * if (plugin.getServer().getPlayer(e.getUser().getUUID()) == null)
+     * return;
+     * int gold = (e.getNewLevel() - e.getOldLevel()) * plugin.getConfig().getInt("goldPerLevel", 50);
+     * CLEco.getInstance().depositBalance(plugin.getServer().getPlayer(e.getUser().getUUID()).getInventory(), gold);
+     * }
+     */
     
     @EventHandler
     public void onItemConsume(PlayerItemConsumeEvent e)
@@ -353,8 +344,5 @@ public class UtilListener implements Listener
         
         if (p.hasPermission("cl.util.wald.dmgmod"))
             e.setDamage(e.getDamage() * plugin.getConfig().getDouble("waldl_arrow_mod", 1.5D));
-        
-        if (e.getDamager().hasMetadata("poisonArrow"))
-            ((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.POISON, plugin.getConfig().getInt("waldl_duration", 10) * 20, plugin.getConfig().getInt("waldl_strenght", 0)));
     }
 }

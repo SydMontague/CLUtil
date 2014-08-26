@@ -104,12 +104,11 @@ public class CustomEnchantments extends Module
         DEFAULT_FACTOR = getConfig().getInt("protection.defaultFactor", 1);
         LEATHER_FACTOR = getConfig().getInt("protection.leatherFactor", 10);
         GOLD_FACTOR = getConfig().getInt("protection.goldFactor", 5);
-        CHAINMAIL_FACTOR = getConfig().getInt("protection.chainmainFactor", 5);
+        CHAINMAIL_FACTOR = getConfig().getInt("protection.chainmailFactor", 5);
         IRON_FACTOR = getConfig().getInt("protection.ironFactor", 3);
         DIAMOND_FACTOR = getConfig().getInt("protection.diamondFactor", 1);
         
         enchants = getConfig().getStringList("extract.enchants");
-        
     }
     
     // handle crafting
@@ -193,7 +192,7 @@ public class CustomEnchantments extends Module
             switch (token.getType())
             {
                 case ENCHANTMENT:
-                    return ((EnchantmentToken) token).getEnchantment().canEnchantItem(i1);
+                    return i1.getEnchantmentLevel(((EnchantmentToken) token).getEnchantment()) < 10 && ((EnchantmentToken) token).getEnchantment().canEnchantItem(i1);
                 case UNDEFINED:
                     for (Enchantment entry : i1.getEnchantments().keySet())
                         if (canExtract(entry))

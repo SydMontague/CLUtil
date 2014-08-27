@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
@@ -17,9 +15,7 @@ import de.craftlancer.clutil.ModuleType;
 
 public class Tracking extends Module
 {
-    
-    private TrackingHandler handler = new TrackingHandler();
-    
+        
     private Map<UUID, LocationTracker> locations = new HashMap<>();
     
     public Tracking(CLUtil plugin)
@@ -80,7 +76,6 @@ class LocationTracker
 
 class TrackingPoint
 {
-    private long time;
     private int x;
     private int y;
     private int z;
@@ -90,7 +85,6 @@ class TrackingPoint
         this.x = x;
         this.y = y;
         this.z = z;
-        this.time = System.currentTimeMillis();
     }
 
     public TrackingPoint(Location loc)
@@ -113,69 +107,3 @@ class TrackingPoint
     }
 }
 
-class TrackingHandler extends BukkitRunnable
-{
-    private TrackingBuffer buffer1;
-    private TrackingBuffer buffer2;
-    private boolean useBuffer1;
-    
-    @Override
-    public void run()
-    {
-        swapBuffers();
-    }
-    
-    private synchronized void swapBuffers()
-    {
-        if (useBuffer1)
-            buffer1.clear();
-        else
-            buffer2.clear();
-        
-        useBuffer1 = !useBuffer1;
-    }
-    
-    private TrackingBuffer getReadBuffer()
-    {
-        return useBuffer1 ? buffer1 : buffer2;
-    }
-    
-    private TrackingBuffer getWriteBuffer()
-    {
-        return useBuffer1 ? buffer2 : buffer1;
-    }
-}
-
-class TrackingBuffer
-{
-    private Map<UUID, List<BlockChange>> values = new HashMap<>();
-    
-    public void clear()
-    {
-    }
-}
-
-class BlockChange
-{
-    private Location location;
-    private Material material;
-    private byte data;
-    private boolean reset;
-    
-    public BlockChange(Location location, Material material, byte data, boolean reset)
-    {
-        this.location = location;
-        this.material = material;
-        this.data = data;
-        this.reset = reset;
-    }
-    
-    @SuppressWarnings("deprecation")
-    public void sendBlockChange(Player p)
-    {
-        if (reset)
-            p.sendBlockChange(location, location.getBlock().getType(), location.getBlock().getData());
-        else
-            p.sendBlockChange(location, material, data);
-    }
-}

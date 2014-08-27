@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -33,6 +34,8 @@ import de.craftlancer.clutil.ModuleType;
  *  durability: int
  *  name: string
  *  lore: stringlist
+ *  enchantments:
+ *      ENCHANTMENT: level
  *  value: int
  *  weight: int
  * 
@@ -63,7 +66,7 @@ public class RandomChests extends Module
         
         for (String key : getConfig().getKeys(false))
         {
-            Material mat = Material.matchMaterial(key);
+            Material mat = Material.matchMaterial(key + ".material");
             
             if (mat == null)
                 continue;
@@ -81,6 +84,17 @@ public class RandomChests extends Module
             meta.setDisplayName(name);
             meta.setLore(lore);
             item.setItemMeta(meta);
+            
+            for(String k : getConfig().getConfigurationSection(key + ".enchantments").getKeys(false))
+            {
+                Enchantment ench = Enchantment.getByName(k);
+                if(ench == null)
+                    continue;
+                
+                int level = getConfig().getInt(key + ".enchantments." + k);
+                
+                item.addUnsafeEnchantment(ench, level);
+            }
             
             weightMap.put(maxValue, item);
             maxValue += weight;
@@ -112,6 +126,8 @@ public class RandomChests extends Module
         NBTTagCompound nbt = new NBTTagCompound();
         tileChest.b(nbt);
         nmsEntity.tileEntityData = nbt;
+        
+        center.getWorld().strikeLightningEffect(target);
         
         removeTime.put(System.currentTimeMillis() + REMOVE_TIME, new Point(x, z));
     }

@@ -31,10 +31,12 @@ public class OwnHealth extends Module implements Listener
         
         for (String key : getConfig().getKeys(false))
         {
-            if (EntityType.fromName(key) == null)
+            EntityType type = key.equals("PLAYER") ? EntityType.PLAYER : EntityType.fromName(key);
+            
+            if (type == null)
                 continue;
             
-            mobs.put(EntityType.fromName(key), new ValueWrapper(getConfig().getString(key)));
+            mobs.put(type, new ValueWrapper(getConfig().getString(key)));
         }
     }
     

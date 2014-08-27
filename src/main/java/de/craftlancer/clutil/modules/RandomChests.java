@@ -2,10 +2,12 @@ package de.craftlancer.clutil.modules;
 
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 
 import net.minecraft.server.v1_7_R4.EntityFallingBlock;
@@ -29,7 +31,8 @@ import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
 
 /*
- * Material:
+ * key:
+ *  material: material
  *  amount: int
  *  durability: int
  *  name: string
@@ -41,15 +44,16 @@ import de.craftlancer.clutil.ModuleType;
  * 
  * Random Zahl 0...maxValue, closest, bigger smaller, 
  */
+//TODO better chest tracking
 public class RandomChests extends Module
 {
-    private static final int REMOVE_TIME = 15 * 1000 * 60;
-    private static final double chancePerTick = 0.01;
+    private static final int REMOVE_TIME = 1 * 1000 * 30; // 15*1000*60
+    private static final double chancePerTick = 0.05; // 0.01
     private static final int minValue = 100;
-    private static final int randomValue = 500;
+    private static final int randomValue = 400;
     
     protected Random random = new Random();
-    private Location center = new Location(Bukkit.getServer().getWorlds().get(0), 0, 0, 0);
+    private Location center = new Location(Bukkit.getServer().getWorlds().get(0), 80, 0, 50);
     
     private int maxValue = 0;
     private TreeMap<Integer, ItemStack> weightMap = new TreeMap<Integer, ItemStack>();
@@ -66,15 +70,15 @@ public class RandomChests extends Module
         
         for (String key : getConfig().getKeys(false))
         {
-            Material mat = Material.matchMaterial(key + ".material");
+            Material mat = Material.matchMaterial(getConfig().getString(key + ".material"));
             
             if (mat == null)
                 continue;
             
             int amount = getConfig().getInt(key + ".amount", 1);
             short durability = (short) getConfig().getInt(key + ".durability", 0);
-            String name = getConfig().getString(key + ".amount", null);
-            List<String> lore = getConfig().getStringList(key + ".amount");
+            String name = getConfig().getString(key + ".name", null);
+            List<String> lore = getConfig().getStringList(key + ".lore");
             
             int value = getConfig().getInt(key + ".value", 1);
             int weight = getConfig().getInt(key + ".weight", 1);
@@ -85,16 +89,17 @@ public class RandomChests extends Module
             meta.setLore(lore);
             item.setItemMeta(meta);
             
-            for(String k : getConfig().getConfigurationSection(key + ".enchantments").getKeys(false))
-            {
-                Enchantment ench = Enchantment.getByName(k);
-                if(ench == null)
-                    continue;
-                
-                int level = getConfig().getInt(key + ".enchantments." + k);
-                
-                item.addUnsafeEnchantment(ench, level);
-            }
+            if (getConfig().isConfigurationSection(key + ".enchantments"))
+                for (String k : getConfig().getConfigurationSection(key + ".enchantments").getKeys(false))
+                {
+                    Enchantment ench = Enchantment.getByName(k);
+                    if (ench == null)
+                        continue;
+                    
+                    int level = getConfig().getInt(key + ".enchantments." + k);
+                    
+                    item.addUnsafeEnchantment(ench, level);
+                }
             
             weightMap.put(maxValue, item);
             maxValue += weight;
@@ -106,13 +111,25 @@ public class RandomChests extends Module
     
     protected void spawnChest(int value)
     {
-        int localRadius = 10;
+        int localRadius = 35;
         
         int x = random.nextInt(localRadius * 2) - localRadius;
-        int d = (int) Math.sqrt(localRadius * localRadius - x * x);
-        int z = d == 0 ? 0 : random.nextInt(d * 2) - d;
+        int z = random.nextInt(localRadius * 2) - localRadius;
+        // int d = (int) Math.sqrt(localRadius * localRadius - x * x);
+        // int z = d == 0 ? 0 : random.nextInt(d * 2) - d;
         
-        Location target = new Location(center.getWorld(), center.getBlockX() + x, center.getBlockY(), center.getBlockZ() + z);
+        Location target = new Location(center.getWorld(), center.getBlockX() + x, 260, center.getBlockZ() + z);
+        
+        switch (center.getWorld().getHighestBlockAt(target).getType())
+        {
+            case LAVA:
+            case WATER:
+            case STATIONARY_WATER:
+            case STATIONARY_LAVA:
+                return;
+            default:
+                break;
+        }
         
         @SuppressWarnings("deprecation")
         FallingBlock entity = target.getWorld().spawnFallingBlock(target, Material.CHEST, (byte) 0);
@@ -127,9 +144,9 @@ public class RandomChests extends Module
         tileChest.b(nbt);
         nmsEntity.tileEntityData = nbt;
         
-        center.getWorld().strikeLightningEffect(target);
+        center.getWorld().strikeLightningEffect(target.getWorld().getHighestBlockAt(target).getLocation());
         
-        removeTime.put(System.currentTimeMillis() + REMOVE_TIME, new Point(x, z));
+        removeTime.put(System.currentTimeMillis() + REMOVE_TIME, new Point(target.getBlockX(), target.getBlockZ()));
     }
     
     private void fillChest(int value, net.minecraft.server.v1_7_R4.ItemStack[] contents)
@@ -176,9 +193,18 @@ public class RandomChests extends Module
         @Override
         public void run()
         {
+            Set<Long> removeSet = new HashSet<Long>();
             for (Entry<Long, Point> time : removeTime.entrySet())
+            {
                 if (time.getKey() < System.currentTimeMillis())
+                {
                     world.getHighestBlockAt((int) time.getValue().getX(), (int) time.getValue().getY()).setType(Material.AIR);
+                    removeSet.add(time.getKey());
+                }
+            }
+            
+            for(Long l : removeSet)
+                removeTime.remove(l);
             
             if (Math.random() <= chancePerTick)
                 spawnChest(minValue + random.nextInt(randomValue));

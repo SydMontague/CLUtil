@@ -22,6 +22,7 @@ import de.craftlancer.clutil.modules.PumpkinBandit;
 import de.craftlancer.clutil.modules.RandomChests;
 import de.craftlancer.clutil.modules.Speed;
 import de.craftlancer.clutil.modules.TokenModule;
+import de.craftlancer.clutil.modules.Tracking;
 
 public class CLUtil extends JavaPlugin
 {
@@ -125,6 +126,9 @@ public class CLUtil extends JavaPlugin
                 return new CustomEnchantments(this);
             case TOKEN:
                 return new TokenModule(this);
+            case TRACKING:
+                return new Tracking(this);
+
         }
         
         throw new IllegalArgumentException("Illegal ModuleType detected!");

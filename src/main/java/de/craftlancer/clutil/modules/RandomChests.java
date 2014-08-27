@@ -47,8 +47,10 @@ import de.craftlancer.clutil.ModuleType;
 //TODO better chest tracking
 public class RandomChests extends Module
 {
-    private static final int REMOVE_TIME = 1 * 1000 * 30; // 15*1000*60
-    private static final double chancePerTick = 0.05; // 0.01
+    //TODO move to config
+    private static final int RADIUS = 350;
+    private static final int REMOVE_TIME = 15 * 1000 * 600;
+    private static final double chancePerTick = 0.01;
     private static final int minValue = 100;
     private static final int randomValue = 400;
     
@@ -111,10 +113,9 @@ public class RandomChests extends Module
     
     protected void spawnChest(int value)
     {
-        int localRadius = 35;
         
-        int x = random.nextInt(localRadius * 2) - localRadius;
-        int z = random.nextInt(localRadius * 2) - localRadius;
+        int x = random.nextInt(RADIUS * 2) - RADIUS;
+        int z = random.nextInt(RADIUS * 2) - RADIUS;
         // int d = (int) Math.sqrt(localRadius * localRadius - x * x);
         // int z = d == 0 ? 0 : random.nextInt(d * 2) - d;
         

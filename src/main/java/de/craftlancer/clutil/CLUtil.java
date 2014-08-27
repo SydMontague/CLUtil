@@ -6,8 +6,14 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clutil.modules.AdvancedEnchantments;
@@ -27,9 +33,9 @@ import de.craftlancer.clutil.modules.Tracking;
 public class CLUtil extends JavaPlugin
 {
     private static CLUtil instance;
-//    private CommandStatsMe stats;
-//    private CommandSneak sneak;
-//    private GriefBlock gblock;
+    // private CommandStatsMe stats;
+    // private CommandSneak sneak;
+    // private GriefBlock gblock;
     private FileConfiguration config;
     public Logger log;
     
@@ -42,43 +48,72 @@ public class CLUtil extends JavaPlugin
         if (!new File(this.getDataFolder(), "config.yml").exists())
             saveDefaultConfig();
         
-        //stats = new CommandStatsMe(this);
-        //sneak = new CommandSneak(this);
-        //gblock = new GriefBlock();
-        //gblock.runTaskTimer(this, 1200L, 1200L);
+        // stats = new CommandStatsMe(this);
+        // sneak = new CommandSneak(this);
+        // gblock = new GriefBlock();
+        // gblock.runTaskTimer(this, 1200L, 1200L);
         config = getConfig();
         log = getLogger();
         
-        //getCommand("sneak").setExecutor(sneak);
-        //getCommand("statsme").setExecutor(stats);
-        //getCommand("find").setExecutor(new CommandFind(this));
+        // getCommand("sneak").setExecutor(sneak);
+        // getCommand("statsme").setExecutor(stats);
+        // getCommand("find").setExecutor(new CommandFind(this));
         
         // new ResourceAlgoTest(this);
         // getServer().getPluginManager().registerEvents(new BuildingTest(), this);
         
         loadModules();
         
+        getCommand("equip").setExecutor(new CommandExecutor()
+        {
+            @Override
+            public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+            {
+                if(sender instanceof Player)
+                    return false;
+                
+                if(args.length < 1)
+                    return false;
+                
+                for(String s : args)
+                {
+                    @SuppressWarnings("deprecation")
+                    Player p = Bukkit.getPlayer(s);
+                    EntityEquipment e = p.getEquipment();
+                    e.setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+                    e.setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+                    e.setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+                    e.setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+                    
+                    e.setItemInHand(new ItemStack(Material.DIAMOND_SWORD));
+                    p.getInventory().addItem(new ItemStack(Material.BOW), new ItemStack(Material.ARROW, 64), new ItemStack(Material.COOKED_BEEF, 16), new ItemStack(Material.STRING, 16));
+                }
+                
+                return true;
+            }
+            
+        });
+        
         getServer().getPluginManager().registerEvents(new UtilListener(this), this);
-        //getServer().getPluginManager().registerEvents(stats, this);
-        //getServer().getPluginManager().registerEvents(sneak, this);
-        //getServer().getPluginManager().registerEvents(new AutoLevelUp(this), this);
-        //getServer().getPluginManager().registerEvents(new RollChange(), this);
-        //getServer().getPluginManager().registerEvents(gblock, this);
-        //getServer().getPluginManager().registerEvents(new FarmRebalance(), this);
+        // getServer().getPluginManager().registerEvents(stats, this);
+        // getServer().getPluginManager().registerEvents(sneak, this);
+        // getServer().getPluginManager().registerEvents(new AutoLevelUp(this), this);
+        // getServer().getPluginManager().registerEvents(new RollChange(), this);
+        // getServer().getPluginManager().registerEvents(gblock, this);
+        // getServer().getPluginManager().registerEvents(new FarmRebalance(), this);
         /*
-        ItemStack arrow = new ItemStack(Material.ARROW, 2);
-        ItemMeta meta = arrow.getItemMeta();
-        meta.setDisplayName("§4PoisonArrow");
-        arrow.setItemMeta(meta);
-        
-        getServer().addRecipe(new ShapedRecipe(arrow).shape("OF", "ES", "OC").setIngredient('F', Material.FLINT).setIngredient('E', Material.EXP_BOTTLE).setIngredient('S', Material.STICK).setIngredient('C', Material.FEATHER));
-        
-        ItemStack gravel = new ItemStack(Material.GRAVEL, 3);
-        ItemMeta gmeta = gravel.getItemMeta();
-        gmeta.setDisplayName("§4Griefblock");
-        gravel.setItemMeta(gmeta);
-        getServer().addRecipe(new ShapelessRecipe(gravel).addIngredient(3, Material.GRAVEL).addIngredient(Material.EXP_BOTTLE).addIngredient(Material.INK_SACK, 4));
-        */
+         * ItemStack arrow = new ItemStack(Material.ARROW, 2);
+         * ItemMeta meta = arrow.getItemMeta();
+         * meta.setDisplayName("§4PoisonArrow");
+         * arrow.setItemMeta(meta);
+         * getServer().addRecipe(new ShapedRecipe(arrow).shape("OF", "ES", "OC").setIngredient('F', Material.FLINT).setIngredient('E', Material.EXP_BOTTLE).setIngredient('S',
+         * Material.STICK).setIngredient('C', Material.FEATHER));
+         * ItemStack gravel = new ItemStack(Material.GRAVEL, 3);
+         * ItemMeta gmeta = gravel.getItemMeta();
+         * gmeta.setDisplayName("§4Griefblock");
+         * gravel.setItemMeta(gmeta);
+         * getServer().addRecipe(new ShapelessRecipe(gravel).addIngredient(3, Material.GRAVEL).addIngredient(Material.EXP_BOTTLE).addIngredient(Material.INK_SACK, 4));
+         */
     }
     
     private void loadModules()
@@ -128,7 +163,7 @@ public class CLUtil extends JavaPlugin
                 return new TokenModule(this);
             case TRACKING:
                 return new Tracking(this);
-
+                
         }
         
         throw new IllegalArgumentException("Illegal ModuleType detected!");
@@ -142,11 +177,11 @@ public class CLUtil extends JavaPlugin
         for (Module mod : modules.values())
             mod.onDisable();
         
-        //stats.saveStats();
+        // stats.saveStats();
         config = null;
         getServer().getScheduler().cancelTasks(this);
         
-        //gblock.removeAllBlocks();
+        // gblock.removeAllBlocks();
     }
     
     public static CLUtil getInstance()
@@ -161,7 +196,7 @@ public class CLUtil extends JavaPlugin
     
     public static boolean isSneaking(String name)
     {
-        return false;//getInstance().sneak.isSneaking(name);
+        return false;// getInstance().sneak.isSneaking(name);
     }
     
     public static Location parseLocation(String loc)

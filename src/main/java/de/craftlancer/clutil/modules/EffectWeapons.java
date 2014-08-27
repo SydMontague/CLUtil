@@ -96,24 +96,24 @@ public class EffectWeapons extends Module implements Listener
         getPlugin().getServer().getPluginManager().registerEvents(this, plugin);
     }
     
-    //select arrow type
+    // select arrow type
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event)
     {
         if (!event.hasItem() || !(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
             return;
         
-        if (event.getItem().getType() != Material.ARROW || !event.getItem().hasItemMeta() || !event.getItem().getItemMeta().hasLore())
+        if (event.getItem().getType() != Material.ARROW)
             return;
         
-        if (getPotionEffect(event.getItem().getItemMeta().getLore().get(0)) == null)
-            return;
-        
-        setSelectedArrow(event.getPlayer(), event.getItem());
+        if (!event.getItem().hasItemMeta() || !event.getItem().getItemMeta().hasLore() || getPotionEffect(event.getItem().getItemMeta().getLore().get(0)) == null)
+            setSelectedArrow(event.getPlayer(), null);
+        else
+            setSelectedArrow(event.getPlayer(), event.getItem());
         event.getPlayer().sendMessage("Arrow selected!");
     }
     
-    //handle arrow effects
+    // handle arrow effects
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBowShoot(EntityShootBowEvent event)
@@ -148,11 +148,11 @@ public class EffectWeapons extends Module implements Listener
         
         event.getProjectile().setMetadata("clutil.poisonarrow", new FixedMetadataValue(getPlugin(), lore));
         
-        if (!player.getInventory().contains(remove))
+        if (!player.getInventory().containsAtLeast(remove, 1))
             player.sendMessage("Spezialpfeile Aufgebraucht!");
     }
     
-    //handle giving effects to victim
+    // handle giving effects to victim
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event)
     {
@@ -198,7 +198,7 @@ public class EffectWeapons extends Module implements Listener
         ((LivingEntity) event.getEntity()).addPotionEffect(effect, true);
     }
     
-    //handle crafting
+    // handle crafting
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInventoryInteract(InventoryClickEvent event)
     {
@@ -212,7 +212,7 @@ public class EffectWeapons extends Module implements Listener
         if (!(e.getInventory().getType() == InventoryType.ANVIL && e.getSlotType() == SlotType.RESULT && e.getCursor().getType() == Material.AIR))
             return;
         
-        if (e.getInventory().getItem(POTION_SLOT).getType() != Material.POTION)
+        if (e.getInventory().getItem(POTION_SLOT) == null || e.getInventory().getItem(POTION_SLOT).getType() != Material.POTION)
             return;
         
         e.getWhoClicked().setItemOnCursor(e.getInventory().getItem(RESULT_SLOT));
@@ -228,7 +228,10 @@ public class EffectWeapons extends Module implements Listener
     
     private void setSelectedArrow(Player player, ItemStack item)
     {
-        selectedArrows.put(player.getUniqueId(), item.clone());
+        if (item == null)
+            selectedArrows.remove(player.getUniqueId());
+        else
+            selectedArrows.put(player.getUniqueId(), item.clone());
     }
     
     private PotionEffect getPotionEffect(String lore)

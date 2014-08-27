@@ -46,7 +46,7 @@ public class Speed extends Module
             sneakMod = new SneakSpeedModifier(getConfig().getInt("sneakMod.priority", 5), (float) getConfig().getDouble("sneakMod.amount", 0.1D));
             SpeedAPI.addModifier("sneak", sneakMod);
         }
-        if (getConfig().getBoolean("waldMod", false))
+        if (getConfig().getBoolean("waldMod.enabled", false))
         {
             waldMod = new WaldSpeedModifier(getConfig().getInt("waldMod.priority", 5), (float) getConfig().getDouble("waldMod.speed", 0.1));
             SpeedAPI.addModifier("wald", waldMod);

@@ -10,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -69,7 +70,7 @@ import de.craftlancer.clutil.modules.token.TokenFactory;
  * 
  * 
  */
-public class CustomEnchantments extends Module
+public class CustomEnchantments extends Module implements Listener
 {
     private static final int WEAPON_SLOT = 0;
     private static final int TOKEN_SLOT = 1;
@@ -109,6 +110,7 @@ public class CustomEnchantments extends Module
         DIAMOND_FACTOR = getConfig().getInt("protection.diamondFactor", 1);
         
         enchants = getConfig().getStringList("extract.enchants");
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     
     // handle crafting
@@ -226,7 +228,7 @@ public class CustomEnchantments extends Module
         int protectionLevel = getProtectionLevel(event.getCause(), entity.getEquipment());
         int factor = getSmallestFactor(entity.getEquipment());
         
-        if (factor == Integer.MAX_VALUE && protectionLevel == 0)
+        if (factor == Integer.MAX_VALUE || protectionLevel == 0)
             return;
         
         double result = factor * MAGIC_VALUE * Math.log(1.6 * protectionLevel);

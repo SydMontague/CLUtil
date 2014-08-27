@@ -22,6 +22,9 @@ commands:
   building:
     description: Build
     usage: /building
+  equip:
+    description: equip
+    usage: /equip
 permissions:
     cl.util.krieger:
         default: false

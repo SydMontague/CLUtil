@@ -2,6 +2,7 @@ package de.craftlancer.clutil;
 
 import java.util.HashMap;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
@@ -20,6 +21,7 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -77,6 +79,13 @@ public class UtilListener implements Listener
      * e.setCancelled(true);
      * }
      */
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onJoin(PlayerJoinEvent e)
+    {
+        if(!e.getPlayer().hasPlayedBefore())
+            e.getPlayer().teleport(new Location(e.getPlayer().getWorld(), 2, 18.5, 9));
+    }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDragonDeath(EntityDeathEvent e)

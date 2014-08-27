@@ -23,6 +23,7 @@ import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -47,10 +48,10 @@ import de.craftlancer.clutil.ModuleType;
 //TODO better chest tracking
 public class RandomChests extends Module
 {
-    //TODO move to config
+    // TODO move to config
     private static final int RADIUS = 350;
     private static final int REMOVE_TIME = 15 * 1000 * 600;
-    private static final double chancePerTick = 0.01;
+    private static final double chancePerTick = 0.015;
     private static final int minValue = 100;
     private static final int randomValue = 400;
     
@@ -100,11 +101,17 @@ public class RandomChests extends Module
                     
                     int level = getConfig().getInt(key + ".enchantments." + k);
                     
-                    item.addUnsafeEnchantment(ench, level);
+                    if (mat == Material.ENCHANTED_BOOK)
+                    {
+                        ((EnchantmentStorageMeta) meta).addStoredEnchant(ench, level, true);
+                        item.setItemMeta(meta);
+                    }
+                    else
+                        item.addUnsafeEnchantment(ench, level);
                 }
-            
-            weightMap.put(maxValue, item);
+
             maxValue += weight;
+            weightMap.put(maxValue, item);
             valueMap.put(item, value);
         }
         
@@ -204,7 +211,7 @@ public class RandomChests extends Module
                 }
             }
             
-            for(Long l : removeSet)
+            for (Long l : removeSet)
                 removeTime.remove(l);
             
             if (Math.random() <= chancePerTick)

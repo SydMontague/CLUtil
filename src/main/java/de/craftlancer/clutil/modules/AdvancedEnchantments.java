@@ -100,39 +100,39 @@ public class AdvancedEnchantments extends Module implements Listener
         if (!enableEnchant2Books)
             return;
         
-        if (e.getInventory().getType() == InventoryType.ANVIL && e.getSlotType() == SlotType.RESULT && e.getCursor().getType() == Material.AIR)
+        if (e.getInventory().getType() != InventoryType.ANVIL || e.getSlotType() != SlotType.RESULT || e.getCursor().getType() != Material.AIR)
+            return;
+        
+        if (e.getInventory().getItem(RESULT_SLOT) == null || e.getInventory().getItem(RESULT_SLOT).getType() != Material.ENCHANTED_BOOK)
+            return;
+        
+        ItemStack i1 = e.getInventory().getItem(0);
+        
+        if (i1.getEnchantments().size() == 0)
+            return;
+        
+        ItemStack result = new ItemStack(Material.ENCHANTED_BOOK);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
+        
+        int ench = i1.getEnchantments().size() <= 1 ? 0 : new Random().nextInt(i1.getEnchantments().size());
+        for (Entry<Enchantment, Integer> a : i1.getEnchantments().entrySet())
         {
-            if (e.getInventory().getItem(RESULT_SLOT).getType() == Material.ENCHANTED_BOOK)
+            if (ench != 0)
             {
-                ItemStack i1 = e.getInventory().getItem(0);
-                
-                if (i1.getEnchantments().size() == 0)
-                    return;
-                
-                ItemStack result = new ItemStack(Material.ENCHANTED_BOOK);
-                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
-                
-                int ench = i1.getEnchantments().size() <= 1 ? 0 : new Random().nextInt(i1.getEnchantments().size());
-                for (Entry<Enchantment, Integer> a : i1.getEnchantments().entrySet())
-                {
-                    if (ench != 0)
-                    {
-                        ench--;
-                        continue;
-                    }
-                    meta.addStoredEnchant(a.getKey(), a.getValue(), true);
-                    break;
-                }
-                result.setItemMeta(meta);
-                e.getInventory().setItem(RESULT_SLOT, result);
-                
-                e.getWhoClicked().setItemOnCursor(e.getInventory().getItem(RESULT_SLOT));
-                e.getInventory().setItem(0, null);
-                ItemStack i2 = e.getInventory().getItem(1);
-                i2.setAmount(i2.getAmount() - 1);
-                e.getInventory().setItem(1, i2);
+                ench--;
+                continue;
             }
+            meta.addStoredEnchant(a.getKey(), a.getValue(), true);
+            break;
         }
+        result.setItemMeta(meta);
+        e.getInventory().setItem(RESULT_SLOT, result);
+        
+        e.getWhoClicked().setItemOnCursor(e.getInventory().getItem(RESULT_SLOT));
+        e.getInventory().setItem(0, null);
+        ItemStack i2 = e.getInventory().getItem(1);
+        i2.setAmount(i2.getAmount() - 1);
+        e.getInventory().setItem(1, i2);
     }
     
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -345,7 +345,7 @@ public class AdvancedEnchantments extends Module implements Listener
             return base * level * level;
         }
     }
-        
+    
     @Override
     public ModuleType getType()
     {

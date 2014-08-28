@@ -222,6 +222,9 @@ public class CustomEnchantments extends Module implements Listener
     {
         if (!(event.getEntity() instanceof Player))
             return;
+
+        if(!event.isApplicable(DamageModifier.MAGIC))
+            return;
         
         LivingEntity entity = (LivingEntity) event.getEntity();
         
@@ -230,6 +233,7 @@ public class CustomEnchantments extends Module implements Listener
         
         if (factor == Integer.MAX_VALUE || protectionLevel == 0)
             return;
+        
         
         double result = factor * MAGIC_VALUE * Math.log(1.6 * protectionLevel);
         

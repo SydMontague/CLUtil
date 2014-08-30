@@ -18,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clutil.modules.AdvancedEnchantments;
 import de.craftlancer.clutil.modules.CustomEnchantments;
+import de.craftlancer.clutil.modules.DebugMode;
 import de.craftlancer.clutil.modules.DistanceShot;
 import de.craftlancer.clutil.modules.EffectWeapons;
 import de.craftlancer.clutil.modules.HeadHunter;
@@ -116,6 +117,14 @@ public class CLUtil extends JavaPlugin
          */
     }
     
+    public DebugMode getDebugModule()
+    {
+        if(modules.containsKey(ModuleType.DEBUG))
+            return (DebugMode) modules.get(ModuleType.DEBUG);
+        
+        return null;
+    }
+    
     private void loadModules()
     {
         for (ModuleType type : ModuleType.values())
@@ -163,6 +172,8 @@ public class CLUtil extends JavaPlugin
                 return new TokenModule(this);
             case TRACKING:
                 return new Tracking(this);
+            case DEBUG:
+                return new DebugMode(this);
                 
         }
         

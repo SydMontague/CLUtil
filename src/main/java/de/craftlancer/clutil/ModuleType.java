@@ -14,7 +14,8 @@ public enum ModuleType
     RANDOMCHESTS,
     CUSTOMENCHANTS,
     TOKEN,
-    TRACKING;
+    TRACKING, 
+    DEBUG;
     
     private final String config;
     

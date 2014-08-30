@@ -38,6 +38,11 @@ public abstract class Module
         }
     }
     
+    public void debug(String message)
+    {
+        getPlugin().getDebugModule().debug(getType().name(), message);
+    }
+    
     public void onDisable()
     {
     }

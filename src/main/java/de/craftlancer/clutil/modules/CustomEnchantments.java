@@ -217,13 +217,13 @@ public class CustomEnchantments extends Module implements Listener
         return enchants.contains(entry.getName());
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void handleArmorEnchants(EntityDamageEvent event)
     {
         if (!(event.getEntity() instanceof Player))
             return;
-
-        if(!event.isApplicable(DamageModifier.MAGIC))
+        
+        if (!event.isApplicable(DamageModifier.MAGIC))
             return;
         
         LivingEntity entity = (LivingEntity) event.getEntity();
@@ -234,6 +234,8 @@ public class CustomEnchantments extends Module implements Listener
         if (factor == Integer.MAX_VALUE || protectionLevel == 0)
             return;
         
+        if (protectionLevel > 40)
+            protectionLevel = 40;
         
         double result = factor * MAGIC_VALUE * Math.log(1.6 * protectionLevel);
         
@@ -276,7 +278,7 @@ public class CustomEnchantments extends Module implements Listener
         
         extraDamage += sharp * SHARP_DAMAGE;
         
-        event.setDamage(DamageModifier.BASE, event.getDamage(DamageModifier.BASE) - extraDamage / 2);
+        event.setDamage(event.getDamage(DamageModifier.BASE) - extraDamage / 2);
     }
     
     @EventHandler
@@ -288,13 +290,13 @@ public class CustomEnchantments extends Module implements Listener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArrow(EntityDamageByEntityEvent event)
     {
-        if (!(event.getEntity().hasMetadata("bow")))
+        if (!(event.getDamager().hasMetadata("bow")))
             return;
         
         if (!(event.getDamager() instanceof Arrow))
             return;
         
-        ItemStack bow = (ItemStack) event.getEntity().getMetadata("bow").get(0).value();
+        ItemStack bow = (ItemStack) event.getDamager().getMetadata("bow").get(0).value();
         
         if (!bow.containsEnchantment(Enchantment.ARROW_DAMAGE))
             return;
@@ -302,7 +304,9 @@ public class CustomEnchantments extends Module implements Listener
         int level = bow.getEnchantmentLevel(Enchantment.ARROW_DAMAGE);
         
         double base = event.getDamage(DamageModifier.BASE) / (1 + 0.25 * (level + 1));
-        event.setDamage(DamageModifier.BASE, base * (1 + 0.15 * (level + 1)));
+        event.setDamage(base * (1 + 0.15 * (level + 1)));
+        
+        debug("B L: " + level + " B: " + base + " R: " + event.getDamage(DamageModifier.BASE));
     }
     
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

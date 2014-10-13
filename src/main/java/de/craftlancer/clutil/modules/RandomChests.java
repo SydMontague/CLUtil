@@ -79,7 +79,7 @@ public class RandomChests extends Module
         minValue = getConfig().getInt("minValue", 100);
         randomValue = getConfig().getInt("randomValue", 400);
         
-        center = Utils.parseLocation(getConfig().getString("center", "world 80 0 50"));
+        center = Utils.parseLocation(getConfig().getString("center", "80 0 50 world"));
         
         if (getConfig().isConfigurationSection("items"))
             for (String key : getConfig().getConfigurationSection("items").getKeys(false))

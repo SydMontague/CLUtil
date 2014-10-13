@@ -25,6 +25,9 @@ commands:
   equip:
     description: equip
     usage: /equip
+  debugger:
+    description: equip
+    usage: /equip
 permissions:
     cl.util.krieger:
         default: false

@@ -37,6 +37,7 @@ public class DebugMode extends Module implements TabExecutor, Listener
                 debugger.put(key, getConfig().getBoolean("default." + key, false));
         
         getPlugin().getCommand("debugger").setExecutor(this);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     
     @Override
@@ -76,6 +77,8 @@ public class DebugMode extends Module implements TabExecutor, Listener
         else
             debugger.put(arg, true);
         
+        sender.sendMessage("Debugger " + arg + " set to " + debugger.get(arg));
+        
         return true;
     }
     
@@ -94,13 +97,12 @@ public class DebugMode extends Module implements TabExecutor, Listener
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDamage(EntityDamageByEntityEvent e)
     {
-        if (!(e.getDamager() instanceof Player) && !(e.getEntity() instanceof Player))
-            return;
-        
-        Player damager = (Player) e.getDamager();
-        Player victim = (Player) e.getEntity();
-        
-        if (damager.hasPermission(DEBUG_PERM) || victim.hasPermission(DEBUG_PERM))
-            debug("F: " + e.getFinalDamage() + " B: " + e.getDamage(DamageModifier.BASE) + " A: " + e.getDamage(DamageModifier.ARMOR) + " M: " + e.getDamage(DamageModifier.MAGIC));
+        debug("M F: " + e.getFinalDamage() + " B: " + e.getDamage(DamageModifier.BASE) + " A: " + e.getDamage(DamageModifier.ARMOR) + " M: " + e.getDamage(DamageModifier.MAGIC));
+    }
+    
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDamage2(EntityDamageByEntityEvent e)
+    {
+        debug("L F: " + e.getFinalDamage() + " B: " + e.getDamage(DamageModifier.BASE) + " A: " + e.getDamage(DamageModifier.ARMOR) + " M: " + e.getDamage(DamageModifier.MAGIC));
     }
 }

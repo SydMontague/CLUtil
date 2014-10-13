@@ -43,7 +43,7 @@ public class DistanceShot extends Module implements Listener
         event.getProjectile().setMetadata("cl.util.precision", new FixedMetadataValue(getPlugin(), event.getEntity().getLocation()));
     }
     
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onHeadshot(EntityDamageByEntityEvent event)
     {
         if(!event.getDamager().hasMetadata("cl.util.precision"))
@@ -58,7 +58,7 @@ public class DistanceShot extends Module implements Listener
         if(distance > maxDistance)
             distance = maxDistance;
         
-        event.setDamage(DamageModifier.BASE, event.getDamage(DamageModifier.BASE) * 1 + damage.getValue((int) distance));
+        event.setDamage(event.getDamage(DamageModifier.BASE) * (1 + damage.getValue((int) distance)));
     }
     
     

@@ -5,10 +5,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import de.craftlancer.clutil.buildings.BuildingManager;
-
 public class BuildingTest implements Listener
 {
+    /*
     private BuildingManager manager;
     
     public BuildingTest()
@@ -71,7 +70,7 @@ public class BuildingTest implements Listener
          * z = 0;
          * started = true;
          */
-    }
+    //}
     /*
      * @EventHandler
      * public void onBlockBreak(BlockBreakEvent e)

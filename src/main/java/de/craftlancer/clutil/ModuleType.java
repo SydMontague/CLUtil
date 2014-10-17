@@ -15,7 +15,8 @@ public enum ModuleType
     CUSTOMENCHANTS,
     TOKEN,
     TRACKING, 
-    DEBUG;
+    DEBUG, 
+    WORKINGSKILLS;
     
     private final String config;
     

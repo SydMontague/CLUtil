@@ -62,6 +62,7 @@ public class PumpkinBandit extends Module implements Listener
         }.runTask(getPlugin());
     }
     
+    //TODO change to Towny again
     @EventHandler(priority = EventPriority.NORMAL)
     public void onChat(AsyncPlayerChatEvent e)
     {

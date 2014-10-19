@@ -65,7 +65,7 @@ public class CLUtil extends JavaPlugin
         
         loadModules();
         
-        getCommand("equip").setExecutor(new CommandExecutor()
+        /*getCommand("equip").setExecutor(new CommandExecutor()
         {
             @Override
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
@@ -93,7 +93,7 @@ public class CLUtil extends JavaPlugin
                 return true;
             }
             
-        });
+        });*/
         
         getServer().getPluginManager().registerEvents(new UtilListener(this), this);
         // getServer().getPluginManager().registerEvents(stats, this);

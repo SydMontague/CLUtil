@@ -16,7 +16,9 @@ public enum ModuleType
     TOKEN,
     TRACKING, 
     DEBUG, 
-    WORKINGSKILLS;
+    WORKINGSKILLS, 
+    POTIONREBALANCE, 
+    PVPREBALANCE;
     
     private final String config;
     

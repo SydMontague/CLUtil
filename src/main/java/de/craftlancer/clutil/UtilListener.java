@@ -69,146 +69,16 @@ public class UtilListener implements Listener
         this.plugin = plugin;
     }
     
-    private HashMap<String, Long> map = new HashMap<String, Long>();
-    
-    /*
-     * @EventHandler(priority = EventPriority.MONITOR)
-     * public void onEnderPearl(PlayerInteractEvent e)
-     * {
-     * if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && e.getItem().getType() == Material.ENDER_PEARL)
-     * e.setCancelled(true);
-     * }
-     */
-    
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onJoin(PlayerJoinEvent e)
-    {
-        if(!e.getPlayer().hasPlayedBefore())
-            e.getPlayer().teleport(new Location(e.getPlayer().getWorld(), 2, 18.5, 9));
-    }
-    
+            
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDragonDeath(EntityDeathEvent e)
     {
         if (e.getEntity().hasMetadata("SkillLevels.ignore"))
-        {
             e.setDroppedExp(0);
-            return;
-        }
         
         if (e.getEntityType() == EntityType.ENDER_DRAGON)
             e.setDroppedExp(2000);
     }
-    
-    // Potion rebalance start
-    @EventHandler
-    public void onTarnDamage(EntityDamageByEntityEvent e)
-    {
-        Player damager = null;
-        
-        if (e.getDamager() instanceof Player)
-            damager = (Player) e.getDamager();
-        else if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player)
-            damager = (Player) ((Projectile) e.getDamager()).getShooter();
-        
-        if ((e.getEntity() instanceof Player))
-            for (PotionEffect ent : ((Player) e.getEntity()).getActivePotionEffects())
-                if (ent.getType().equals(PotionEffectType.INVISIBILITY))
-                    ((Player) e.getEntity()).removePotionEffect(ent.getType());
-        
-        if (damager != null)
-            for (PotionEffect ent : damager.getActivePotionEffects())
-                if (ent.getType().equals(PotionEffectType.INVISIBILITY))
-                    damager.removePotionEffect(ent.getType());
-    }
-    
-    @EventHandler
-    public void onPotionSplash(PotionSplashEvent e)
-    {
-        for (PotionEffect ef : e.getPotion().getEffects())
-            if (ef.getType().equals(PotionEffectType.POISON))
-                for (LivingEntity ent : e.getAffectedEntities())
-                    e.setIntensity(ent, e.getIntensity(ent) * 0.5);
-    }
-    
-    @EventHandler
-    public void onBrew(BrewEvent e)
-    {
-        if (e.getContents().getIngredient().getType() == Material.BLAZE_POWDER)
-            e.setCancelled(true);
-    }
-    
-    @EventHandler
-    public void onEntityTarget(EntityTargetEvent e)
-    {
-        if (!(e.getTarget() instanceof Player))
-            return;
-        
-        for (PotionEffect eff : ((Player) e.getTarget()).getActivePotionEffects())
-            if (eff.getType().equals(PotionEffectType.INVISIBILITY))
-            {
-                e.setCancelled(true);
-                return;
-            }
-    }
-    
-    // Potion rebalance end
-    
-    // PvP rebalance start
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onDamage2(EntityDamageByEntityEvent e)
-    {
-        if (!e.getDamager().getType().equals(EntityType.PLAYER) || !(e.getEntity() instanceof LivingEntity))
-            return;
-        
-        Player p = (Player) e.getDamager();
-        ((LivingEntity) e.getEntity()).setNoDamageTicks(0);
-        
-        if (map.containsKey(p.getName()) && map.get(p.getName()) >= System.currentTimeMillis())
-            e.setCancelled(true);
-    }
-    
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onDamage3(EntityDamageByEntityEvent e)
-    {
-        if (!e.getDamager().getType().equals(EntityType.PLAYER) || !(e.getEntity() instanceof LivingEntity))
-            return;
-        
-        Player p = (Player) e.getDamager();
-        long time;
-        
-        //if (p.getItemInHand().getType() == Material.SHEARS)
-        //    time = plugin.getConfig().getLong("shortnodamage", 600L);
-        //else
-            time = plugin.getConfig().getLong("nodamage", 1000L);
-        
-        map.put(p.getName(), System.currentTimeMillis() + time);
-    }
-    
-    /*
-     * @EventHandler(priority = EventPriority.LOWEST)
-     * public void damage(EntityDamageByEntityEvent e)
-     * {
-     * if (e.getDamager() instanceof Player && ((Player) e.getDamager()).getItemInHand().getType() == Material.SHEARS)
-     * if (((Player) e.getDamager()).hasPermission("cl.util.shear"))
-     * e.setDamage(e.getDamage() + 3.5);
-     * }
-     * @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-     * public void damageMonitor(EntityDamageByEntityEvent e)
-     * {
-     * if (!(e.getDamager() instanceof Player) || ((Player) e.getDamager()).getItemInHand().getType() != Material.SHEARS)
-     * return;
-     * short dura = (short) (((HumanEntity) e.getDamager()).getItemInHand().getDurability() + 1);
-     * ((HumanEntity) e.getDamager()).getItemInHand().setDurability(dura);
-     * if (dura > 238)
-     * {
-     * ((HumanEntity) e.getDamager()).setItemInHand(new ItemStack(Material.AIR));
-     * ((Player) e.getDamager()).playSound(e.getDamager().getLocation(), Sound.ITEM_BREAK, 0.5F, 0.5F);
-     * }
-     * }
-     */
-    
-    // PvP rebalance end
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onVillagerInteract(PlayerInteractEntityEvent e)
@@ -227,12 +97,6 @@ public class UtilListener implements Listener
      * }
      */
     
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onHealthPot(EntityRegainHealthEvent e)
-    {
-        if (e.getRegainReason() == RegainReason.MAGIC)
-            e.setAmount(e.getAmount() * 2.5);
-    }
     
     /*
      * @EventHandler

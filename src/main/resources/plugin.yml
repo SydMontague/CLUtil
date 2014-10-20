@@ -28,6 +28,9 @@ commands:
   debugger:
     description: equip
     usage: /equip
+  track:
+    description: Track a player
+    usage: /track
 permissions:
     cl.util.krieger:
         default: false

@@ -8,7 +8,12 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,17 +24,90 @@ import org.bukkit.scheduler.BukkitRunnable;
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
+import de.craftlancer.clutil.modules.tracking.LocationTracker;
+import de.craftlancer.clutil.modules.tracking.TrackingObserver;
+import de.craftlancer.clutil.modules.tracking.TrackingState;
 
-public class Tracking extends Module implements Listener
+public class Tracking extends Module implements Listener, CommandExecutor
 {
-    private static final long DELAY = 20L; // 20 ticks = 1 second
+    private final long trackingDelay; // 20 ticks = 1 second
+    private final long observerDelay; // 20 ticks = 1 second
+    
+    private final int maxDistance;
+    
+    private final int unclear1;
+    private final int unclear1Gap;
+    private final int unclear2;
+    private final int unclear2Gap;
+    
+    private final int size;
+    
+    private final String permission;
     
     private Map<UUID, LocationTracker> locations = new HashMap<>();
+    private Map<UUID, TrackingObserver> observer = new HashMap<>();
     
     public Tracking(CLUtil plugin)
     {
         super(plugin);
         
+        trackingDelay = getConfig().getLong("trackingDelay", 20L);
+        observerDelay = getConfig().getLong("observerDelay", 100L);
+        maxDistance = getConfig().getInt("maxDistance", 100);
+        unclear1 = getConfig().getInt("unclear1", 600);
+        unclear1Gap = getConfig().getInt("unclear1Gap", 3);
+        unclear2 = getConfig().getInt("unclear2", 1200);
+        unclear2Gap = getConfig().getInt("unclear2Gap", 5);
+        size = getConfig().getInt("size", 30 * 60);
+        permission = getConfig().getString("permission", "cl.util.tracking");
+        
+        startTrackingTask();
+        startObserverTask();
+    }
+    
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    {
+        if (!(sender instanceof Player))
+        {
+            sender.sendMessage("Only Players can run this command!");
+            return true;
+        }
+        
+        if (!sender.hasPermission(permission))
+        {
+            sender.sendMessage("You don't have the permission to run this command!");
+            return true;
+        }
+        
+        @SuppressWarnings("deprecation")
+        OfflinePlayer track = args.length >= 1 ? Bukkit.getOfflinePlayer(args[0]) : null;
+        
+        if (track == null || !track.hasPlayedBefore())
+        {
+            sender.sendMessage("You must specify a player!");
+            return true;
+        }
+        
+        observer.get(((Player) sender).getUniqueId()).setTracked(track.getUniqueId());
+        
+        return true;
+    }
+    
+    private void startObserverTask()
+    {
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                for (TrackingObserver ob : observer.values())
+                    ob.tick();
+            }
+        }.runTaskTimer(getPlugin(), observerDelay, observerDelay);
+    }
+    
+    private void startTrackingTask()
+    {
         new BukkitRunnable()
         {
             @Override
@@ -53,14 +131,14 @@ public class Tracking extends Module implements Listener
                 for (UUID uuid : removeList)
                     locations.remove(uuid);
             }
-        }.runTaskTimer(plugin, DELAY, DELAY);
+        }.runTaskTimer(getPlugin(), trackingDelay, trackingDelay);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event)
     {
         if (!locations.containsKey(event.getPlayer().getUniqueId()))
-            locations.put(event.getPlayer().getUniqueId(), new LocationTracker());
+            locations.put(event.getPlayer().getUniqueId(), new LocationTracker(this));
     }
     
     @Override
@@ -69,103 +147,83 @@ public class Tracking extends Module implements Listener
         return ModuleType.TRACKING;
     }
     
-}
-
-class LocationTracker
-{
-    private static final int MAX_DISTANCE = 100;
-    
-    private int size = 30 * 60; // minutes in seconds
-    private TrackingPoint[] points = new TrackingPoint[size];
-    private int pointer = 0;
-    
-    /**
-     * Add a location to the current Tracker.
-     * Another, old, location will be thrown out of the list for that.
-     * 
-     * @param loc
-     *            the location to add to the list
-     * @return true if the action was successful
-     */
-    public boolean add(Location loc)
+    public int getMaxDistance()
     {
-        points[pointer] = new TrackingPoint(loc);
-        increasePointer();
-        return true;
+        return maxDistance;
     }
     
     /**
-     * Get the points of this tracker, that are within the range of the given player.
+     * After how many TrackingPoints should the LocationTracker skip nodes?
      * 
-     * @param p
-     *            The player, who wants to query the data
-     * @return a List of TrackingPoints, that are within a certain distance to the player
+     * @return an Integer
      */
-    public List<TrackingPoint> getPoints(Player p)
+    public int getUnclear1()
     {
-        List<TrackingPoint> list = new ArrayList<>();
-        
-        for (int i = pointer; i < size + pointer; i++)
+        return unclear1;
+    }
+    
+    /**
+     * Only mark every x TrackingPoints as viewable.
+     * 
+     * @return an Integer
+     */
+    public int getUnclear1Gap()
+    {
+        return unclear1Gap;
+    }
+    
+    /**
+     * After how many TrackingPoints should the LocationTracker skip nodes?
+     * 
+     * @return an Integer
+     */
+    public int getUnclear2()
+    {
+        return unclear2;
+    }
+    
+    /**
+     * Only mark every x TrackingPoints as viewable.
+     * 
+     * @return an Integer
+     */
+    public int getUnclear2Gap()
+    {
+        return unclear2Gap;
+    }
+    
+    public int getTrackingPointCount()
+    {
+        return size;
+    }
+    
+    public LocationTracker getLocationTracker(UUID player)
+    {
+        return locations.get(player);
+    }
+    
+    public Material getTrackMaterial(TrackingState state)
+    {
+        switch (state)
         {
-            int tmp = i % size;
-            TrackingPoint point = points[tmp];
-            
-            if (point.distance(p) > MAX_DISTANCE)
-                continue;
-            
-            list.add(point);
+            default:
+                return Material.CARPET;
         }
-        
-        return list;
     }
     
-    public boolean isEmpty()
+    @SuppressWarnings("deprecation")
+    public byte getTrackData(TrackingState state)
     {
-        for (TrackingPoint point : points)
-            if (point != null)
-                return false;
-        
-        return true;
-    }
-    
-    private void increasePointer()
-    {
-        pointer++;
-        if (pointer >= size)
-            pointer = 0;
-    }
-    
-}
-
-class TrackingPoint
-{
-    private int x;
-    private int y;
-    private int z;
-    
-    public TrackingPoint(int x, int y, int z)
-    {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-    
-    public TrackingPoint(Location loc)
-    {
-        this(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-    }
-    
-    public double distance(Player p)
-    {
-        return distance(p.getLocation());
-    }
-    
-    private double distance(Location loc)
-    {
-        double dx = loc.getX() - x;
-        double dy = loc.getY() - y;
-        double dz = loc.getZ() - z;
-        
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+        switch (state)
+        {
+            case CLEAR:
+                return DyeColor.RED.getWoolData();
+            case UNCLEAR1:
+                return DyeColor.YELLOW.getWoolData();
+            case UNCLEAR2:
+                return DyeColor.LIME.getWoolData();
+            default:
+                return DyeColor.WHITE.getWoolData();
+        }
     }
 }

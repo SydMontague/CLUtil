@@ -61,7 +61,7 @@ public class WorkingSkills extends Module implements Listener
      * MONITOR - we do not change any outcome of the event, just drop more items IF the event was successful
      * ignoreCancelled - we don't want to double drop, if the event was cancelled
      * 
-     * @param event
+     * @param event the event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void handleDoubledrop(BlockBreakEvent event)

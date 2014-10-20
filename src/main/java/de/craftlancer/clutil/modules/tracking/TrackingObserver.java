@@ -51,6 +51,12 @@ public class TrackingObserver
         if (trackedPlayer == null)
             return;
         
+        if(module.getLocationTracker(trackedPlayer) == null)
+        {
+            setTracked(null);
+            return;
+        }
+        
         for (Entry<TrackingPoint, TrackingState> entry : module.getLocationTracker(trackedPlayer).getPoints(p).entrySet())
         {
             TrackingState state = entry.getValue();

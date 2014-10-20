@@ -6,14 +6,8 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clutil.modules.AdvancedEnchantments;
@@ -205,7 +199,7 @@ public class CLUtil extends JavaPlugin
         return isSneaking(p.getName());
     }
     
-    public static boolean isSneaking(String name)
+    public static boolean isSneaking(@SuppressWarnings("unused") String name)
     {
         return false;// getInstance().sneak.isSneaking(name);
     }

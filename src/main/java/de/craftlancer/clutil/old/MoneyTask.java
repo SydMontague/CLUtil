@@ -4,13 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clutil.CLUtil;
-import de.craftlancer.clutil.Debug;
 
 @SuppressWarnings("unused")
 public abstract class MoneyTask extends BukkitRunnable

@@ -2,8 +2,8 @@ package de.craftlancer.clutil.speed;
 
 import org.bukkit.entity.Player;
 
-import de.craftlancer.clutil.physics.PowerManager;
-import de.craftlancer.clutil.physics.WeightManager;
+import de.craftlancer.clutil.old.physics.PowerManager;
+import de.craftlancer.clutil.old.physics.WeightManager;
 import de.craftlancer.speedapi.SpeedModifier;
 
 public class WeightSpeedModifier extends SpeedModifier

@@ -7,7 +7,6 @@ import de.craftlancer.clutil.speed.ArmorSpeedModifier;
 import de.craftlancer.clutil.speed.BerserkSpeedModifier;
 import de.craftlancer.clutil.speed.SneakSpeedModifier;
 import de.craftlancer.clutil.speed.WaldSpeedModifier;
-import de.craftlancer.clutil.speed.WeightSpeedModifier;
 import de.craftlancer.speedapi.SpeedAPI;
 
 public class Speed extends Module
@@ -16,7 +15,6 @@ public class Speed extends Module
     private BerserkSpeedModifier berserkMod;
     private SneakSpeedModifier sneakMod;
     private WaldSpeedModifier waldMod;
-    private WeightSpeedModifier weightMod;
     
     public Speed(CLUtil plugin)
     {
@@ -50,11 +48,6 @@ public class Speed extends Module
         {
             waldMod = new WaldSpeedModifier(getConfig().getInt("waldMod.priority", 5), (float) getConfig().getDouble("waldMod.speed", 0.1));
             SpeedAPI.addModifier("wald", waldMod);
-        }
-        if (getConfig().getBoolean("weightMod.enabled", false))
-        {
-            weightMod = new WeightSpeedModifier(getConfig().getInt("weightMod.priority", 5));
-            SpeedAPI.addModifier("weightMod", weightMod);
         }
     }
     

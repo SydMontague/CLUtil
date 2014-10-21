@@ -18,7 +18,8 @@ public enum ModuleType
     DEBUG, 
     WORKINGSKILLS, 
     POTIONREBALANCE, 
-    PVPREBALANCE;
+    PVPREBALANCE, 
+    COLOREDNAMETAGS;
     
     private final String config;
     

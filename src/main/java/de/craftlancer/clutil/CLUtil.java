@@ -25,7 +25,6 @@ import de.craftlancer.clutil.modules.Speed;
 import de.craftlancer.clutil.modules.TokenModule;
 import de.craftlancer.clutil.modules.Tracking;
 
-//TODO port NameTag colors from CLGroups to Towny
 public class CLUtil extends JavaPlugin
 {
     private static CLUtil instance;
@@ -60,35 +59,32 @@ public class CLUtil extends JavaPlugin
         
         loadModules();
         
-        /*getCommand("equip").setExecutor(new CommandExecutor()
-        {
-            @Override
-            public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
-            {
-                if(sender instanceof Player)
-                    return false;
-                
-                if(args.length < 1)
-                    return false;
-                
-                for(String s : args)
-                {
-                    @SuppressWarnings("deprecation")
-                    Player p = Bukkit.getPlayer(s);
-                    EntityEquipment e = p.getEquipment();
-                    e.setHelmet(new ItemStack(Material.DIAMOND_HELMET));
-                    e.setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
-                    e.setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
-                    e.setBoots(new ItemStack(Material.DIAMOND_BOOTS));
-                    
-                    e.setItemInHand(new ItemStack(Material.DIAMOND_SWORD));
-                    p.getInventory().addItem(new ItemStack(Material.BOW), new ItemStack(Material.ARROW, 64), new ItemStack(Material.COOKED_BEEF, 16), new ItemStack(Material.STRING, 16));
-                }
-                
-                return true;
-            }
-            
-        });*/
+        /*
+         * getCommand("equip").setExecutor(new CommandExecutor()
+         * {
+         * @Override
+         * public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+         * {
+         * if(sender instanceof Player)
+         * return false;
+         * if(args.length < 1)
+         * return false;
+         * for(String s : args)
+         * {
+         * @SuppressWarnings("deprecation")
+         * Player p = Bukkit.getPlayer(s);
+         * EntityEquipment e = p.getEquipment();
+         * e.setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+         * e.setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+         * e.setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+         * e.setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+         * e.setItemInHand(new ItemStack(Material.DIAMOND_SWORD));
+         * p.getInventory().addItem(new ItemStack(Material.BOW), new ItemStack(Material.ARROW, 64), new ItemStack(Material.COOKED_BEEF, 16), new ItemStack(Material.STRING, 16));
+         * }
+         * return true;
+         * }
+         * });
+         */
         
         getServer().getPluginManager().registerEvents(new UtilListener(this), this);
         // getServer().getPluginManager().registerEvents(stats, this);
@@ -114,7 +110,7 @@ public class CLUtil extends JavaPlugin
     
     public DebugMode getDebugModule()
     {
-        if(modules.containsKey(ModuleType.DEBUG))
+        if (modules.containsKey(ModuleType.DEBUG))
             return (DebugMode) modules.get(ModuleType.DEBUG);
         
         return null;

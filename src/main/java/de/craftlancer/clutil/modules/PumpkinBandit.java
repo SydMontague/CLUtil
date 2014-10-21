@@ -14,10 +14,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
 import org.kitteh.tag.TagAPI;
 
+import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
+
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
-import de.craftlancer.groups.CLGroups;
 
 public class PumpkinBandit extends Module implements Listener
 {
@@ -62,7 +65,7 @@ public class PumpkinBandit extends Module implements Listener
         }.runTask(getPlugin());
     }
     
-    //TODO change to Towny again
+    // TODO change to Towny again
     @EventHandler(priority = EventPriority.NORMAL)
     public void onChat(AsyncPlayerChatEvent e)
     {
@@ -71,9 +74,29 @@ public class PumpkinBandit extends Module implements Listener
         if (e.getPlayer().getInventory().getHelmet() == null || e.getPlayer().getInventory().getHelmet().getType() != Material.PUMPKIN)
             return;
         
-        e.setFormat(CLGroups.getInstance().getChatManager().getActiveChannel(p).getPlayerFormat("PumpkinBandit"));
+        Resident resi;
+        try
+        {
+            resi = TownyUniverse.getDataSource().getResident(p.getName());
+        }
+        catch (NotRegisteredException e1)
+        {
+            e1.printStackTrace();
+            return;
+        }
+        
+        try
+        {
+            e.setMessage(e.getMessage().replace(resi.hasTown() ? resi.getTown().getTag() : "", "").replace(p.getName(), "PumpkinBandit").replace(resi.getTitle(), ""));
+        }
+        catch (NotRegisteredException e1)
+        {
+            e1.printStackTrace();
+        }
+        
+        // e.setFormat(CLGroups.getInstance().getChatManager().getActiveChannel(p).getPlayerFormat("PumpkinBandit"));
     }
-
+    
     @Override
     public ModuleType getType()
     {

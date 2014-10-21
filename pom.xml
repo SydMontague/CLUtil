@@ -61,6 +61,7 @@
       <artifactId>clcore</artifactId>
       <version>4-SNAPSHOT</version>
     </dependency>
+    <!--  
     <dependency>
       <groupId>de.craftlancer</groupId>
       <artifactId>cleco</artifactId>
@@ -71,6 +72,7 @@
       <artifactId>CLGroups</artifactId>
       <version>0.0.2</version>
     </dependency>
+    -->
     <dependency>
       <groupId>de.craftlancer</groupId>
       <artifactId>skilllevels</artifactId>
@@ -97,6 +99,13 @@
       <version>5.6.2</version>
     </dependency>
     
+    <dependency>
+      <groupId>com.palmergames</groupId>
+      <artifactId>towny</artifactId>
+      <version>0.88.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/depend/Towny.jar</systemPath>
+    </dependency>
     <dependency>
       <groupId>ru.tehkode</groupId>
       <artifactId>permissionsex</artifactId>

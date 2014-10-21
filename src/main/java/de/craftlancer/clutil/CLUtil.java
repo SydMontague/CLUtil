@@ -25,6 +25,7 @@ import de.craftlancer.clutil.modules.Speed;
 import de.craftlancer.clutil.modules.TokenModule;
 import de.craftlancer.clutil.modules.Tracking;
 
+//TODO port NameTag colors from CLGroups to Towny
 public class CLUtil extends JavaPlugin
 {
     private static CLUtil instance;

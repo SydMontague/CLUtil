@@ -34,8 +34,6 @@ import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
 import de.craftlancer.core.Utils;
-import de.craftlancer.groups.Plot;
-import de.craftlancer.groups.managers.PlotManager;
 
 public class Home extends Module implements CommandExecutor, Listener
 {
@@ -80,17 +78,18 @@ public class Home extends Module implements CommandExecutor, Listener
                 homes.put(UUID.fromString(s), CLUtil.parseLocation(getConfig().getString("homes." + s)));
     }
     
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBedInteract(PlayerInteractEvent e)
     {
         if (!e.hasBlock() || e.getClickedBlock().getType() != Material.BED_BLOCK)
             return;
         
-        Plot p = PlotManager.getPlot(e.getClickedBlock().getLocation());
-        
-        if (!p.canBuild(e.getPlayer()))
-            return;
-        
+        /*
+         * Replace this check with default Towny "use" flag
+         * Plot p = PlotManager.getPlot(e.getClickedBlock().getLocation());
+         * if (!p.canBuild(e.getPlayer()))
+         * return;
+         */
         setHome(e.getPlayer(), e.getPlayer().getLocation());
     }
     

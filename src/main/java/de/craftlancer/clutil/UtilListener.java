@@ -1,64 +1,51 @@
 package de.craftlancer.clutil;
 
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class UtilListener implements Listener
 {
-    private CLUtil plugin;
-    /*private Set<String> startPerms = new HashSet<String>()
-    {
-        private static final long serialVersionUID = 1L;
-        {
-            add("-mcmmo.skills.swords");
-            add("-mcmmo.ability.swords.bleed");
-            add("-mcmmo.ability.swords.counterattack");
-            add("-cl.util.armor.dia");
-            add("-cl.util.armor.iron");
-            add("-cl.util.berserk.speed");
-            add("-cl.util.berserk.damage");
-            add("-mcmmo.skills.archery");
-            add("-mcmmo.ability.archery.bonusdamage");
-            add("-mcmmo.ability.archery.daze");
-            add("-mcmmo.ability.archery.trackarrows");
-            add("-cl.util.find");
-            add("-cl.util.arrow");
-            add("-cl.util.wald.dmgmod");
-            add("-cl.util.wald.speed");
-            add("-mcmmo.skills.acrobatics");
-            add("-mcmmo.ability.acrobatics.dodge");
-            add("-mcmmo.ability.acrobatics.roll");
-            add("-mcmmo.ability.acrobatics.gracefulroll");
-            add("-shadow.hook");
-            add("-shadow.airassassination");
-            add("-shadow.advbackstab");
-            add("-shadow.pickpocket");
-            add("-shadow.lockpick");
-            add("-cl.util.shear");
-            add("-cl.util.sneak");
-            add("-allowlockpicking.canpick");
-        }
-    };*/
+    /*
+     * private Set<String> startPerms = new HashSet<String>()
+     * {
+     * private static final long serialVersionUID = 1L;
+     * {
+     * add("-mcmmo.skills.swords");
+     * add("-mcmmo.ability.swords.bleed");
+     * add("-mcmmo.ability.swords.counterattack");
+     * add("-cl.util.armor.dia");
+     * add("-cl.util.armor.iron");
+     * add("-cl.util.berserk.speed");
+     * add("-cl.util.berserk.damage");
+     * add("-mcmmo.skills.archery");
+     * add("-mcmmo.ability.archery.bonusdamage");
+     * add("-mcmmo.ability.archery.daze");
+     * add("-mcmmo.ability.archery.trackarrows");
+     * add("-cl.util.find");
+     * add("-cl.util.arrow");
+     * add("-cl.util.wald.dmgmod");
+     * add("-cl.util.wald.speed");
+     * add("-mcmmo.skills.acrobatics");
+     * add("-mcmmo.ability.acrobatics.dodge");
+     * add("-mcmmo.ability.acrobatics.roll");
+     * add("-mcmmo.ability.acrobatics.gracefulroll");
+     * add("-shadow.hook");
+     * add("-shadow.airassassination");
+     * add("-shadow.advbackstab");
+     * add("-shadow.pickpocket");
+     * add("-shadow.lockpick");
+     * add("-cl.util.shear");
+     * add("-cl.util.sneak");
+     * add("-allowlockpicking.canpick");
+     * }
+     * };
+     */
     
-    public UtilListener(CLUtil plugin)
-    {
-        this.plugin = plugin;
-    }
-    
-            
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDragonDeath(EntityDeathEvent e)
     {
@@ -85,7 +72,6 @@ public class UtilListener implements Listener
      * PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
      * }
      */
-    
     
     /*
      * @EventHandler
@@ -180,31 +166,4 @@ public class UtilListener implements Listener
         e.getPlayer().setSaturation(e.getPlayer().getSaturation() + extra);
     }
     
-    @EventHandler
-    public void onRespawn(final PlayerRespawnEvent e)
-    {
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 10));
-            }
-        }.runTaskLater(plugin, 1);
-    }
-    
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onDamage(EntityDamageByEntityEvent e)
-    {
-        if (!e.getDamager().getType().equals(EntityType.ARROW) || !(e.getEntity() instanceof LivingEntity))
-            return;
-        
-        if (!(((Arrow) e.getDamager()).getShooter() instanceof Player))
-            return;
-        
-        Player p = (Player) ((Arrow) e.getDamager()).getShooter();
-        
-        if (p.hasPermission("cl.util.wald.dmgmod"))
-            e.setDamage(e.getDamage() * plugin.getConfig().getDouble("waldl_arrow_mod", 1.5D));
-    }
 }

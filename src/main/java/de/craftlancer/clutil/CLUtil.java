@@ -86,7 +86,7 @@ public class CLUtil extends JavaPlugin
          * });
          */
         
-        getServer().getPluginManager().registerEvents(new UtilListener(this), this);
+        getServer().getPluginManager().registerEvents(new UtilListener(), this);
         // getServer().getPluginManager().registerEvents(stats, this);
         // getServer().getPluginManager().registerEvents(sneak, this);
         // getServer().getPluginManager().registerEvents(new AutoLevelUp(this), this);

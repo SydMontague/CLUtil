@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clutil.modules.AdvancedEnchantments;
+import de.craftlancer.clutil.modules.ColoredNametag;
 import de.craftlancer.clutil.modules.CustomEnchantments;
 import de.craftlancer.clutil.modules.DebugMode;
 import de.craftlancer.clutil.modules.DistanceShot;
@@ -19,11 +20,14 @@ import de.craftlancer.clutil.modules.HeadHunter;
 import de.craftlancer.clutil.modules.Home;
 import de.craftlancer.clutil.modules.OreStones;
 import de.craftlancer.clutil.modules.OwnHealth;
+import de.craftlancer.clutil.modules.PotionRebalance;
 import de.craftlancer.clutil.modules.PumpkinBandit;
+import de.craftlancer.clutil.modules.PvPRebalance;
 import de.craftlancer.clutil.modules.RandomChests;
 import de.craftlancer.clutil.modules.Speed;
 import de.craftlancer.clutil.modules.TokenModule;
 import de.craftlancer.clutil.modules.Tracking;
+import de.craftlancer.clutil.modules.WorkingSkills;
 
 public class CLUtil extends JavaPlugin
 {
@@ -165,6 +169,16 @@ public class CLUtil extends JavaPlugin
                 return new Tracking(this);
             case DEBUG:
                 return new DebugMode(this);
+            case COLOREDNAMETAGS:
+                return new ColoredNametag(this);
+            case POTIONREBALANCE:
+                return new PotionRebalance(this);
+            case PVPREBALANCE:
+                return new PvPRebalance(this);
+            case WORKINGSKILLS:
+                return new WorkingSkills(this);
+            default:
+                break;
                 
         }
         

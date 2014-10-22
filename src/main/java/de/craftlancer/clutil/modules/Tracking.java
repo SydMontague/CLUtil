@@ -65,6 +65,17 @@ public class Tracking extends Module implements Listener, CommandExecutor
         startObserverTask();
     }
     
+    protected Map<UUID, LocationTracker> getLocationTrackers()
+    {
+        return locations;
+    }
+    
+    protected Map<UUID, TrackingObserver> getObserver()
+    {
+        return observer;
+    }
+    
+    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (!(sender instanceof Player))
@@ -100,7 +111,7 @@ public class Tracking extends Module implements Listener, CommandExecutor
             @Override
             public void run()
             {
-                for (TrackingObserver ob : observer.values())
+                for (TrackingObserver ob : getObserver().values())
                     ob.tick();
             }
         }.runTaskTimer(getPlugin(), observerDelay, observerDelay);
@@ -115,7 +126,7 @@ public class Tracking extends Module implements Listener, CommandExecutor
             {
                 List<UUID> removeList = new ArrayList<UUID>();
                 
-                for (Entry<UUID, LocationTracker> entry : locations.entrySet())
+                for (Entry<UUID, LocationTracker> entry : getLocationTrackers().entrySet())
                 {
                     Player p = Bukkit.getPlayer(entry.getKey());
                     
@@ -129,7 +140,7 @@ public class Tracking extends Module implements Listener, CommandExecutor
                 }
                 
                 for (UUID uuid : removeList)
-                    locations.remove(uuid);
+                    getLocationTrackers().remove(uuid);
             }
         }.runTaskTimer(getPlugin(), trackingDelay, trackingDelay);
     }

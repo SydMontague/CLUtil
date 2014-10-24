@@ -28,6 +28,7 @@ public class PotionRebalance extends Module implements Listener
     public PotionRebalance(CLUtil plugin)
     {
         super(plugin);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
 
     @Override

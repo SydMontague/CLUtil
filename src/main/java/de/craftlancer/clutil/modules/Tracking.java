@@ -50,6 +50,7 @@ public class Tracking extends Module implements Listener, CommandExecutor
     public Tracking(CLUtil plugin)
     {
         super(plugin);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
         
         trackingDelay = getConfig().getLong("trackingDelay", 20L);
         observerDelay = getConfig().getLong("observerDelay", 100L);

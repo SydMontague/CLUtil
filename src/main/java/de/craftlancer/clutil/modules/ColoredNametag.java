@@ -20,6 +20,7 @@ public class ColoredNametag extends Module implements Listener
     public ColoredNametag(CLUtil plugin)
     {
         super(plugin);
+        getPlugin().getServer().getPluginManager().registerEvents(this, plugin);
     }
     
     @EventHandler(priority = EventPriority.LOW)

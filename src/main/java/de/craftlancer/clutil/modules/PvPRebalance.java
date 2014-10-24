@@ -31,6 +31,7 @@ public class PvPRebalance extends Module implements Listener
         super(plugin);
         waldDamageMod = getConfig().getDouble("waldDamageMod", 1.5D);
         noDamage = getConfig().getLong("noDamage", 1000L);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

@@ -19,7 +19,8 @@ public enum ModuleType
     WORKINGSKILLS, 
     POTIONREBALANCE, 
     PVPREBALANCE, 
-    COLOREDNAMETAGS;
+    COLOREDNAMETAGS,
+    GRIEFBLOCK, UTILITY;
     
     private final String config;
     

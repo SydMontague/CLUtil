@@ -35,6 +35,7 @@ public class WorkingSkills extends Module implements Listener
     public WorkingSkills(CLUtil plugin)
     {
         super(plugin);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
         
         PluginManager pm = plugin.getServer().getPluginManager();
         if (pm.getPlugin("SkillLevels") != null && pm.getPlugin("SkillLevels").isEnabled())

@@ -37,6 +37,8 @@ public class TokenFactory
             }
             case UNDEFINED:
                 return new UndefinedToken();
+            case CAPTURE_EVENT:
+                return new CaptureEventToken();
             default:
                 return null;
         }

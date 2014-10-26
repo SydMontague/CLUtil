@@ -14,13 +14,15 @@ public enum ModuleType
     RANDOMCHESTS,
     CUSTOMENCHANTS,
     TOKEN,
-    TRACKING, 
-    DEBUG, 
-    WORKINGSKILLS, 
-    POTIONREBALANCE, 
-    PVPREBALANCE, 
+    TRACKING,
+    DEBUG,
+    WORKINGSKILLS,
+    POTIONREBALANCE,
+    PVPREBALANCE,
     COLOREDNAMETAGS,
-    GRIEFBLOCK, UTILITY;
+    GRIEFBLOCK,
+    UTILITY,
+    CAPTURETHECORE;
     
     private final String config;
     

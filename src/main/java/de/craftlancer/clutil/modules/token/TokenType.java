@@ -3,7 +3,8 @@ package de.craftlancer.clutil.modules.token;
 public enum TokenType
 {
     UNDEFINED("Undefined Token"),
-    ENCHANTMENT("Enchantment Token");
+    ENCHANTMENT("Enchantment Token"),
+    CAPTURE_EVENT("Capture Event Token");
     
     private String name;
     

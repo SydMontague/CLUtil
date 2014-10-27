@@ -11,21 +11,31 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
+import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Coord;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
 import de.craftlancer.clutil.modules.token.TokenType;
+import de.craftlancer.clutil.speed.CaptureSpeedModifier;
 import de.craftlancer.core.Utils;
+import de.craftlancer.speedapi.SpeedAPI;
 
 /*
  * Create
@@ -45,7 +55,7 @@ import de.craftlancer.core.Utils;
  */
 public class CaptureTheToken extends Module implements Listener
 {
-    private final static ItemStack TOKENITEM = new ItemStack(Material.SPONGE);
+    public final static ItemStack TOKENITEM = new ItemStack(Material.SPONGE);
     static
     {
         ItemMeta meta = TOKENITEM.getItemMeta();
@@ -64,6 +74,7 @@ public class CaptureTheToken extends Module implements Listener
     private final double chancePerTick;
     private final long timeBetween;
     private final int radius;
+    private final int protectionTime;
     private final int minDistanceToTown;
     /* Configuration variables end */
     
@@ -74,6 +85,8 @@ public class CaptureTheToken extends Module implements Listener
     private Location location;
     private Location approxLocation;
     private int ticksToStart;
+    
+    private TokenTracker tokenTracker;
     
     // private Object rewards;
     /* Running state variables end */
@@ -90,6 +103,9 @@ public class CaptureTheToken extends Module implements Listener
         minPlayers = getConfig().getInt("minPlayers", 10);
         radius = getConfig().getInt("radius", 10);
         minDistanceToTown = getConfig().getInt("minDistanceToTown", 10);
+        protectionTime = getConfig().getInt("protectionTime", 10);
+        
+        SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3));
         
         new BukkitRunnable()
         {
@@ -159,10 +175,6 @@ public class CaptureTheToken extends Module implements Listener
         {
             spawnChest(location, TOKENITEM);
             
-            /*
-             * spawn token
-             */
-            
             // start
             state = CaptureState.RUNNING;
             return;
@@ -191,8 +203,52 @@ public class CaptureTheToken extends Module implements Listener
      */
     protected void handleRunningState()
     {
-        // TODO Auto-generated method stub
+        if (ticksToStart % messageTime == 0)
+            Bukkit.broadcastMessage(String.format("The Token is currently at %1$s", tokenTracker.getLocationString()));
+        
+        Entity entity = tokenTracker.getEntity();
+        
+        if (isAtOwnHomeblock(entity))
+        {
+            HumanEntity player = ((HumanEntity) entity);
+            Bukkit.broadcastMessage(String.format("%1$s hat den Token zu seiner Stadt gebracht!", player.getName()));
+            
+            player.getInventory().remove(TOKENITEM);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, protectionTime * 20, 5));
+            // TODO give rewards
+
+            //spawnChest(entity.getLocation(), rewards);
+            
+            lastRun = System.currentTimeMillis();
+            state = CaptureState.NONE;
+            return;
+        }
+        
         ticksToStart++;
+    }
+    
+    private boolean isAtOwnHomeblock(Entity entity)
+    {
+        if (entity.getType() != EntityType.PLAYER)
+            return false;
+        
+        HumanEntity player = (HumanEntity) entity;
+        try
+        {
+            Resident resi = TownyUniverse.getDataSource().getResident(player.getName());
+            
+            if (!resi.hasTown())
+                return false;
+            
+            Town town = resi.getTown();
+            
+            return town.getHomeBlock().getX() == entity.getLocation().getChunk().getX() && town.getHomeBlock().getZ() == entity.getLocation().getChunk().getZ();
+        }
+        catch (TownyException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     public CaptureState getState()

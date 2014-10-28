@@ -66,7 +66,7 @@ public class Home extends Module implements CommandExecutor, Listener
     public void save()
     {
         for (Entry<UUID, Location> set : homes.entrySet())
-            getConfig().set(set.getKey().toString(), CLUtil.getLocationString(set.getValue()));
+            getConfig().set(set.getKey().toString(), Utils.getLocationString(set.getValue()));
         
         saveConfig();
     }
@@ -75,7 +75,7 @@ public class Home extends Module implements CommandExecutor, Listener
     {
         if (getConfig().isConfigurationSection("homes"))
             for (String s : getConfig().getConfigurationSection("homes").getKeys(false))
-                homes.put(UUID.fromString(s), CLUtil.parseLocation(getConfig().getString("homes." + s)));
+                homes.put(UUID.fromString(s), Utils.parseLocation(getConfig().getString("homes." + s)));
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

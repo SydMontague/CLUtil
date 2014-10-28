@@ -28,8 +28,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
-import de.craftlancer.clutil.ValueMap;
 import de.craftlancer.core.Utils;
+import de.craftlancer.core.ValueMap;
 
 /*
  * key:

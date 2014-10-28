@@ -22,7 +22,7 @@ public enum ModuleType
     COLOREDNAMETAGS,
     GRIEFBLOCK,
     UTILITY,
-    CAPTURETHECORE;
+    CAPTURETHECORE, CLASSCHANGE;
     
     private final String config;
     

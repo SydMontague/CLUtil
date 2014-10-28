@@ -34,11 +34,11 @@ import com.palmergames.bukkit.towny.object.TownyUniverse;
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
-import de.craftlancer.clutil.ValueMap;
 import de.craftlancer.clutil.modules.token.TokenTracker;
 import de.craftlancer.clutil.modules.token.TokenType;
 import de.craftlancer.clutil.speed.CaptureSpeedModifier;
 import de.craftlancer.core.Utils;
+import de.craftlancer.core.ValueMap;
 import de.craftlancer.currencyhandler.CurrencyHandler;
 import de.craftlancer.speedapi.SpeedAPI;
 

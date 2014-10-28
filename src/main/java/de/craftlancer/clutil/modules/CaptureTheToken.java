@@ -68,7 +68,8 @@ public class CaptureTheToken extends Module implements Listener
         TOKENITEM.setItemMeta(meta);
     }
     
-    private Random random = new Random();
+    private Random random = new Random();    
+    private long lastRun = 0;
     
     /* Configuration variables start */
     private final long tickTime;
@@ -86,18 +87,13 @@ public class CaptureTheToken extends Module implements Listener
     private final int maxValue;
     /* Configuration variables end */
     
-    private long lastRun = 0;
-    
     /* Running state variables start */
     private CaptureState state;
     private Location location;
     private Location approxLocation;
     private int ticksToStart;
-    private List<ItemStack> reward;
-    
+    private List<ItemStack> reward;    
     private TokenTracker tokenTracker;
-    
-    // private Object rewards;
     /* Running state variables end */
     
     public CaptureTheToken(CLUtil plugin)
@@ -339,7 +335,7 @@ public class CaptureTheToken extends Module implements Listener
         return ModuleType.CAPTURETHECORE;
     }
     
-    enum CaptureState
+    private enum CaptureState
     {
         NONE,
         ANNOUNCED,

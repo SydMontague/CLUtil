@@ -14,13 +14,12 @@ import de.craftlancer.speedapi.SpeedModifier;
 
 public class BerserkSpeedModifier extends SpeedModifier implements Listener
 {
-    private double maxDmg;
-    private float maxSpeed;
-    // private int maxCombo;
-    private float speedStep;
-    private double dmgStep;
-    protected long duration;
-    protected HashMap<UUID, BerserkValue> berserkPlayers = new HashMap<UUID, BerserkValue>();
+    private final double maxDmg;
+    private final float maxSpeed;
+    private final float speedStep;
+    private final double dmgStep;
+    private final long duration;
+    private final HashMap<UUID, BerserkValue> berserkPlayers = new HashMap<UUID, BerserkValue>();
     
     public BerserkSpeedModifier(int priority, float maxSpeed, double maxDmg, int maxCombo, long duration)
     {
@@ -28,7 +27,6 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
         
         this.maxSpeed = maxSpeed;
         this.maxDmg = maxDmg;
-        // this.maxCombo = maxCombo;
         this.duration = duration;
         
         speedStep = (maxSpeed) / maxCombo;
@@ -103,6 +101,11 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
         e.setDamage(e.getDamage() * dmgMod);
     }
     
+    public long getDuration()
+    {
+        return duration;
+    }
+    
     class BerserkValue
     {
         private long time = 0;
@@ -110,7 +113,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
         
         public int getCombo()
         {
-            if (time + duration < System.currentTimeMillis())
+            if (time + getDuration() < System.currentTimeMillis())
                 count = 0;
             
             return count;
@@ -118,7 +121,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
         
         public void incCombo()
         {
-            if (time + duration < System.currentTimeMillis())
+            if (time + getDuration() < System.currentTimeMillis())
                 count = 0;
             
             time = System.currentTimeMillis();

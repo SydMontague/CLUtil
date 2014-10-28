@@ -75,7 +75,7 @@ public class CustomEnchantments extends Module implements Listener
     private static final int WEAPON_SLOT = 0;
     private static final int TOKEN_SLOT = 1;
     private static final int RESULT_SLOT = 2;
-    // magic values
+    
     private static final double MAGIC_VALUE = 0.036325;
     private static final double BANE_DAMAGE = 2.5;
     private static final double SMITE_DAMAGE = 2.5;

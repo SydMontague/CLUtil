@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -73,9 +74,13 @@ public class Home extends Module implements CommandExecutor, Listener
     
     public void load()
     {
-        if (getConfig().isConfigurationSection("homes"))
-            for (String s : getConfig().getConfigurationSection("homes").getKeys(false))
-                homes.put(UUID.fromString(s), Utils.parseLocation(getConfig().getString("homes." + s)));
+        if (!getConfig().isConfigurationSection("homes"))
+            return;
+        
+        ConfigurationSection config = getConfig().getConfigurationSection("homes");
+        
+        for (String s : config.getKeys(false))
+            homes.put(UUID.fromString(s), Utils.parseLocation(config.getString(s)));
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -84,12 +89,6 @@ public class Home extends Module implements CommandExecutor, Listener
         if (!e.hasBlock() || e.getClickedBlock().getType() != Material.BED_BLOCK)
             return;
         
-        /*
-         * Replace this check with default Towny "use" flag
-         * Plot p = PlotManager.getPlot(e.getClickedBlock().getLocation());
-         * if (!p.canBuild(e.getPlayer()))
-         * return;
-         */
         setHome(e.getPlayer(), e.getPlayer().getLocation());
     }
     
@@ -199,6 +198,11 @@ public class Home extends Module implements CommandExecutor, Listener
         return homes.get(uuid);
     }
     
+    protected long getHomeCooldown()
+    {
+        return homeCooldown * 1000;
+    }
+    
     class HomeTask extends BukkitRunnable
     {
         private long runTime = 0;
@@ -242,11 +246,6 @@ public class Home extends Module implements CommandExecutor, Listener
         }
     }
     
-    protected long getHomeCooldown()
-    {
-        return homeCooldown * 1000;
-    }
-    
     class WaitingPlayer
     {
         private long time;
@@ -274,5 +273,4 @@ public class Home extends Module implements CommandExecutor, Listener
     {
         return ModuleType.HOME;
     }
-    
 }

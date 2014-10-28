@@ -10,8 +10,8 @@ import de.craftlancer.speedapi.SpeedModifier;
 
 public class SneakSpeedModifier extends SpeedModifier
 {
-    private float change;
-    private Map<UUID, Boolean> map = new HashMap<>();
+    private final float change;
+    private final Map<UUID, Boolean> map = new HashMap<>();
     
     public SneakSpeedModifier(int priority, float change)
     {

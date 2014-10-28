@@ -73,27 +73,15 @@ public class PumpkinBandit extends Module implements Listener
         if (e.getPlayer().getInventory().getHelmet() == null || e.getPlayer().getInventory().getHelmet().getType() != Material.PUMPKIN)
             return;
         
-        Resident resi;
         try
         {
-            resi = TownyUniverse.getDataSource().getResident(p.getName());
-        }
-        catch (NotRegisteredException e1)
-        {
-            e1.printStackTrace();
-            return;
-        }
-        
-        try
-        {
+            Resident resi = TownyUniverse.getDataSource().getResident(p.getName());
             e.setMessage(e.getMessage().replace(resi.hasTown() ? resi.getTown().getTag() : "", "").replace(p.getName(), "PumpkinBandit").replace(resi.getTitle(), ""));
         }
         catch (NotRegisteredException e1)
         {
             e1.printStackTrace();
         }
-        
-        // e.setFormat(CLGroups.getInstance().getChatManager().getActiveChannel(p).getPlayerFormat("PumpkinBandit"));
     }
     
     @Override

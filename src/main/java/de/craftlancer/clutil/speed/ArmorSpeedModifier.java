@@ -11,8 +11,8 @@ import de.craftlancer.speedapi.SpeedModifier;
 
 public class ArmorSpeedModifier extends SpeedModifier
 {
-    private Map<Material, Double> slowArmor = new HashMap<Material, Double>();
-    private Map<Material, String> slowPermission = new HashMap<Material, String>();
+    private final Map<Material, Double> slowArmor = new HashMap<Material, Double>();
+    private final Map<Material, String> slowPermission = new HashMap<Material, String>();
     
     public ArmorSpeedModifier(int priority, double ironSpeed, double diaSpeed)
     {

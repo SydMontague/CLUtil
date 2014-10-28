@@ -9,18 +9,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
 
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
 import de.craftlancer.core.Utils;
 
-public class DebugMode extends Module implements TabExecutor, Listener
+public class DebugMode extends Module implements TabExecutor
 {
     public static final String DEBUG_PERM = "cl.util.debug";
     
@@ -37,7 +32,6 @@ public class DebugMode extends Module implements TabExecutor, Listener
                 debugger.put(key, getConfig().getBoolean("default." + key, false));
         
         getPlugin().getCommand("debugger").setExecutor(this);
-        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     
     @Override
@@ -92,17 +86,5 @@ public class DebugMode extends Module implements TabExecutor, Listener
             default:
                 return null;
         }
-    }
-    
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onDamage(EntityDamageByEntityEvent e)
-    {
-        debug("M F: " + e.getFinalDamage() + " B: " + e.getDamage(DamageModifier.BASE) + " A: " + e.getDamage(DamageModifier.ARMOR) + " M: " + e.getDamage(DamageModifier.MAGIC));
-    }
-    
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onDamage2(EntityDamageByEntityEvent e)
-    {
-        debug("L F: " + e.getFinalDamage() + " B: " + e.getDamage(DamageModifier.BASE) + " A: " + e.getDamage(DamageModifier.ARMOR) + " M: " + e.getDamage(DamageModifier.MAGIC));
     }
 }

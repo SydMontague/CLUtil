@@ -40,34 +40,6 @@ public class AdvancedEnchantments extends Module implements Listener
     private boolean enableEnchant2XP;
     private boolean enableEnchant2Books;
     
-    /*
-     * static
-     * {
-     * xpMap.put(Enchantment.ARROW_DAMAGE, new ValueWrapper(5));
-     * xpMap.put(Enchantment.ARROW_FIRE, new ValueWrapper(50));
-     * xpMap.put(Enchantment.ARROW_INFINITE, new ValueWrapper(50));
-     * xpMap.put(Enchantment.ARROW_KNOCKBACK, new ValueWrapper(20));
-     * xpMap.put(Enchantment.DAMAGE_ALL, new ValueWrapper(5));
-     * xpMap.put(Enchantment.DAMAGE_ARTHROPODS, new ValueWrapper(5));
-     * xpMap.put(Enchantment.DAMAGE_UNDEAD, new ValueWrapper(5));
-     * xpMap.put(Enchantment.DIG_SPEED, new ValueWrapper(5));
-     * xpMap.put(Enchantment.DURABILITY, new ValueWrapper(11));
-     * xpMap.put(Enchantment.FIRE_ASPECT, new ValueWrapper(10));
-     * xpMap.put(Enchantment.KNOCKBACK, new ValueWrapper(5));
-     * xpMap.put(Enchantment.LOOT_BONUS_BLOCKS, new ValueWrapper(11));
-     * xpMap.put(Enchantment.LOOT_BONUS_MOBS, new ValueWrapper(11));
-     * xpMap.put(Enchantment.OXYGEN, new ValueWrapper(10));
-     * xpMap.put(Enchantment.PROTECTION_ENVIRONMENTAL, new ValueWrapper(7));
-     * xpMap.put(Enchantment.PROTECTION_EXPLOSIONS, new ValueWrapper(7));
-     * xpMap.put(Enchantment.PROTECTION_FALL, new ValueWrapper(7));
-     * xpMap.put(Enchantment.PROTECTION_FIRE, new ValueWrapper(7));
-     * xpMap.put(Enchantment.PROTECTION_PROJECTILE, new ValueWrapper(7));
-     * xpMap.put(Enchantment.SILK_TOUCH, new ValueWrapper(30));
-     * xpMap.put(Enchantment.THORNS, new ValueWrapper(20));
-     * xpMap.put(Enchantment.WATER_WORKER, new ValueWrapper(10));
-     * }
-     */
-    
     public AdvancedEnchantments(CLUtil plugin)
     {
         super(plugin);

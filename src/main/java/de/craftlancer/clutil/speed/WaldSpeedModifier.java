@@ -6,7 +6,7 @@ import de.craftlancer.speedapi.SpeedModifier;
 
 public class WaldSpeedModifier extends SpeedModifier
 {
-    private float mod;
+    private final float mod;
     
     public WaldSpeedModifier(int priority, float mod)
     {

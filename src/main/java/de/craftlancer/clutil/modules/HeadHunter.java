@@ -15,11 +15,12 @@ import de.craftlancer.clutil.ModuleType;
 
 public class HeadHunter extends Module implements Listener
 {
-    private double extraMod = 2;
+    private final double extraMod;
     
     public HeadHunter(CLUtil plugin)
     {
         super(plugin);
+        extraMod = getConfig().getDouble("extraMod", 2D);
         getPlugin().getServer().getPluginManager().registerEvents(this, plugin);
     }
     
@@ -53,7 +54,7 @@ public class HeadHunter extends Module implements Listener
                 break;
         }
         
-        if (p.hasPermission("cl.util.headhuntDouble"))
+        if (p.hasPermission("cl.util.headhunt"))
             chance *= extraMod;
         
         if (chance > Math.random())

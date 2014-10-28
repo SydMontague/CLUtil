@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeMap;
 
 import net.minecraft.server.v1_7_R4.EntityFallingBlock;
 import net.minecraft.server.v1_7_R4.NBTTagCompound;
@@ -19,19 +18,17 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
+import de.craftlancer.clutil.ValueMap;
 import de.craftlancer.core.Utils;
 
 /*
@@ -60,10 +57,7 @@ public class RandomChests extends Module
     
     private Location center = new Location(Bukkit.getServer().getWorlds().get(0), 80, 0, 50);
     
-    private int maxValue = 0;
-    private TreeMap<Integer, ItemStack> weightMap = new TreeMap<Integer, ItemStack>();
-    private Map<ItemStack, Integer> valueMap = new HashMap<>();
-    
+    private ValueMap valueMap;
     protected Map<Location, Long> removeMap = new HashMap<>();
     
     protected World world;
@@ -81,51 +75,7 @@ public class RandomChests extends Module
         
         center = Utils.parseLocation(getConfig().getString("center", "80 0 50 world"));
         
-        if (getConfig().isConfigurationSection("items"))
-            for (String key : getConfig().getConfigurationSection("items").getKeys(false))
-            {
-                Material mat = Material.matchMaterial(getConfig().getString("items." + key + ".material"));
-                
-                if (mat == null)
-                    continue;
-                
-                int amount = getConfig().getInt("items." + key + ".amount", 1);
-                short durability = (short) getConfig().getInt("items." + key + ".durability", 0);
-                String name = getConfig().getString("items." + key + ".name", null);
-                List<String> lore = getConfig().getStringList("items." + key + ".lore");
-                
-                int value = getConfig().getInt("items." + key + ".value", 1);
-                int weight = getConfig().getInt("items." + key + ".weight", 1);
-                
-                ItemStack item = new ItemStack(mat, amount, durability);
-                ItemMeta meta = item.getItemMeta();
-                meta.setDisplayName(name);
-                meta.setLore(lore);
-                item.setItemMeta(meta);
-                
-                if (getConfig().isConfigurationSection("items." + key + ".enchantments"))
-                    for (String k : getConfig().getConfigurationSection("items." + key + ".enchantments").getKeys(false))
-                    {
-                        Enchantment ench = Enchantment.getByName(k);
-                        if (ench == null)
-                            continue;
-                        
-                        int level = getConfig().getInt("items." + key + ".enchantments." + k);
-                        
-                        if (mat == Material.ENCHANTED_BOOK)
-                        {
-                            ((EnchantmentStorageMeta) meta).addStoredEnchant(ench, level, true);
-                            item.setItemMeta(meta);
-                        }
-                        else
-                            item.addUnsafeEnchantment(ench, level);
-                    }
-                
-                maxValue += weight;
-                weightMap.put(maxValue, item);
-                valueMap.put(item, value);
-            }
-        
+        valueMap = new ValueMap(getConfig().getConfigurationSection("items"));
         new ChestTask().runTaskTimer(plugin, 20, 20);
     }
     
@@ -180,27 +130,10 @@ public class RandomChests extends Module
     
     private void fillChest(int value, net.minecraft.server.v1_7_R4.ItemStack[] contents)
     {
-        int failStreak = 0;
-        int contentPointer = 0;
+        List<ItemStack> items = valueMap.getRandomItems(value, 27);
         
-        while (failStreak < 5 && value > 0 && contentPointer < 27)
-        {
-            int rand = random.nextInt(maxValue);
-            ItemStack item = weightMap.ceilingEntry(rand).getValue();
-            
-            int val = valueMap.get(item);
-            
-            if (val > value)
-            {
-                failStreak++;
-                continue;
-            }
-            
-            value -= val;
-            contents[contentPointer] = CraftItemStack.asNMSCopy(item);
-            contentPointer++;
-            failStreak = 0;
-        }
+        for (int i = 0; i < items.size() && i < 27; i++)
+            contents[i] = CraftItemStack.asNMSCopy(items.get(i));
     }
     
     @Override

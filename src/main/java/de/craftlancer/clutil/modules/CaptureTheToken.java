@@ -1,5 +1,7 @@
 package de.craftlancer.clutil.modules;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.server.v1_7_R4.EntityFallingBlock;
@@ -32,9 +34,12 @@ import com.palmergames.bukkit.towny.object.TownyUniverse;
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
+import de.craftlancer.clutil.ValueMap;
+import de.craftlancer.clutil.modules.token.TokenTracker;
 import de.craftlancer.clutil.modules.token.TokenType;
 import de.craftlancer.clutil.speed.CaptureSpeedModifier;
 import de.craftlancer.core.Utils;
+import de.craftlancer.currencyhandler.CurrencyHandler;
 import de.craftlancer.speedapi.SpeedAPI;
 
 /*
@@ -76,6 +81,9 @@ public class CaptureTheToken extends Module implements Listener
     private final int radius;
     private final int protectionTime;
     private final int minDistanceToTown;
+    private final int moneyReward;
+    private final ValueMap rewardMap;
+    private final int maxValue;
     /* Configuration variables end */
     
     private long lastRun = 0;
@@ -85,6 +93,7 @@ public class CaptureTheToken extends Module implements Listener
     private Location location;
     private Location approxLocation;
     private int ticksToStart;
+    private List<ItemStack> reward;
     
     private TokenTracker tokenTracker;
     
@@ -104,6 +113,10 @@ public class CaptureTheToken extends Module implements Listener
         radius = getConfig().getInt("radius", 10);
         minDistanceToTown = getConfig().getInt("minDistanceToTown", 10);
         protectionTime = getConfig().getInt("protectionTime", 10);
+        
+        moneyReward = getConfig().getInt("moneyReward", 200);
+        maxValue = getConfig().getInt("maxValue", 200);
+        rewardMap = new ValueMap(getConfig().getConfigurationSection("rewardItems"));
         
         SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3));
         
@@ -154,8 +167,8 @@ public class CaptureTheToken extends Module implements Listener
         int dz = 50 + random.nextInt(150) * (random.nextBoolean() ? -1 : 1);
         approxLocation = new Location(location.getWorld(), location.getBlockX() + dx, 0, location.getBlockZ() + dz);
         ticksToStart = startTime;
+        reward = rewardMap.getRandomItems(maxValue, 27);
         
-        // TODO create rewards
         state = CaptureState.ANNOUNCED;
         
     }
@@ -173,9 +186,8 @@ public class CaptureTheToken extends Module implements Listener
     {
         if (ticksToStart == 0)
         {
+            tokenTracker = new TokenTracker(location);
             spawnChest(location, TOKENITEM);
-            
-            // start
             state = CaptureState.RUNNING;
             return;
         }
@@ -215,11 +227,13 @@ public class CaptureTheToken extends Module implements Listener
             
             player.getInventory().remove(TOKENITEM);
             player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, protectionTime * 20, 5));
-            // TODO give rewards
-
-            //spawnChest(entity.getLocation(), rewards);
+            
+            CurrencyHandler.getHandler("money").giveCurrency(player, moneyReward);
+            spawnChest(entity.getLocation(), reward);
             
             lastRun = System.currentTimeMillis();
+            tokenTracker.end();
+            tokenTracker = null;
             state = CaptureState.NONE;
             return;
         }
@@ -298,6 +312,11 @@ public class CaptureTheToken extends Module implements Listener
     
     private void spawnChest(Location target, ItemStack... items)
     {
+        spawnChest(target, Arrays.asList(items));
+    }
+    
+    private void spawnChest(Location target, List<ItemStack> items)
+    {
         @SuppressWarnings("deprecation")
         FallingBlock entity = target.getWorld().spawnFallingBlock(target, Material.CHEST, (byte) 0);
         
@@ -306,8 +325,8 @@ public class CaptureTheToken extends Module implements Listener
         TileEntityChest tileChest = new TileEntityChest();
         net.minecraft.server.v1_7_R4.ItemStack[] content = tileChest.getContents();
         
-        for (int i = 0; i < items.length && i < 27; i++)
-            content[i] = CraftItemStack.asNMSCopy(items[i]);
+        for (int i = 0; i < items.size() && i < 27; i++)
+            content[i] = CraftItemStack.asNMSCopy(items.get(i));
         
         NBTTagCompound nbt = new NBTTagCompound();
         tileChest.b(nbt);

@@ -1,4 +1,4 @@
-package de.craftlancer.clutil.modules;
+package de.craftlancer.clutil.modules.token;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -22,9 +22,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.ItemStack;
 
-import de.craftlancer.clutil.modules.token.TokenFactory;
-import de.craftlancer.clutil.modules.token.TokenType;
-
 /*
  * update entity when item is:
  * taken out of chest //
@@ -45,6 +42,7 @@ public class TokenTracker implements Listener
 {
     private Entity entity;
     private final Location spawnLocation;
+    private boolean ended;
     
     public TokenTracker(Location spawnLocation)
     {
@@ -66,7 +64,7 @@ public class TokenTracker implements Listener
         this.entity = entity;
     }
     
-    protected Entity getEntity()
+    public Entity getEntity()
     {
         return entity;
     }
@@ -74,6 +72,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventory(InventoryMoveItemEvent event)
     {
+        if (ended)
+            return;
+        
         ItemStack item = event.getItem();
         if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
             return;
@@ -87,6 +88,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDrop(ItemSpawnEvent event)
     {
+        if (ended)
+            return;
+        
         ItemStack item = event.getEntity().getItemStack();
         if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
             return;
@@ -97,6 +101,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPickUp(PlayerPickupItemEvent event)
     {
+        if (ended)
+            return;
+        
         ItemStack item = event.getItem().getItemStack();
         if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
             return;
@@ -107,6 +114,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPickUp(InventoryPickupItemEvent event)
     {
+        if (ended)
+            return;
+        
         ItemStack item = event.getItem().getItemStack();
         if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
             return;
@@ -116,6 +126,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onCraft(CraftItemEvent event)
     {
+        if (ended)
+            return;
+        
         for (ItemStack item : event.getInventory())
         {
             if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
@@ -129,6 +142,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event)
     {
+        if (ended)
+            return;
+        
         ItemStack item = event.getEntity().getItemStack();
         if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
             return;
@@ -139,6 +155,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent event)
     {
+        if (ended)
+            return;
+        
         if (event.getEntityType() != EntityType.DROPPED_ITEM)
             return;
         
@@ -152,6 +171,9 @@ public class TokenTracker implements Listener
     @EventHandler
     public void onDamage(EntityDeathEvent event)
     {
+        if (ended)
+            return;
+        
         if (event.getEntityType() != EntityType.DROPPED_ITEM)
             return;
         
@@ -165,6 +187,9 @@ public class TokenTracker implements Listener
     @EventHandler
     public void onLogout(PlayerQuitEvent event)
     {
+        if (ended)
+            return;
+        
         Player player = event.getPlayer();
         
         for (ItemStack item : player.getInventory())
@@ -181,6 +206,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onVehicleEnter(VehicleEnterEvent event)
     {
+        if (ended)
+            return;
+        
         if (event.getEntered().equals(getEntity()))
             event.setCancelled(true);
     }
@@ -188,6 +216,9 @@ public class TokenTracker implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event)
     {
+        if (ended)
+            return;
+        
         if (!event.getPlayer().equals(getEntity()))
             return;
         
@@ -195,6 +226,11 @@ public class TokenTracker implements Listener
             return;
         
         event.setCancelled(true);
+    }
+    
+    public void end()
+    {
+        ended = true;
     }
     
 }

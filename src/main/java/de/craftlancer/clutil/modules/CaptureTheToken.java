@@ -186,7 +186,7 @@ public class CaptureTheToken extends Module implements Listener
     {
         if (ticksToStart == 0)
         {
-            tokenTracker = new TokenTracker(location);
+            tokenTracker = new TokenTracker(getPlugin(), location);
             spawnChest(location, TOKENITEM);
             state = CaptureState.RUNNING;
             return;

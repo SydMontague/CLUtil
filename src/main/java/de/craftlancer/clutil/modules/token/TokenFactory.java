@@ -23,7 +23,7 @@ public class TokenFactory
     {
         TokenType type = TokenType.getByName(i2.getItemMeta().getDisplayName());
         
-        if(type == null)
+        if (type == null)
             return null;
         
         switch (type)
@@ -48,13 +48,13 @@ public class TokenFactory
     {
         if (i2.getType() != getTokenMaterial())
             return false;
-
+        
         if (!i2.getItemMeta().hasDisplayName())
             return false;
         
         TokenType type = TokenType.getByName(i2.getItemMeta().getDisplayName());
-
-        if(type == null)
+        
+        if (type == null)
             return false;
         
         switch (type)

@@ -16,7 +16,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
 {
     private double maxDmg;
     private float maxSpeed;
-    //private int maxCombo;
+    // private int maxCombo;
     private float speedStep;
     private double dmgStep;
     protected long duration;
@@ -28,7 +28,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
         
         this.maxSpeed = maxSpeed;
         this.maxDmg = maxDmg;
-        //this.maxCombo = maxCombo;
+        // this.maxCombo = maxCombo;
         this.duration = duration;
         
         speedStep = (maxSpeed) / maxCombo;
@@ -45,7 +45,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
         
         float addSpeed = speedStep * bv.getCombo();
         addSpeed = addSpeed > maxSpeed ? maxSpeed : addSpeed;
-                
+        
         return speed * addSpeed;
     }
     
@@ -130,7 +130,7 @@ public class BerserkSpeedModifier extends SpeedModifier implements Listener
             return time;
         }
     }
-
+    
     @Override
     public boolean isInstant(Player p)
     {

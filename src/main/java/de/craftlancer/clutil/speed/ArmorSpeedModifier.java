@@ -61,7 +61,7 @@ public class ArmorSpeedModifier extends SpeedModifier
         
         return false;
     }
-
+    
     @Override
     public boolean isInstant(Player p)
     {

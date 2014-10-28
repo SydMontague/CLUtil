@@ -15,7 +15,7 @@ public class EnchantmentToken extends Token
     {
         return enchantment;
     }
-
+    
     @Override
     public TokenType getType()
     {

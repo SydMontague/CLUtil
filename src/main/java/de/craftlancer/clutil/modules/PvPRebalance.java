@@ -33,7 +33,7 @@ public class PvPRebalance extends Module implements Listener
         noDamage = getConfig().getLong("noDamage", 1000L);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
-
+    
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onDamageLowest(EntityDamageByEntityEvent e)
     {
@@ -56,7 +56,6 @@ public class PvPRebalance extends Module implements Listener
         map.put(((Player) e.getDamager()).getUniqueId(), System.currentTimeMillis() + noDamage);
     }
     
-
     @EventHandler
     public void onRespawn(final PlayerRespawnEvent e)
     {

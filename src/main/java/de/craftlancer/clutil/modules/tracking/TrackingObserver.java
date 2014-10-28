@@ -51,7 +51,7 @@ public class TrackingObserver
         if (trackedPlayer == null)
             return;
         
-        if(module.getLocationTracker(trackedPlayer) == null)
+        if (module.getLocationTracker(trackedPlayer) == null)
         {
             setTracked(null);
             return;

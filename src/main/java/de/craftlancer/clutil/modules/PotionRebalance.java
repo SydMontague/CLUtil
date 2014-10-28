@@ -30,7 +30,7 @@ public class PotionRebalance extends Module implements Listener
         super(plugin);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
-
+    
     @Override
     public ModuleType getType()
     {
@@ -39,7 +39,7 @@ public class PotionRebalance extends Module implements Listener
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTarnDamage(EntityDamageByEntityEvent event)
-    {        
+    {
         LivingEntity damager = null;
         
         if (event.getDamager() instanceof LivingEntity)
@@ -69,7 +69,7 @@ public class PotionRebalance extends Module implements Listener
     
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBrew(BrewEvent e)
-    {        
+    {
         if (e.getContents().getIngredient().getType() == Material.BLAZE_POWDER)
             e.setCancelled(true);
     }

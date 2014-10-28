@@ -20,10 +20,10 @@ import de.craftlancer.clutil.ModuleType;
 public class UtilModule extends Module implements Listener
 {
     private static final List<String> startPerms = new ArrayList<String>();
-    static {
-        //TODO init permsList
+    static
+    {
+        // TODO init permsList
     }
-    
     
     public UtilModule(CLUtil plugin)
     {
@@ -53,7 +53,7 @@ public class UtilModule extends Module implements Listener
             for (String s : startPerms)
                 PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
     }
-
+    
     @EventHandler
     public void onItemConsume(PlayerItemConsumeEvent e)
     {

@@ -34,10 +34,10 @@ public class DistanceShot extends Module implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onShootBow(EntityShootBowEvent event)
     {
-        if(event.getEntityType() != EntityType.PLAYER)
+        if (event.getEntityType() != EntityType.PLAYER)
             return;
         
-        if(!((Player) event.getEntity()).hasPermission("cl.util.precision"))
+        if (!((Player) event.getEntity()).hasPermission("cl.util.precision"))
             return;
         
         event.getProjectile().setMetadata("cl.util.precision", new FixedMetadataValue(getPlugin(), event.getEntity().getLocation()));
@@ -46,21 +46,20 @@ public class DistanceShot extends Module implements Listener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onHeadshot(EntityDamageByEntityEvent event)
     {
-        if(!event.getDamager().hasMetadata("cl.util.precision"))
+        if (!event.getDamager().hasMetadata("cl.util.precision"))
             return;
         
         Location start = (Location) event.getDamager().getMetadata("cl.util.precision").get(0).value();
         double distance = start.distance(event.getDamager().getLocation()) - minDistance;
         
-        if(distance <= 0)
+        if (distance <= 0)
             return;
         
-        if(distance > maxDistance)
+        if (distance > maxDistance)
             distance = maxDistance;
         
         event.setDamage(event.getDamage(DamageModifier.BASE) * (1 + damage.getValue((int) distance)));
     }
-    
     
     @Override
     public ModuleType getType()

@@ -13,25 +13,25 @@ public class WaldSpeedModifier extends SpeedModifier
         super(priority);
         this.mod = mod;
     }
-
+    
     @Override
     public float getSpeedChange(Player p, float speed)
     {
-        if(!isApplicable(p))
+        if (!isApplicable(p))
             return 0;
         
         return speed * mod;
     }
-
+    
     @Override
     public boolean isApplicable(Player p)
     {
-        if(p.hasPermission("cl.util.wald.speed"))
+        if (p.hasPermission("cl.util.wald.speed"))
             return true;
         
         return false;
     }
-
+    
     @Override
     public boolean isInstant(Player p)
     {

@@ -106,7 +106,7 @@ public class CLUtil extends JavaPlugin
                 return new PvPRebalance(this);
             case WORKINGSKILLS:
                 return new WorkingSkills(this);
-            case CAPTURETHECORE:
+            case CAPTURETHETOKEN:
                 return new CaptureTheToken(this);
             case CLASSCHANGE:
                 return new ClassChanger(this);

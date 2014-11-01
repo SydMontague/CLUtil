@@ -88,7 +88,7 @@ public class CaptureTheToken extends Module implements Listener
     /* Configuration variables end */
     
     /* Running state variables start */
-    private CaptureState state;
+    private CaptureState state = CaptureState.NONE;
     private Location location;
     private Location approxLocation;
     private int ticksToStart;
@@ -332,7 +332,7 @@ public class CaptureTheToken extends Module implements Listener
     @Override
     public ModuleType getType()
     {
-        return ModuleType.CAPTURETHECORE;
+        return ModuleType.CAPTURETHETOKEN;
     }
     
     private enum CaptureState

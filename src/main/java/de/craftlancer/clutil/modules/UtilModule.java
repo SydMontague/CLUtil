@@ -1,6 +1,5 @@
 package de.craftlancer.clutil.modules;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.EntityType;
@@ -19,17 +18,13 @@ import de.craftlancer.clutil.ModuleType;
 
 public class UtilModule extends Module implements Listener
 {
-    private static final List<String> startPerms = new ArrayList<String>();
-    static
-    {
-        // TODO init permsList
-    }
+    private final List<String> startPerms;
     
     public UtilModule(CLUtil plugin)
     {
         super(plugin);
+        startPerms = getConfig().getStringList("startPerms");
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
-        
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

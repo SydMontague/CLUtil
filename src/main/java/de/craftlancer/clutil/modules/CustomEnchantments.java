@@ -80,6 +80,7 @@ public class CustomEnchantments extends Module implements Listener
     private static final double BANE_DAMAGE = 2.5;
     private static final double SMITE_DAMAGE = 2.5;
     private static final double SHARP_DAMAGE = 1.25;
+    private final double REDUCTION_PER_ARMOR;
     
     private final int EXPLOSION_FACTOR;
     private final int FALL_FACTOR;
@@ -108,6 +109,7 @@ public class CustomEnchantments extends Module implements Listener
         CHAINMAIL_FACTOR = getConfig().getInt("protection.chainmailFactor", 5);
         IRON_FACTOR = getConfig().getInt("protection.ironFactor", 3);
         DIAMOND_FACTOR = getConfig().getInt("protection.diamondFactor", 1);
+        REDUCTION_PER_ARMOR = getConfig().getDouble("armor.reductionPerLevel", 0.04);
         
         enchants = getConfig().getStringList("extract.enchants");
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
@@ -242,6 +244,23 @@ public class CustomEnchantments extends Module implements Listener
         event.setDamage(DamageModifier.MAGIC, event.getDamage(DamageModifier.ARMOR) * result);
     }
     
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void handleArmorBase(EntityDamageByEntityEvent event)
+    {
+        if (!(event.getEntity() instanceof Player))
+            return;
+        
+        if (!event.isApplicable(DamageModifier.ARMOR))
+            return;
+        
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        
+        int armorLevel = getArmorLevel(entity.getEquipment());
+        double armorMod = armorLevel * REDUCTION_PER_ARMOR;
+        
+        event.setDamage(DamageModifier.ARMOR, event.getDamage(DamageModifier.BASE) * armorMod);
+    }
+    
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event)
     {
@@ -345,6 +364,55 @@ public class CustomEnchantments extends Module implements Listener
             default:
                 return 0;
         }
+    }
+    
+    private int getArmorLevel(EntityEquipment equip)
+    {
+        int level = 0;
+        for (ItemStack item : equip.getArmorContents())
+        {
+            switch (item.getType())
+            {
+                case LEATHER_HELMET:
+                case LEATHER_BOOTS:
+                case GOLD_BOOTS:
+                case CHAINMAIL_BOOTS:
+                case IRON_BOOTS:
+                    level += 1;
+                    break;
+                case LEATHER_LEGGINGS:
+                case GOLD_HELMET:
+                case CHAINMAIL_HELMET:
+                case IRON_HELMET:
+                    level += 2;
+                    break;
+                case LEATHER_CHESTPLATE:
+                case GOLD_LEGGINGS:
+                case DIAMOND_BOOTS:
+                case DIAMOND_HELMET:
+                    level += 3;
+                    break;
+                case CHAINMAIL_LEGGINGS:
+                    level += 4;
+                    break;
+                case GOLD_CHESTPLATE:
+                case CHAINMAIL_CHESTPLATE:
+                case IRON_LEGGINGS:
+                    level += 5;
+                    break;
+                case IRON_CHESTPLATE:
+                case DIAMOND_LEGGINGS:
+                    level += 6;
+                    break;
+                case DIAMOND_CHESTPLATE:
+                    level += 7;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        return level;
     }
     
     private static int getHighestThorns(EntityEquipment equipment)

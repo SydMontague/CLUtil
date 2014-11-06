@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.UnknownDependencyException;
 
@@ -98,6 +99,7 @@ public class WorkingSkills extends Module implements Listener
             if (!skill.isHandledBlockType(b))
                 continue;
             
+            b.setMetadata("SkillLevels.ignore", new FixedMetadataValue(getPlugin(), null));
             b.setData(skill.getPlaceDataValue(b));
             return;
         }

@@ -17,6 +17,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -68,7 +70,7 @@ public class CaptureTheToken extends Module implements Listener
         TOKENITEM.setItemMeta(meta);
     }
     
-    private Random random = new Random();    
+    private Random random = new Random();
     private long lastRun = 0;
     
     /* Configuration variables start */
@@ -92,8 +94,9 @@ public class CaptureTheToken extends Module implements Listener
     private Location location;
     private Location approxLocation;
     private int ticksToStart;
-    private List<ItemStack> reward;    
+    private List<ItemStack> reward;
     private TokenTracker tokenTracker;
+    
     /* Running state variables end */
     
     public CaptureTheToken(CLUtil plugin)
@@ -114,7 +117,7 @@ public class CaptureTheToken extends Module implements Listener
         maxValue = getConfig().getInt("maxValue", 200);
         rewardMap = new ValueMap(getConfig().getConfigurationSection("rewardItems"));
         
-        SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3));
+        SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3, (float) getConfig().getDouble("speedMod", 0.8f)));
         
         new BukkitRunnable()
         {
@@ -202,6 +205,27 @@ public class CaptureTheToken extends Module implements Listener
         ticksToStart--;
     }
     
+    private String getDistance(Player player)
+    {
+        try
+        {
+            Resident r = TownyUniverse.getDataSource().getResident(player.getName());
+            if (!r.hasTown())
+                return "infinity (no Town)";
+            
+            Coord c = r.getTown().getHomeBlock().getCoord();
+            Coord c2 = Coord.parseCoord(player);
+            
+            return String.valueOf(16 * Math.sqrt((Math.pow(c.getX() - c2.getX(), 2) + Math.pow(c.getZ() - c2.getZ(), 2))));
+        }
+        catch (TownyException e)
+        {
+            e.printStackTrace();
+        }
+        
+        return "ERROR";
+    }
+    
     /*
      * Handle the running event
      * Handles:
@@ -212,7 +236,10 @@ public class CaptureTheToken extends Module implements Listener
     protected void handleRunningState()
     {
         if (ticksToStart % messageTime == 0)
-            Bukkit.broadcastMessage(String.format("The Token is currently at %1$s", tokenTracker.getLocationString()));
+            if (tokenTracker.getEntity() instanceof Item)
+                Bukkit.broadcastMessage(String.format("The Token is currently at %1$s", tokenTracker.getLocationString()));
+            else if (tokenTracker.getEntity() instanceof Player)
+                Bukkit.broadcastMessage(String.format("Player %1$s is holding the Token! He is %2$s blocks away from his home.", ((Player) tokenTracker.getEntity()).getName(), getDistance((Player) tokenTracker.getEntity())));
         
         Entity entity = tokenTracker.getEntity();
         

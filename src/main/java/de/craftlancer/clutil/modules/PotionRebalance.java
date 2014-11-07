@@ -9,12 +9,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
@@ -24,10 +25,13 @@ public class PotionRebalance extends Module implements Listener
 {
     private double POISON_MODIFIER = 0.5;
     private double HEALTH_MODIFIER = 2.5;
+    private long rougeInvisDelay = 120;
     
     public PotionRebalance(CLUtil plugin)
     {
         super(plugin);
+        POISON_MODIFIER = getConfig().getDouble("poison_modifier", 0.5);
+        HEALTH_MODIFIER = getConfig().getDouble("health_modifier", 0.5);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     
@@ -40,12 +44,14 @@ public class PotionRebalance extends Module implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTarnDamage(EntityDamageByEntityEvent event)
     {
-        LivingEntity damager = null;
+        final LivingEntity damager;
         
         if (event.getDamager() instanceof LivingEntity)
             damager = (LivingEntity) event.getDamager();
         else if (event.getDamager() instanceof Projectile && ((Projectile) event.getDamager()).getShooter() instanceof LivingEntity)
             damager = (LivingEntity) ((Projectile) event.getDamager()).getShooter();
+        else
+            damager = null;
         
         if ((event.getEntity() instanceof LivingEntity))
             for (PotionEffect ent : ((LivingEntity) event.getEntity()).getActivePotionEffects())
@@ -53,9 +59,27 @@ public class PotionRebalance extends Module implements Listener
                     ((LivingEntity) event.getEntity()).removePotionEffect(ent.getType());
         
         if (damager != null)
-            for (PotionEffect ent : damager.getActivePotionEffects())
+            for (final PotionEffect ent : damager.getActivePotionEffects())
                 if (ent.getType().equals(PotionEffectType.INVISIBILITY))
-                    damager.removePotionEffect(ent.getType());
+                    new BukkitRunnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            damager.removePotionEffect(ent.getType());
+                        }
+                    }.runTaskLater(getPlugin(), getRemoveDelay(damager));
+    }
+    
+    private long getRemoveDelay(LivingEntity damager)
+    {
+        if (!(damager instanceof Player))
+            return 0;
+        
+        if (((Player) damager).hasPermission("cl.util.rouge"))
+            return rougeInvisDelay;
+        
+        return 0;
     }
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

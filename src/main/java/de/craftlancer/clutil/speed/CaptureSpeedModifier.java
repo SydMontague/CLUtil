@@ -7,11 +7,12 @@ import de.craftlancer.speedapi.SpeedModifier;
 
 public class CaptureSpeedModifier extends SpeedModifier
 {
-    private static final float MOD = 0.5f;
+    private final float mod;
     
-    public CaptureSpeedModifier(int priority)
+    public CaptureSpeedModifier(int priority, float mod)
     {
         super(priority);
+        this.mod = mod;
     }
     
     @Override
@@ -20,7 +21,7 @@ public class CaptureSpeedModifier extends SpeedModifier
         if (!isApplicable(arg0))
             return 0;
         
-        return arg1 * MOD;
+        return arg1 * mod;
     }
     
     @Override

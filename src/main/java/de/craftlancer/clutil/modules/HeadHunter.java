@@ -33,7 +33,7 @@ public class HeadHunter extends Module implements Listener
         Player p = e.getEntity().getKiller();
         ItemStack item = p.getItemInHand();
         
-        if (!item.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) || !p.hasPermission("cl.util.headhunt"))
+        if (!item.containsEnchantment(Enchantment.LOOT_BONUS_MOBS))
             return;
         
         double chance = 0;

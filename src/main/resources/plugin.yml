@@ -31,6 +31,9 @@ commands:
   track:
     description: Track a player
     usage: /track
+  class:
+    description: Change your class
+    usage: /class <classname>
 permissions:
     cl.util.krieger:
         default: false

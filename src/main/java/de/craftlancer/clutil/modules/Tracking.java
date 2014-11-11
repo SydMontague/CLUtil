@@ -51,6 +51,7 @@ public class Tracking extends Module implements Listener, CommandExecutor
     {
         super(plugin);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
+        getPlugin().getCommand("find").setExecutor(this);        
         
         trackingDelay = getConfig().getLong("trackingDelay", 20L);
         observerDelay = getConfig().getLong("observerDelay", 100L);

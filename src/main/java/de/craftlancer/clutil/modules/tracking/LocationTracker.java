@@ -30,7 +30,7 @@ public class LocationTracker
      */
     public boolean add(Location loc)
     {
-        points[pointer] = new TrackingPoint(loc);
+        points[pointer] = loc == null ? null : new TrackingPoint(loc);
         increasePointer();
         return true;
     }

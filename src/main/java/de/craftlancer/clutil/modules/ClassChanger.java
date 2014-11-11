@@ -21,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -32,20 +33,22 @@ import de.craftlancer.skilllevels.Utils;
 public class ClassChanger extends Module implements Listener, TabExecutor
 {
     private final Map<String, List<String>> aliases = new HashMap<>();
+    private final Map<UUID, BukkitTask> changes = new HashMap<>();
     private final int commandDelay;
     
     public ClassChanger(CLUtil plugin)
     {
         super(plugin);
-        for(String key : getConfig().getConfigurationSection("aliases").getKeys(false))
+        for (String key : getConfig().getConfigurationSection("aliases").getKeys(false))
             aliases.put(key, getConfig().getStringList("aliases." + key));
         commandDelay = getConfig().getInt("commandDelay", 1800 * 20);
+        getPlugin().getCommand("class").setExecutor(this);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSignChange(SignChangeEvent e)
     {
-        if (e.getLine(1).equals("[Rollenwechsel]") && !e.getPlayer().hasPermission("cl.util.admin"))
+        if (e.getLine(1).equals("[Class change]") && !e.getPlayer().hasPermission("cl.util.admin"))
             e.setCancelled(true);
     }
     
@@ -60,7 +63,7 @@ public class ClassChanger extends Module implements Listener, TabExecutor
         
         Sign sign = (Sign) e.getClickedBlock().getState();
         
-        if (!sign.getLine(1).equals("[Rollenwechsel]") || !isClassAlias(sign.getLine(2)))
+        if (!sign.getLine(1).equals("[Class change]") || !isClassAlias(sign.getLine(2)))
             return;
         
         new ClassChangeTask(e.getPlayer().getUniqueId(), getClassByAlias(sign.getLine(2))).runTask(getPlugin());
@@ -73,7 +76,7 @@ public class ClassChanger extends Module implements Listener, TabExecutor
         {
             case 1:
                 List<String> classes = new ArrayList<>();
-                for(List<String> list : aliases.values())
+                for (List<String> list : aliases.values())
                     classes.addAll(list);
                 
                 return Utils.getMatches(args[0], classes);
@@ -84,8 +87,8 @@ public class ClassChanger extends Module implements Listener, TabExecutor
     
     private boolean isClassAlias(String str)
     {
-        for(List<String> entry : aliases.values())
-            if(entry.contains(str))
+        for (List<String> entry : aliases.values())
+            if (entry.contains(str))
                 return true;
         
         return false;
@@ -93,8 +96,8 @@ public class ClassChanger extends Module implements Listener, TabExecutor
     
     private String getClassByAlias(String str)
     {
-        for(Entry<String, List<String>> entry : aliases.entrySet())
-            if(entry.getValue().contains(str))
+        for (Entry<String, List<String>> entry : aliases.entrySet())
+            if (entry.getValue().contains(str))
                 return entry.getKey();
         
         return null;
@@ -104,15 +107,21 @@ public class ClassChanger extends Module implements Listener, TabExecutor
     public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] args)
     {
         if (!(sender instanceof Player))
-            sender.sendMessage("Dieser Befehl kann nur von Spielern benutzt werden!");
+            sender.sendMessage("This command can only be used by players!");
         else if (args.length < 1 || !isClassAlias(args[0]))
-            sender.sendMessage("Du musst eine valide Klasse angeben! (Waldläufer, Krieger, Schurke)");
+            sender.sendMessage("You must enter a valid class! (Ranger, Warrior, Rogue)");
         
         Player player = (Player) sender;
         
-        new ClassChangeTask(player.getUniqueId(), getClassByAlias(args[0])).runTaskLater(getPlugin(), commandDelay);
+        if(changes.containsKey(player.getUniqueId()))
+        {
+            BukkitTask task = changes.get(player.getUniqueId());
+            task.cancel();
+        }
         
-        sender.sendMessage("Deine Klasse wird in 30 Minuten zu " + args[0] + " gewechselt!");
+        changes.put(player.getUniqueId(), new ClassChangeTask(player.getUniqueId(), getClassByAlias(args[0])).runTaskLater(getPlugin(), commandDelay));
+        
+        sender.sendMessage("In 30 minutes your class will be changed to " + getClassByAlias(args[0]) + "!");
         return true;
     }
     
@@ -120,6 +129,11 @@ public class ClassChanger extends Module implements Listener, TabExecutor
     public ModuleType getType()
     {
         return ModuleType.CLASSCHANGE;
+    }
+    
+    protected void removeEntry(UUID player)
+    {
+        changes.remove(player);
     }
     
     class ClassChangeTask extends BukkitRunnable
@@ -147,7 +161,9 @@ public class ClassChanger extends Module implements Listener, TabExecutor
                 user.addGroup(extra);
             
             if (p.isOnline())
-                p.getPlayer().sendMessage("Rolle erfolgreich zu " + group + " gewechselt!");
+                p.getPlayer().sendMessage("Class successfully changed to " + group + " !");
+            
+            removeEntry(player);
         }
     }
 }

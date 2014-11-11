@@ -13,6 +13,7 @@ import de.craftlancer.clutil.modules.CustomEnchantments;
 import de.craftlancer.clutil.modules.DebugMode;
 import de.craftlancer.clutil.modules.DistanceShot;
 import de.craftlancer.clutil.modules.EffectWeapons;
+import de.craftlancer.clutil.modules.Enderball;
 import de.craftlancer.clutil.modules.GriefBlock;
 import de.craftlancer.clutil.modules.HeadHunter;
 import de.craftlancer.clutil.modules.Home;
@@ -114,6 +115,8 @@ public class CLUtil extends JavaPlugin
                 return new GriefBlock(this);
             case UTILITY:
                 return new UtilModule(this);
+            case ENDERBALL:
+                return new Enderball(this);
             default:
                 break;
         }

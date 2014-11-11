@@ -23,7 +23,7 @@ public enum ModuleType
     GRIEFBLOCK,
     UTILITY,
     CAPTURETHETOKEN,
-    CLASSCHANGE;
+    CLASSCHANGE, ENDERBALL;
     
     private final String config;
     

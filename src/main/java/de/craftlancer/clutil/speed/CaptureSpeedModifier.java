@@ -33,7 +33,7 @@ public class CaptureSpeedModifier extends SpeedModifier
     @Override
     public boolean isInstant(Player arg0)
     {
-        return true;
+        return false;
     }
     
 }

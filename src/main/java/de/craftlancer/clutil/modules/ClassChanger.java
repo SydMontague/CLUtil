@@ -107,9 +107,15 @@ public class ClassChanger extends Module implements Listener, TabExecutor
     public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] args)
     {
         if (!(sender instanceof Player))
+        {
             sender.sendMessage("This command can only be used by players!");
+            return true;
+        }
         else if (args.length < 1 || !isClassAlias(args[0]))
-            sender.sendMessage("You must enter a valid class! (Ranger, Warrior, Rogue)");
+        {
+            sender.sendMessage("Your class is: " +  PermissionsEx.getUser((Player) sender).getGroups()[0]);
+            return true;
+        }
         
         Player player = (Player) sender;
         
@@ -121,7 +127,7 @@ public class ClassChanger extends Module implements Listener, TabExecutor
         
         changes.put(player.getUniqueId(), new ClassChangeTask(player.getUniqueId(), getClassByAlias(args[0])).runTaskLater(getPlugin(), commandDelay));
         
-        sender.sendMessage("In 30 minutes your class will be changed to " + getClassByAlias(args[0]) + "!");
+        sender.sendMessage("In 30 minutes your class will be changed to " + args[0] + "!");
         return true;
     }
     

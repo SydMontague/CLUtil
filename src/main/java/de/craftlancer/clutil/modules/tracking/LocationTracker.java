@@ -48,7 +48,7 @@ public class LocationTracker
         
         for (int i = 0; i < module.getTrackingPointCount(); i++)
         {
-            int tmp = (i + pointer) % module.getTrackingPointCount();
+            int tmp = (module.getTrackingPointCount() + (pointer - i)) % module.getTrackingPointCount();
             TrackingState state = TrackingState.CLEAR;
             
             if (i > module.getUnclear2() && i % module.getUnclear2Gap() != 0)
@@ -63,7 +63,7 @@ public class LocationTracker
             
             TrackingPoint point = points[tmp];
             
-            if (point.distance(p) > module.getMaxDistance())
+            if (point == null || point.distance(p) > module.getMaxDistance())
                 continue;
             
             list.put(point, state);

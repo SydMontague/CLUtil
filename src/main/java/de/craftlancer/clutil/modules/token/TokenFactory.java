@@ -46,7 +46,7 @@ public class TokenFactory
     
     public static boolean isToken(ItemStack i2)
     {
-        if (i2.getType() != getTokenMaterial())
+        if (i2.getType() != getTokenMaterial() && i2.getType() != getTokenMaterial2())
             return false;
         
         if (!i2.getItemMeta().hasDisplayName())
@@ -67,11 +67,18 @@ public class TokenFactory
                 return true;
             case UNDEFINED:
                 return true;
+            case CAPTURE_EVENT:
+                return true;
             default:
                 return false;
         }
     }
     
+    private static Material getTokenMaterial2()
+    {
+        return Material.SPONGE;
+    }
+
     public static ItemStack craftEnchantmentTokenItem(Enchantment entry)
     {
         ItemStack item = new ItemStack(getTokenMaterial());

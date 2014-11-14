@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clutil.CLUtil;
@@ -51,7 +52,7 @@ public class Tracking extends Module implements Listener, CommandExecutor
     {
         super(plugin);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
-        getPlugin().getCommand("find").setExecutor(this);        
+        getPlugin().getCommand("find").setExecutor(this);
         
         trackingDelay = getConfig().getLong("trackingDelay", 20L);
         observerDelay = getConfig().getLong("observerDelay", 100L);
@@ -91,6 +92,12 @@ public class Tracking extends Module implements Listener, CommandExecutor
             sender.sendMessage("You don't have the permission to run this command!");
             return true;
         }
+
+        Player player = (Player) sender;
+        if(args.length == 0 && observer.containsKey(player.getUniqueId()))
+            observer.get(player.getUniqueId()).setTracked(null);
+            
+            
         
         @SuppressWarnings("deprecation")
         OfflinePlayer track = args.length >= 1 ? Bukkit.getOfflinePlayer(args[0]) : null;
@@ -101,7 +108,10 @@ public class Tracking extends Module implements Listener, CommandExecutor
             return true;
         }
         
-        observer.get(((Player) sender).getUniqueId()).setTracked(track.getUniqueId());
+        if (!observer.containsKey(player.getUniqueId()))
+            observer.put(player.getUniqueId(), new TrackingObserver(this, player.getUniqueId()));
+        
+        observer.get(player.getUniqueId()).setTracked(track.getUniqueId());
         
         return true;
     }
@@ -152,6 +162,15 @@ public class Tracking extends Module implements Listener, CommandExecutor
     {
         if (!locations.containsKey(event.getPlayer().getUniqueId()))
             locations.put(event.getPlayer().getUniqueId(), new LocationTracker(this));
+    }
+    
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e)
+    {
+        Player player = e.getPlayer();
+
+        if(observer.containsKey(player.getUniqueId()))
+            observer.get(player.getUniqueId()).setTracked(null);
     }
     
     @Override

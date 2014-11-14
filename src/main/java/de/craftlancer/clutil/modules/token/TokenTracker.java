@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -23,6 +24,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+
+import de.craftlancer.clutil.modules.CaptureTheToken;
 
 /*
  * update entity when item is:
@@ -69,6 +72,17 @@ public class TokenTracker implements Listener
     public Entity getEntity()
     {
         return entity;
+    }
+    
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPlace(BlockPlaceEvent e)
+    {
+        ItemStack item = e.getPlayer().getItemInHand();
+        if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
+            return;
+        
+        e.setCancelled(true);
+        
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -200,6 +214,12 @@ public class TokenTracker implements Listener
     public void end()
     {
         HandlerList.unregisterAll(this);
+        if(entity == null)
+            return;
+        if(entity.getType() == EntityType.DROPPED_ITEM)
+            entity.remove();
+        else if (entity instanceof Player)
+            ((Player) entity).getInventory().removeItem(CaptureTheToken.TOKENITEM);
     }
     
 }

@@ -2,6 +2,7 @@ package de.craftlancer.clutil.modules;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,9 +45,13 @@ public class UtilModule extends Module implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFirstJoin(PlayerJoinEvent e)
     {
+        Bukkit.getLogger().info("true " + e.getPlayer().hasPlayedBefore());
         if (!e.getPlayer().hasPlayedBefore())
             for (String s : startPerms)
+            {
                 PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
+                Bukkit.getLogger().info(s);
+            }
     }
     
     @EventHandler

@@ -76,7 +76,7 @@ public class PotionRebalance extends Module implements Listener
         if (!(damager instanceof Player))
             return 0;
         
-        if (((Player) damager).hasPermission("cl.util.rouge"))
+        if (((Player) damager).hasPermission("cl.util.rogue"))
             return rougeInvisDelay;
         
         return 0;

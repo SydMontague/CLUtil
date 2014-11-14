@@ -117,7 +117,7 @@ public class CaptureTheToken extends Module implements Listener
         maxValue = getConfig().getInt("maxValue", 200);
         rewardMap = new ValueMap(getConfig().getConfigurationSection("rewardItems"));
         
-        SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3, (float) getConfig().getDouble("speedMod", 0.8f)));
+        SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3, (float) getConfig().getDouble("speedMod", -0.2f)));
         
         new BukkitRunnable()
         {
@@ -266,7 +266,10 @@ public class CaptureTheToken extends Module implements Listener
     
     private boolean isAtOwnHomeblock(Entity entity)
     {
-        if (entity.getType() != EntityType.PLAYER)
+        if(entity == null)
+            return false;
+        
+        if (!(entity instanceof Player))
             return false;
         
         HumanEntity player = (HumanEntity) entity;
@@ -320,7 +323,7 @@ public class CaptureTheToken extends Module implements Listener
     
     private String getNextTimerString()
     {
-        return Utils.getTimeString((1000 / tickTime) * (startTime));
+        return Utils.getTimeString((1000 / (tickTime * 20)) * (startTime));
     }
     
     private String getLocationString()
@@ -340,6 +343,9 @@ public class CaptureTheToken extends Module implements Listener
     
     private void spawnChest(Location target, List<ItemStack> items)
     {
+        if(location.getChunk().isLoaded())
+            location.getChunk().load();
+        
         @SuppressWarnings("deprecation")
         FallingBlock entity = target.getWorld().spawnFallingBlock(target, Material.CHEST, (byte) 0);
         
@@ -360,6 +366,12 @@ public class CaptureTheToken extends Module implements Listener
     public ModuleType getType()
     {
         return ModuleType.CAPTURETHETOKEN;
+    }
+    
+    @Override
+    public void onDisable()
+    {
+        tokenTracker.end();
     }
     
     private enum CaptureState

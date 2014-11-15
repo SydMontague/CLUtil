@@ -2,35 +2,17 @@ name: CLUtil
 main: de.craftlancer.clutil.CLUtil
 version: ${project.version}
 description: Some Utility Stuff for Craftlancer
-depend: [SpeedAPI, TagAPI, PermissionsEx, SkillLevels, Towny]
+depend: [SpeedAPI, TagAPI, PermissionsEx, SkillLevels, Towny, WayOfShadows]
 commands:
-  sneak:
-    description: Toggles sneak
-    usage: /sneak
-  statsme:
-    description: Shows K/D Stats
-    usage: /statsme
   find:
     description: Find other players with your compass
     usage: /find <player>
-  togglearrow:
-    description: Toggle usage of poison arrows
-    usage: /togglearrow
   home:
     description: Teleport to your home!
     usage: /home
-  building:
-    description: Build
-    usage: /building
-  equip:
-    description: equip
-    usage: /equip
   debugger:
     description: equip
     usage: /equip
-  track:
-    description: Track a player
-    usage: /track
   class:
     description: Change your class
     usage: /class <classname>

@@ -185,6 +185,7 @@ public class CaptureTheToken extends Module implements Listener
     {
         if (ticksToStart == 0)
         {
+            Bukkit.broadcastMessage(String.format("Event %1$s started at %2$s!", getEventName(), getLocationString()));
             tokenTracker = new TokenTracker(getPlugin(), location);
             spawnChest(location, TOKENITEM);
             state = CaptureState.RUNNING;
@@ -199,8 +200,6 @@ public class CaptureTheToken extends Module implements Listener
             Bukkit.broadcastMessage(String.format("Event %1$s is starting in %2$s near %3$s!", getEventName(), getNextTimerString(), getApproxLocationString()));
         else if (ticksToStart == startTime - messageTime * 3)
             Bukkit.broadcastMessage(String.format("Event %1$s is starting in %2$s at %3$s!", getEventName(), getNextTimerString(), getLocationString()));
-        else if (ticksToStart == startTime - messageTime * 4)
-            Bukkit.broadcastMessage(String.format("Event %1$s started at %2$s!", getEventName(), getLocationString()));
         
         ticksToStart--;
     }
@@ -246,7 +245,7 @@ public class CaptureTheToken extends Module implements Listener
         if (isAtOwnHomeblock(entity))
         {
             HumanEntity player = ((HumanEntity) entity);
-            Bukkit.broadcastMessage(String.format("%1$s hat den Token zu seiner Stadt gebracht!", player.getName()));
+            Bukkit.broadcastMessage(String.format("%1$s did transport the token to his town!", player.getName()));
             
             player.getInventory().remove(TOKENITEM);
             player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, protectionTime * 20, 5));

@@ -1,5 +1,7 @@
 package de.craftlancer.clutil.modules;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -8,15 +10,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
 import org.kitteh.tag.TagAPI;
 
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.TownyUniverse;
+import com.palmergames.bukkit.TownyChat.Chat;
+import com.palmergames.bukkit.TownyChat.channels.channelTypes;
+import com.palmergames.bukkit.TownyChat.events.AsyncChatHookEvent;
 
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
@@ -28,6 +29,10 @@ public class PumpkinBandit extends Module implements Listener
     {
         super(plugin);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
+        
+        Chat c = (Chat) Bukkit.getPluginManager().getPlugin("TownyChat");
+        c.getChannelsHandler().getChannel("general").setHooked(true);
+        c.getChannelsHandler().getChannel("local").setHooked(true);
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
@@ -65,23 +70,19 @@ public class PumpkinBandit extends Module implements Listener
         }.runTask(getPlugin());
     }
     
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onChat(AsyncPlayerChatEvent e)
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onTownyChat(AsyncChatHookEvent event)
     {
-        Player p = e.getPlayer();
-        
-        if (e.getPlayer().getInventory().getHelmet() == null || e.getPlayer().getInventory().getHelmet().getType() != Material.PUMPKIN)
+        if (event.getChannel().getType() != channelTypes.GLOBAL)
             return;
         
-        try
-        {
-            Resident resi = TownyUniverse.getDataSource().getResident(p.getName());
-            e.setMessage(e.getMessage().replace(resi.hasTown() ? resi.getTown().getTag() : "", "").replace(p.getName(), "PumpkinBandit").replace(resi.getTitle(), ""));
-        }
-        catch (NotRegisteredException e1)
-        {
-            e1.printStackTrace();
-        }
+        Player p = event.getPlayer();
+        
+        if (p.getInventory().getHelmet() == null || p.getInventory().getHelmet().getType() != Material.PUMPKIN)
+            return;
+        
+        event.getAsyncPlayerChatEvent().setFormat(ChatColor.translateAlternateColorCodes('&', event.getChannel().getChannelTag() + "&f<Pumpkinbandit&f>" + event.getChannel().getMessageColour() + " %2$s"));
+        event.setChanged(false);
     }
     
     @Override

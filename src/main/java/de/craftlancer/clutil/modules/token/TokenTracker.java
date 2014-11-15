@@ -2,7 +2,11 @@ package de.craftlancer.clutil.modules.token;
 
 import java.lang.reflect.Field;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftItem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -182,7 +186,7 @@ public class TokenTracker implements Listener
         
         event.setCancelled(true);
     }
-        
+    
     @EventHandler
     public void onLogout(PlayerQuitEvent event)
     {
@@ -190,7 +194,7 @@ public class TokenTracker implements Listener
         
         for (ItemStack item : player.getInventory())
         {
-            if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
+            if (item == null || !(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
                 continue;
             
             player.getInventory().remove(item);
@@ -221,9 +225,25 @@ public class TokenTracker implements Listener
     public void end()
     {
         HandlerList.unregisterAll(this);
+        
+        Block b = spawnLocation.getBlock();
+        while ((b = b.getRelative(0, -1, 0)).getLocation().getBlockY() > 1)
+        {
+            if (b.getType() != Material.CHEST)
+                continue;
+            
+            Chest c = (Chest) b.getState();
+            if (!c.getInventory().removeItem(CaptureTheToken.TOKENITEM).isEmpty())
+                continue;
+            
+            c.getInventory().clear();
+            c.setType(Material.AIR);
+            c.update();
+        }
+        
         if (entity == null)
             return;
-        if (entity.getType() == EntityType.DROPPED_ITEM)
+        else if (entity.getType() == EntityType.DROPPED_ITEM)
             entity.remove();
         else if (entity instanceof Player)
             ((Player) entity).getInventory().removeItem(CaptureTheToken.TOKENITEM);

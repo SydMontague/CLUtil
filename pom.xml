@@ -107,6 +107,13 @@
       <systemPath>${project.basedir}/depend/Towny.jar</systemPath>
     </dependency>
     <dependency>
+      <groupId>com.palmergames</groupId>
+      <artifactId>townychat</artifactId>
+      <version>0.88.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/depend/TownyChat.jar</systemPath>
+    </dependency>
+    <dependency>
       <groupId>ru.tehkode</groupId>
       <artifactId>permissionsex</artifactId>
       <version>1.21.3</version>

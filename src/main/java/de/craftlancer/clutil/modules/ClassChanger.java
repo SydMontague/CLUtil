@@ -45,6 +45,7 @@ public class ClassChanger extends Module implements Listener, TabExecutor
             aliases.put(key, getConfig().getStringList("aliases." + key));
         commandDelay = getConfig().getInt("commandDelay", 1800 * 20);
         getPlugin().getCommand("class").setExecutor(this);
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

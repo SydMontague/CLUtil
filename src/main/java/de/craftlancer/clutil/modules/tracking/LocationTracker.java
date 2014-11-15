@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import de.craftlancer.clutil.modules.Tracking;
@@ -30,9 +31,19 @@ public class LocationTracker
      */
     public boolean add(Location loc)
     {
-        points[pointer] = loc == null ? null : new TrackingPoint(loc);
+        points[pointer] = loc == null ? null : new TrackingPoint(getLoc(loc));
         increasePointer();
         return true;
+    }
+    
+    private Location getLoc(Location loc)
+    {
+        Block b = loc.getBlock();
+        while(!b.getRelative(0, -1, 0).getType().isSolid())
+            b = b.getRelative(0, -1, 0);
+        loc = b.getLocation();
+        
+        return loc;
     }
     
     /**
@@ -51,14 +62,14 @@ public class LocationTracker
             int tmp = (module.getTrackingPointCount() + (pointer - i)) % module.getTrackingPointCount();
             TrackingState state = TrackingState.CLEAR;
             
-            if (i > module.getUnclear2() && i % module.getUnclear2Gap() != 0)
-                continue;
-            else
+            if (i > module.getUnclear2()/* && i % module.getUnclear2Gap() != 0*/)
+            //    continue;
+            //else
                 state = TrackingState.UNCLEAR2;
             
-            if (i > module.getUnclear1() && i % module.getUnclear1Gap() != 0)
-                continue;
-            else if (state == TrackingState.CLEAR)
+            if (i > module.getUnclear1()/* && i % module.getUnclear1Gap() != 0*/)
+            //    continue;
+            //else if (state == TrackingState.CLEAR)
                 state = TrackingState.UNCLEAR1;
             
             TrackingPoint point = points[tmp];

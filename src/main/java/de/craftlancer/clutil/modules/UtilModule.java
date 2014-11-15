@@ -11,6 +11,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 import de.craftlancer.clutil.CLUtil;
@@ -26,6 +28,9 @@ public class UtilModule extends Module implements Listener
         super(plugin);
         startPerms = getConfig().getStringList("startPerms");
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
+        
+        for(String perm : startPerms)
+            getPlugin().getServer().getPluginManager().addPermission(new Permission(perm, PermissionDefault.TRUE));
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -47,10 +52,7 @@ public class UtilModule extends Module implements Listener
     {
         if (!e.getPlayer().hasPlayedBefore())
             for (String s : startPerms)
-            {
                 PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
-                Bukkit.getLogger().info(s);
-            }
     }
     
     @EventHandler

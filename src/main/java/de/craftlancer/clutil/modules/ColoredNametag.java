@@ -35,10 +35,12 @@ public class ColoredNametag extends Module implements Listener
             Resident namedResi = TownyUniverse.getDataSource().getResident(e.getNamedPlayer().getName());
             Resident seeingResi = TownyUniverse.getDataSource().getResident(e.getPlayer().getName());
             
-            if (seeingResi.hasFriend(namedResi))
+            if (seeingResi.hasFriend(namedResi) || namedResi.getTown().equals(seeingResi.getTown()))
                 color = ChatColor.GREEN;
             else if (!namedResi.hasNation() || !seeingResi.hasNation())
                 return;
+            else if (seeingResi.getTown().getNation().equals(namedResi.getTown().getNation()))
+                color = ChatColor.GREEN;
             else if (seeingResi.getTown().getNation().getAllies().contains(namedResi.getTown().getNation()))
                 color = ChatColor.GREEN;
             else if (seeingResi.getTown().getNation().getEnemies().contains(namedResi.getTown().getNation()))

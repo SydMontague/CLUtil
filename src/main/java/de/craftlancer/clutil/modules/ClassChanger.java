@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -20,6 +21,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -50,6 +52,13 @@ public class ClassChanger extends Module implements Listener, TabExecutor
     {
         if (e.getLine(1).equals("[Class change]") && !e.getPlayer().hasPermission("cl.util.admin"))
             e.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e)
+    {
+        if(!e.getPlayer().hasPlayedBefore())
+            new ClassChangeTask(e.getPlayer().getUniqueId(), (String) aliases.keySet().toArray()[new Random().nextInt(aliases.size())]).runTask(getPlugin());
     }
     
     @EventHandler(priority = EventPriority.MONITOR)

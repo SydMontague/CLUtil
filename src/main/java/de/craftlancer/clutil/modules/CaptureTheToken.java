@@ -323,7 +323,7 @@ public class CaptureTheToken extends Module implements Listener
     
     private String getNextTimerString()
     {
-        return Utils.getTimeString((1000 / (tickTime * 20)) * (startTime));
+        return Utils.getTimeString((1000 / (tickTime * 50)) * (ticksToStart) * 1000);
     }
     
     private String getLocationString()

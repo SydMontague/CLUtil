@@ -95,9 +95,11 @@ public class Tracking extends Module implements Listener, CommandExecutor
 
         Player player = (Player) sender;
         if(args.length == 0 && observer.containsKey(player.getUniqueId()))
+        {
             observer.get(player.getUniqueId()).setTracked(null);
-            
-            
+            sender.sendMessage("You stopped tracking anybody!");
+            return true;
+        }
         
         @SuppressWarnings("deprecation")
         OfflinePlayer track = args.length >= 1 ? Bukkit.getOfflinePlayer(args[0]) : null;
@@ -112,6 +114,8 @@ public class Tracking extends Module implements Listener, CommandExecutor
             observer.put(player.getUniqueId(), new TrackingObserver(this, player.getUniqueId()));
         
         observer.get(player.getUniqueId()).setTracked(track.getUniqueId());
+        
+        sender.sendMessage("You're now tracking " + track.getName());
         
         return true;
     }

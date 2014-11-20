@@ -30,7 +30,7 @@ public class TokenModule extends Module implements Listener
     {
         for (ItemStack item : event.getInventory())
         {
-            if (!(TokenFactory.isToken(item)))
+            if (item == null || !(TokenFactory.isToken(item)))
                 continue;
             
             event.setCancelled(true);

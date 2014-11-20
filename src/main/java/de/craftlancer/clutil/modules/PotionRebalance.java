@@ -31,7 +31,7 @@ public class PotionRebalance extends Module implements Listener
     {
         super(plugin);
         POISON_MODIFIER = getConfig().getDouble("poison_modifier", 0.5);
-        HEALTH_MODIFIER = getConfig().getDouble("health_modifier", 0.5);
+        HEALTH_MODIFIER = getConfig().getDouble("health_modifier", 2.5);
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
     

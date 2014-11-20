@@ -265,7 +265,7 @@ public class CaptureTheToken extends Module implements Listener
     
     private boolean isAtOwnHomeblock(Entity entity)
     {
-        if(entity == null)
+        if (entity == null)
             return false;
         
         if (!(entity instanceof Player))
@@ -342,7 +342,7 @@ public class CaptureTheToken extends Module implements Listener
     
     private void spawnChest(Location target, List<ItemStack> items)
     {
-        if(location.getChunk().isLoaded())
+        if (location.getChunk().isLoaded())
             location.getChunk().load();
         
         @SuppressWarnings("deprecation")
@@ -370,7 +370,8 @@ public class CaptureTheToken extends Module implements Listener
     @Override
     public void onDisable()
     {
-        tokenTracker.end();
+        if (tokenTracker != null)
+            tokenTracker.end();
     }
     
     private enum CaptureState

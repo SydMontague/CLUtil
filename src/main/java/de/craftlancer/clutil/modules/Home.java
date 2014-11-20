@@ -21,6 +21,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -67,7 +68,7 @@ public class Home extends Module implements CommandExecutor, Listener
     public void save()
     {
         for (Entry<UUID, Location> set : homes.entrySet())
-            getConfig().set(set.getKey().toString(), Utils.getLocationString(set.getValue()));
+            getConfig().set("homes." + set.getKey().toString(), Utils.getLocationString(set.getValue()));
         
         saveConfig();
     }
@@ -86,7 +87,7 @@ public class Home extends Module implements CommandExecutor, Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBedInteract(PlayerInteractEvent e)
     {
-        if (!e.hasBlock() || e.getClickedBlock().getType() != Material.BED_BLOCK)
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.hasBlock() || e.getClickedBlock().getType() != Material.BED_BLOCK)
             return;
         
         setHome(e.getPlayer(), e.getPlayer().getLocation());
@@ -146,13 +147,13 @@ public class Home extends Module implements CommandExecutor, Listener
     protected void cancelHome(Player p)
     {
         waitingPlayers.remove(p.getUniqueId());
-        p.sendMessage(ChatColor.RED + "Teleportation abgebrochen!");
+        p.sendMessage(ChatColor.RED + "Aborted teleportation!");
     }
     
     private void setHome(Player player, Location location)
     {
         homes.put(player.getUniqueId(), location);
-        player.sendMessage(ChatColor.GOLD + "Homepunkt erfolgreich gesetzt!");
+        player.sendMessage(ChatColor.GOLD + "Homepoint successfully set!");
     }
     
     @SuppressWarnings("deprecation")
@@ -160,21 +161,21 @@ public class Home extends Module implements CommandExecutor, Listener
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (!(sender instanceof Player))
-            sender.sendMessage(ChatColor.RED + "Dieser Befehl kann nur von Spielern benutzt werden!");
+            sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
         else if (args.length == 0 && !homes.containsKey(((Player) sender).getUniqueId()))
-            sender.sendMessage(ChatColor.RED + "Du hast keinen Homepunkt gesetzt!");
+            sender.sendMessage(ChatColor.RED + "You do not have set a homepoint!");
         else if (args.length >= 1 && !sender.hasPermission("cl.util.admin"))
-            sender.sendMessage(ChatColor.RED + "Du musst Admin sein, um diesen Befehl auszuführen!");
+            sender.sendMessage(ChatColor.RED + "You need to be admin to use this command!");
         else if (args.length >= 1 && !homes.containsKey(Bukkit.getOfflinePlayer(args[0]).getUniqueId()))
-            sender.sendMessage(ChatColor.RED + "Dieser Spieler hat keinen Homepunkt.");
+            sender.sendMessage(ChatColor.RED + "This player has not set a homepoint.");
         else if (((Player) sender).hasMetadata("clutil.home.cooldown") && ((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() > System.currentTimeMillis())
-            sender.sendMessage(ChatColor.RED + "Dieser Befehl muss für weitere " + Utils.getTimeString(((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() - System.currentTimeMillis()) + " abkühlen.");
+            sender.sendMessage(ChatColor.RED + "You can't use this command for another " + Utils.getTimeString(((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() - System.currentTimeMillis()) + ".");
         else
         {
             if (args.length == 0)
             {
                 waitingPlayers.put(((Player) sender).getUniqueId(), new WaitingPlayer(System.currentTimeMillis() + getTeleportTime(), ((Player) sender).getLocation()));
-                sender.sendMessage(ChatColor.GOLD + "Du wirst in " + teleportTime + " Sekunden teleportiert.");
+                sender.sendMessage(ChatColor.GOLD + "You will be teleporteed in " + teleportTime + " seconds.");
             }
             else if (args.length >= 1)
                 ((Player) sender).teleport(homes.get(Bukkit.getOfflinePlayer(args[0]).getUniqueId()));
@@ -224,7 +225,7 @@ public class Home extends Module implements CommandExecutor, Listener
                 else if (runTime % 20 == 0)
                 {
                     long time = e.getValue().getTime() - System.currentTimeMillis();
-                    p.sendMessage(ChatColor.GOLD + "Noch " + (time / 1000) + "s bis zum Teleport!");
+                    p.sendMessage(ChatColor.GOLD + "" + (time / 1000) + "s util your teleport!");
                 }
                 
             }

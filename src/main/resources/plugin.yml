@@ -2,7 +2,7 @@ name: CLUtil
 main: de.craftlancer.clutil.CLUtil
 version: ${project.version}
 description: Some Utility Stuff for Craftlancer
-depend: [SpeedAPI, TagAPI, PermissionsEx, SkillLevels, Towny, WayOfShadows]
+depend: [SpeedAPI, TagAPI, PermissionsEx, SkillLevels, Towny, WayOfShadows, TownyChat]
 commands:
   find:
     description: Find other players with your compass

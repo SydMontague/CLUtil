@@ -62,6 +62,8 @@ public class Enderball extends Module implements Listener
         if (event.getAction() != Action.RIGHT_CLICK_AIR)
             return;
         
+        event.getPlayer().getInventory().removeItem(item);
+        
         Snowball pro = event.getPlayer().launchProjectile(Snowball.class);
         pro.setMetadata("enderball", new FixedMetadataValue(getPlugin(), null));
     }

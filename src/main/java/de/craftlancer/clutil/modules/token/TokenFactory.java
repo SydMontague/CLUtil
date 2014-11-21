@@ -7,11 +7,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-/*
- * 
- * 
- * 
- */
 public class TokenFactory
 {
     public static Material getTokenMaterial()
@@ -21,6 +16,9 @@ public class TokenFactory
     
     public static Token getToken(ItemStack i2)
     {
+        if (i2 == null)
+            return null;
+        
         TokenType type = TokenType.getByName(i2.getItemMeta().getDisplayName());
         
         if (type == null)
@@ -46,7 +44,7 @@ public class TokenFactory
     
     public static boolean isToken(ItemStack i2)
     {
-        if (i2.getType() != getTokenMaterial() && i2.getType() != getTokenMaterial2())
+        if (i2 == null || i2.getType() != getTokenMaterial() && i2.getType() != getTokenMaterial2())
             return false;
         
         if (!i2.getItemMeta().hasDisplayName())
@@ -78,7 +76,7 @@ public class TokenFactory
     {
         return Material.SPONGE;
     }
-
+    
     public static ItemStack craftEnchantmentTokenItem(Enchantment entry)
     {
         ItemStack item = new ItemStack(getTokenMaterial());

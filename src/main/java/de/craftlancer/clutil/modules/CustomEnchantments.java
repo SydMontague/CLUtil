@@ -244,7 +244,7 @@ public class CustomEnchantments extends Module implements Listener
         event.setDamage(DamageModifier.MAGIC, event.getDamage(DamageModifier.ARMOR) * result);
     }
     
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void handleArmorBase(EntityDamageByEntityEvent event)
     {
         if (!(event.getEntity() instanceof Player))
@@ -256,10 +256,10 @@ public class CustomEnchantments extends Module implements Listener
         LivingEntity entity = (LivingEntity) event.getEntity();
         
         int armorLevel = getArmorLevel(entity.getEquipment());
-        double armorMod = armorLevel * REDUCTION_PER_ARMOR;
+        //double armorMod = armorLevel * REDUCTION_PER_ARMOR;
         
-        event.setDamage(DamageModifier.ARMOR, event.getDamage(DamageModifier.BASE) * armorMod);
-    }
+        event.setDamage(DamageModifier.ARMOR, event.getDamage(DamageModifier.BASE)/* * armorMod);
+    }*/
     
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event)

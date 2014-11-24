@@ -40,7 +40,7 @@ public class TrackingObserver
     {
         Player p = Bukkit.getPlayer(trackingPlayer);
         
-        if(!p.isOnline())
+        if(p == null || !p.isOnline())
             return;
             
         for (Location loc : changedBlocks)

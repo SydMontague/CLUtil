@@ -68,6 +68,7 @@ public class Enderball extends Module implements Listener
         pro.setMetadata("enderball", new FixedMetadataValue(getPlugin(), null));
     }
     
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e)
     {

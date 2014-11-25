@@ -147,13 +147,13 @@ public class Home extends Module implements CommandExecutor, Listener
     protected void cancelHome(Player p)
     {
         waitingPlayers.remove(p.getUniqueId());
-        p.sendMessage(ChatColor.RED + "Aborted teleportation!");
+        p.sendMessage(ChatColor.RED + "Teleportation abgebrochen!");
     }
     
     private void setHome(Player player, Location location)
     {
         homes.put(player.getUniqueId(), location);
-        player.sendMessage(ChatColor.GOLD + "Homepoint successfully set!");
+        player.sendMessage(ChatColor.GOLD + "Hompunkt erfolgreich gesetzt!");
     }
     
     @SuppressWarnings("deprecation")
@@ -161,21 +161,21 @@ public class Home extends Module implements CommandExecutor, Listener
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (!(sender instanceof Player))
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
+            sender.sendMessage(ChatColor.RED + "Dieser Befehl kann nur von Spielern ausgeführt werden!");
         else if (args.length == 0 && !homes.containsKey(((Player) sender).getUniqueId()))
-            sender.sendMessage(ChatColor.RED + "You do not have set a homepoint!");
+            sender.sendMessage(ChatColor.RED + "Du hast keine Homepunkt!");
         else if (args.length >= 1 && !sender.hasPermission("cl.util.admin"))
-            sender.sendMessage(ChatColor.RED + "You need to be admin to use this command!");
+            sender.sendMessage(ChatColor.RED + "Du musst admin sein um diesen Befehl zu nutzen!");
         else if (args.length >= 1 && !homes.containsKey(Bukkit.getOfflinePlayer(args[0]).getUniqueId()))
-            sender.sendMessage(ChatColor.RED + "This player has not set a homepoint.");
+            sender.sendMessage(ChatColor.RED + "Dieser Spieler hat kein Homepunkt.");
         else if (((Player) sender).hasMetadata("clutil.home.cooldown") && ((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() > System.currentTimeMillis())
-            sender.sendMessage(ChatColor.RED + "You can't use this command for another " + Utils.getTimeString(((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() - System.currentTimeMillis()) + ".");
+            sender.sendMessage(ChatColor.RED + "Du kannst diesen Befehl erst in " + Utils.getTimeString(((Player) sender).getMetadata("clutil.home.cooldown").get(0).asLong() - System.currentTimeMillis()) + " wieder benutzen.");
         else
         {
             if (args.length == 0)
             {
                 waitingPlayers.put(((Player) sender).getUniqueId(), new WaitingPlayer(System.currentTimeMillis() + getTeleportTime(), ((Player) sender).getLocation()));
-                sender.sendMessage(ChatColor.GOLD + "You will be teleporteed in " + teleportTime + " seconds.");
+                sender.sendMessage(ChatColor.GOLD + "Du wirst in " + teleportTime + " teleportiert.");
             }
             else if (args.length >= 1)
                 ((Player) sender).teleport(homes.get(Bukkit.getOfflinePlayer(args[0]).getUniqueId()));
@@ -225,7 +225,7 @@ public class Home extends Module implements CommandExecutor, Listener
                 else if (runTime % 20 == 0)
                 {
                     long time = e.getValue().getTime() - System.currentTimeMillis();
-                    p.sendMessage(ChatColor.GOLD + "" + (time / 1000) + "s util your teleport!");
+                    p.sendMessage(ChatColor.GOLD + "" + (time / 1000) + "s bis zur teleportation!");
                 }
                 
             }
@@ -235,6 +235,14 @@ public class Home extends Module implements CommandExecutor, Listener
             
             for (Player p : teleportList)
             {
+                if(p.isInsideVehicle())
+                {
+                    if(p.getVehicle().getType() == EntityType.HORSE)
+                        p.getVehicle().teleport(getHome(p.getUniqueId()));
+                    else
+                        p.eject();
+                }
+                
                 p.teleport(getHome(p.getUniqueId()));
                 p.setMetadata("clutil.home.cooldown", new FixedMetadataValue(getPlugin(), System.currentTimeMillis() + getHomeCooldown()));
                 getWaitingPlayers().remove(p.getUniqueId());

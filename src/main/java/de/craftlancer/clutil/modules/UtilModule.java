@@ -2,15 +2,20 @@ package de.craftlancer.clutil.modules;
 
 import java.util.List;
 
-import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -18,6 +23,8 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
+import de.craftlancer.core.Utils;
+import de.craftlancer.wayofshadows.event.ShadowLeapEvent;
 
 public class UtilModule extends Module implements Listener
 {
@@ -28,6 +35,52 @@ public class UtilModule extends Module implements Listener
         super(plugin);
         startPerms = getConfig().getStringList("startPerms");
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
+        
+        getPlugin().getCommand("leap").setExecutor(new CommandExecutor() {
+
+            @Override
+            public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] arg3)
+            {
+                if(!(sender instanceof Player))
+                    return false;
+                
+                Player player = (Player) sender;
+                
+                if(player.hasMetadata("cl.util.leap"))
+                {
+                    player.removeMetadata("cl.util.leap", getPlugin());
+                    player.sendMessage("Leap aktiviert");
+                }
+                else
+                {
+                    player.setMetadata("cl.util.leap", new FixedMetadataValue(getPlugin(), null));
+                    player.sendMessage("Leap deaktiviert");
+                }
+                
+                return true;
+            }
+            
+        });
+        
+        getPlugin().getCommand("health").setExecutor(new CommandExecutor() {
+
+            @Override
+            public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] arg3)
+            {
+                if(!(sender instanceof Player))
+                    return false;
+                
+                Player player = (Player) sender;
+
+                if(player.getHealthScale() == 20)
+                    player.setHealthScale(50);
+                else
+                    player.setHealthScale(20);
+                    
+                return true;
+            }
+            
+        });
         
         for(String perm : startPerms)
             getPlugin().getServer().getPluginManager().addPermission(new Permission(perm, PermissionDefault.TRUE));
@@ -53,6 +106,13 @@ public class UtilModule extends Module implements Listener
         if (!e.getPlayer().hasPlayedBefore())
             for (String s : startPerms)
                 PermissionsEx.getPermissionManager().getUser(e.getPlayer()).addPermission(s);
+    }
+    
+    @EventHandler
+    public void onLeap(ShadowLeapEvent event)
+    {
+        if(event.getPlayer().hasMetadata("cl.util.leap"))
+            event.setCancelled(true);
     }
     
     @EventHandler
@@ -135,6 +195,12 @@ public class UtilModule extends Module implements Listener
         }
         
         e.getPlayer().setSaturation(e.getPlayer().getSaturation() + extra);
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onPlayerDeath(PlayerDeathEvent event)
+    {
+        event.setDroppedExp((int) (Utils.getExp(event.getEntity().getLevel()) * 0.65D));
     }
     
     @Override

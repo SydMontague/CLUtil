@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public abstract class Module
 {
@@ -28,14 +29,21 @@ public abstract class Module
     
     public void saveConfig()
     {
-        try
+        new BukkitRunnable()
         {
-            config.save(configFile);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+            @Override
+            public void run()
+            {
+                try
+                {
+                    config.save(configFile);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(getPlugin());
     }
     
     public void debug(String message)

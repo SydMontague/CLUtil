@@ -80,6 +80,11 @@
     </dependency>
     <dependency>
       <groupId>de.craftlancer</groupId>
+      <artifactId>wayofshadows</artifactId>
+      <version>0.7.0-Beta1</version>
+    </dependency>
+    <dependency>
+      <groupId>de.craftlancer</groupId>
       <artifactId>speedapi</artifactId>
       <version>0.0.3-SNAPSHOT</version>
     </dependency>

@@ -113,6 +113,7 @@ public class ClassChanger extends Module implements Listener, TabExecutor
         return null;
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] args)
     {
@@ -126,6 +127,12 @@ public class ClassChanger extends Module implements Listener, TabExecutor
             sender.sendMessage("Your class is: " +  PermissionsEx.getUser((Player) sender).getGroups()[0]);
             return true;
         }
+        
+        if(args[0].equalsIgnoreCase("list")){
+            sender.sendMessage("Verfügbare Klassen: Waldläufer, Schurke, Krieger");
+            return true;
+        }
+        
         
         Player player = (Player) sender;
         

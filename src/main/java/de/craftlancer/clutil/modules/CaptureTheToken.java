@@ -14,7 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
@@ -38,11 +37,9 @@ import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
 import de.craftlancer.clutil.modules.token.TokenTracker;
 import de.craftlancer.clutil.modules.token.TokenType;
-import de.craftlancer.clutil.speed.CaptureSpeedModifier;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.ValueMap;
 import de.craftlancer.currencyhandler.CurrencyHandler;
-import de.craftlancer.speedapi.SpeedAPI;
 
 /*
  * Create
@@ -117,7 +114,7 @@ public class CaptureTheToken extends Module implements Listener
         maxValue = getConfig().getInt("maxValue", 200);
         rewardMap = new ValueMap(getConfig().getConfigurationSection("rewardItems"));
         
-        SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3, (float) getConfig().getDouble("speedMod", -0.2f)));
+        // SpeedAPI.addModifier("captureevent", new CaptureSpeedModifier(3, (float) getConfig().getDouble("speedMod", -0.2f)));
         
         new BukkitRunnable()
         {
@@ -187,7 +184,10 @@ public class CaptureTheToken extends Module implements Listener
         {
             Bukkit.broadcastMessage(String.format("Event %1$s started at %2$s!", getEventName(), getLocationString()));
             tokenTracker = new TokenTracker(getPlugin(), location);
-            spawnChest(location, TOKENITEM);
+            
+            location.getWorld().dropItem(location.getWorld().getHighestBlockAt(location).getLocation().add(0, 5, 0), TOKENITEM);
+            
+            //spawnChest(location, TOKENITEM);
             state = CaptureState.RUNNING;
             return;
         }
@@ -209,13 +209,18 @@ public class CaptureTheToken extends Module implements Listener
         try
         {
             Resident r = TownyUniverse.getDataSource().getResident(player.getName());
-            if (!r.hasTown())
-                return "infinity (no Town)";
             
-            Coord c = r.getTown().getHomeBlock().getCoord();
+            Town t = null;
+            if (!r.hasTown())
+                t = TownyUniverse.getDataSource().getTown("Spawn");
+            else
+                t = r.getTown();
+            // return "infinity (no Town)";
+            
+            Coord c = t.getHomeBlock().getCoord();
             Coord c2 = Coord.parseCoord(player);
             
-            return String.valueOf(16 * Math.sqrt((Math.pow(c.getX() - c2.getX(), 2) + Math.pow(c.getZ() - c2.getZ(), 2))));
+            return String.valueOf(16 * Math.sqrt((Math.pow(c.getX() - c2.getX(), 2) + Math.pow(c.getZ() - c2.getZ(), 2)))) + "(" + t.getName() + ")";
         }
         catch (TownyException e)
         {
@@ -251,7 +256,10 @@ public class CaptureTheToken extends Module implements Listener
             player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, protectionTime * 20, 5));
             
             CurrencyHandler.getHandler("money").giveCurrency(player, moneyReward);
-            spawnChest(entity.getLocation(), reward);
+            
+            for (ItemStack item : reward)
+                player.getWorld().dropItem(player.getLocation(), item);
+            // spawnChest(entity.getLocation(), reward);
             
             lastRun = System.currentTimeMillis();
             tokenTracker.end();
@@ -276,10 +284,12 @@ public class CaptureTheToken extends Module implements Listener
         {
             Resident resi = TownyUniverse.getDataSource().getResident(player.getName());
             
-            if (!resi.hasTown())
-                return false;
+            Town town = null;
             
-            Town town = resi.getTown();
+            if (!resi.hasTown())
+                town = TownyUniverse.getDataSource().getTown("Spawn");
+            else
+                town = resi.getTown();
             
             return town.getHomeBlock().getX() == entity.getLocation().getChunk().getX() && town.getHomeBlock().getZ() == entity.getLocation().getChunk().getZ();
         }

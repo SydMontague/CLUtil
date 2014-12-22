@@ -62,15 +62,26 @@ public class Home extends Module implements CommandExecutor, Listener
     @Override
     public void onDisable()
     {
-        save();
+        save(true);
     }
     
-    public void save()
+    public void save(boolean shutdown)
     {
         for (Entry<UUID, Location> set : homes.entrySet())
             getConfig().set("homes." + set.getKey().toString(), Utils.getLocationString(set.getValue()));
         
-        saveConfig();
+        if (!shutdown)
+            new BukkitRunnable()
+            {
+                @Override
+                public void run()
+                {
+                    
+                    saveConfig();
+                }
+            }.runTaskAsynchronously(getPlugin());
+        else
+            saveConfig();
     }
     
     public void load()
@@ -235,9 +246,9 @@ public class Home extends Module implements CommandExecutor, Listener
             
             for (Player p : teleportList)
             {
-                if(p.isInsideVehicle())
+                if (p.isInsideVehicle())
                 {
-                    if(p.getVehicle().getType() == EntityType.HORSE)
+                    if (p.getVehicle().getType() == EntityType.HORSE)
                         p.getVehicle().teleport(getHome(p.getUniqueId()));
                     else
                         p.eject();
@@ -249,7 +260,7 @@ public class Home extends Module implements CommandExecutor, Listener
             }
             
             if (runTime % 3600 == 0)
-                save();
+                save(false);
             
             runTime++;
         }

@@ -2,7 +2,7 @@ package de.craftlancer.clutil.modules.token;
 
 import java.lang.reflect.Field;
 
-import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -150,6 +150,9 @@ public class TokenTracker implements Listener
         ItemStack item = event.getItem().getItemStack();
         if (!(TokenFactory.isToken(item)) || TokenFactory.getToken(item).getType() != TokenType.CAPTURE_EVENT)
             return;
+     
+        if(event.getPlayer().getGameMode() == GameMode.CREATIVE)
+            event.setCancelled(true);
         
         setEntity(event.getPlayer());
     }

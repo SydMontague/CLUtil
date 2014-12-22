@@ -19,9 +19,12 @@ commands:
   leap:
     description: Schalt Leap an/aus
     usage: /leap
-  class:
+  health:
     description: Schalte die Skalierung der Lebensleiste an/aus
     usage: /health
+  replacer:
+    description: Blah
+    usage: Geht dich nix an! 
 permissions:
     cl.util.krieger:
         default: false

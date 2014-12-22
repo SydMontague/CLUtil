@@ -23,6 +23,7 @@ import de.craftlancer.clutil.modules.PotionRebalance;
 import de.craftlancer.clutil.modules.PumpkinBandit;
 import de.craftlancer.clutil.modules.PvPRebalance;
 import de.craftlancer.clutil.modules.RandomChests;
+import de.craftlancer.clutil.modules.RemoveMetadata;
 import de.craftlancer.clutil.modules.Speed;
 import de.craftlancer.clutil.modules.TokenModule;
 import de.craftlancer.clutil.modules.Tracking;
@@ -64,7 +65,7 @@ public class CLUtil extends JavaPlugin
     
     private boolean isDeactivated(ModuleType type)
     {
-        return !getConfig().getBoolean("modules." + type.name(), true);
+        return !getConfig().getBoolean("modules." + type.name(), false);
     }
     
     private Module craftModule(ModuleType type)
@@ -117,6 +118,8 @@ public class CLUtil extends JavaPlugin
                 return new UtilModule(this);
             case ENDERBALL:
                 return new Enderball(this);
+            case REMOVEMETA:
+                return new RemoveMetadata(this);
             default:
                 break;
         }

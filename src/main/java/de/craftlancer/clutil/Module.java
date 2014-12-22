@@ -29,21 +29,14 @@ public abstract class Module
     
     public void saveConfig()
     {
-        new BukkitRunnable()
+        try
         {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    config.save(configFile);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }.runTaskAsynchronously(getPlugin());
+            config.save(configFile);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
     
     public void debug(String message)

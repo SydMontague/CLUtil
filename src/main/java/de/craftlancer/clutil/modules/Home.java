@@ -32,6 +32,10 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.palmergames.bukkit.towny.exceptions.TownyException;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
+
 import de.craftlancer.clutil.CLUtil;
 import de.craftlancer.clutil.Module;
 import de.craftlancer.clutil.ModuleType;
@@ -99,6 +103,21 @@ public class Home extends Module implements CommandExecutor, Listener
     public void onBedInteract(PlayerInteractEvent e)
     {
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.hasBlock() || e.getClickedBlock().getType() != Material.BED_BLOCK)
+            return;
+        
+        Town town1 = null;
+        Town town2 = null;
+        
+        try
+        {
+            town1 = TownyUniverse.getDataSource().getResident(e.getPlayer().getName()).getTown();
+            town2 = TownyUniverse.getTownBlock(e.getClickedBlock().getLocation()).getTown();
+        }
+        catch (TownyException ex)
+        {
+        }
+        
+        if(town2 != null && !town2.equals(town1))
             return;
         
         setHome(e.getPlayer(), e.getPlayer().getLocation());

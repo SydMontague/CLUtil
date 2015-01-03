@@ -36,17 +36,43 @@ public class UtilModule extends Module implements Listener
         startPerms = getConfig().getStringList("startPerms");
         getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
         
-        getPlugin().getCommand("leap").setExecutor(new CommandExecutor() {
-
+        getPlugin().getCommand("sneak").setExecutor(new CommandExecutor()
+        {
+            
+            @Override
+            public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] args)
+            {
+                
+                if (!(sender instanceof Player))
+                    return false;
+                
+                Player player = (Player) sender;
+                if (player.hasMetadata("cl.util.sneak"))
+                {
+                    player.removeMetadata("cl.util.sneak", getPlugin());
+                    player.sendMessage("Sneak aktiviert");
+                }
+                else
+                {
+                    player.setMetadata("cl.util.sneak", new FixedMetadataValue(getPlugin(), null));
+                    player.sendMessage("Sneak deaktiviert");
+                }
+                return true;
+            }
+        });
+        
+        getPlugin().getCommand("leap").setExecutor(new CommandExecutor()
+        {
+            
             @Override
             public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] arg3)
             {
-                if(!(sender instanceof Player))
+                if (!(sender instanceof Player))
                     return false;
                 
                 Player player = (Player) sender;
                 
-                if(player.hasMetadata("cl.util.leap"))
+                if (player.hasMetadata("cl.util.leap"))
                 {
                     player.removeMetadata("cl.util.leap", getPlugin());
                     player.sendMessage("Leap aktiviert");
@@ -62,27 +88,28 @@ public class UtilModule extends Module implements Listener
             
         });
         
-        getPlugin().getCommand("health").setExecutor(new CommandExecutor() {
-
+        getPlugin().getCommand("health").setExecutor(new CommandExecutor()
+        {
+            
             @Override
             public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] arg3)
             {
-                if(!(sender instanceof Player))
+                if (!(sender instanceof Player))
                     return false;
                 
                 Player player = (Player) sender;
-
-                if(player.getHealthScale() == 20)
+                
+                if (player.getHealthScale() == 20)
                     player.setHealthScale(50);
                 else
                     player.setHealthScale(20);
-                    
+                
                 return true;
             }
             
         });
         
-        for(String perm : startPerms)
+        for (String perm : startPerms)
             getPlugin().getServer().getPluginManager().addPermission(new Permission(perm, PermissionDefault.TRUE));
     }
     
@@ -111,7 +138,7 @@ public class UtilModule extends Module implements Listener
     @EventHandler
     public void onLeap(ShadowLeapEvent event)
     {
-        if(event.getPlayer().hasMetadata("cl.util.leap"))
+        if (event.getPlayer().hasMetadata("cl.util.leap"))
             event.setCancelled(true);
     }
     

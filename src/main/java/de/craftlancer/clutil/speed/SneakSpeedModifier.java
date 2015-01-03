@@ -52,7 +52,7 @@ public class SneakSpeedModifier extends SpeedModifier
     @Override
     public boolean isApplicable(Player p)
     {
-        return p.hasPermission("cl.util.speed.sneak");
+        return p.hasPermission("cl.util.speed.sneak") && !p.hasMetadata("cl.util.sneak");
     }
     
     @Override

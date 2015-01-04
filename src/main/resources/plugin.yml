@@ -25,6 +25,9 @@ commands:
   replacer:
     description: Blah
     usage: Geht dich nix an! 
+  sneak:
+    description: Toggle sneak
+    usage: /sneak
 permissions:
     cl.util.krieger:
         default: false

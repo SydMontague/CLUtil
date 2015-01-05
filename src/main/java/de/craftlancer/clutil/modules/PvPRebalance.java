@@ -69,19 +69,43 @@ public class PvPRebalance extends Module implements Listener
         }.runTaskLater(getPlugin(), 1);
     }
     
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onDamage(EntityDamageByEntityEvent e)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void removeSpawnProtection(EntityDamageByEntityEvent event)
     {
-        if (!e.getDamager().getType().equals(EntityType.ARROW) || !(e.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof LivingEntity))
             return;
         
-        if (!(((Arrow) e.getDamager()).getShooter() instanceof Player))
+        LivingEntity ent = (LivingEntity) event.getEntity();
+        
+        if (!ent.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE))
             return;
         
-        Player p = (Player) ((Arrow) e.getDamager()).getShooter();
+        for (PotionEffect eff : ent.getActivePotionEffects())
+        {
+            if (eff.getType() != PotionEffectType.DAMAGE_RESISTANCE)
+                continue;
+            
+            if (eff.getAmplifier() != 10)
+                continue;
+            
+            ent.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onDamage(EntityDamageByEntityEvent event)
+    {
+        if (!event.getDamager().getType().equals(EntityType.ARROW) || !(event.getEntity() instanceof LivingEntity))
+            return;
+        
+        if (!(((Arrow) event.getDamager()).getShooter() instanceof Player))
+            return;
+        
+        Player p = (Player) ((Arrow) event.getDamager()).getShooter();
         
         if (p.hasPermission("cl.util.wald.dmgmod"))
-            e.setDamage(e.getDamage() * waldDamageMod);
+            event.setDamage(event.getDamage() * waldDamageMod);
     }
     
     @Override

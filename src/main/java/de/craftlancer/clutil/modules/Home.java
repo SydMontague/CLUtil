@@ -34,6 +34,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
 import de.craftlancer.clutil.CLUtil;
@@ -111,7 +112,8 @@ public class Home extends Module implements CommandExecutor, Listener
         try
         {
             town1 = TownyUniverse.getDataSource().getResident(e.getPlayer().getName()).getTown();
-            town2 = TownyUniverse.getTownBlock(e.getClickedBlock().getLocation()).getTown();
+            TownBlock tb = TownyUniverse.getTownBlock(e.getClickedBlock().getLocation());
+            town2 = tb != null ? tb.getTown() : null;
         }
         catch (TownyException ex)
         {

@@ -46,6 +46,9 @@ public class ColoredNametag extends Module implements Listener
             else if (seeingResi.getTown().getNation().getEnemies().contains(namedResi.getTown().getNation()))
                 color = ChatColor.RED;
             
+            if(color == null)
+                return;
+            
             e.setTag(color + e.getTag());
         }
         catch (NotRegisteredException ex)

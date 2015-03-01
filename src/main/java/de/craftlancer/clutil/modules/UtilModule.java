@@ -57,6 +57,7 @@ public class UtilModule extends Module implements Listener
                     player.setMetadata("cl.util.sneak", new FixedMetadataValue(getPlugin(), null));
                     player.sendMessage("Sneak deaktiviert");
                 }
+                
                 return true;
             }
         });
@@ -76,11 +77,13 @@ public class UtilModule extends Module implements Listener
                 {
                     player.removeMetadata("cl.util.leap", getPlugin());
                     player.sendMessage("Leap aktiviert");
+                    getConfig().set("leap." + player.getUniqueId(), false);
                 }
                 else
                 {
                     player.setMetadata("cl.util.leap", new FixedMetadataValue(getPlugin(), null));
                     player.sendMessage("Leap deaktiviert");
+                    getConfig().set("leap." + player.getUniqueId(), true);
                 }
                 
                 return true;
@@ -113,6 +116,12 @@ public class UtilModule extends Module implements Listener
             getPlugin().getServer().getPluginManager().addPermission(new Permission(perm, PermissionDefault.TRUE));
     }
     
+    @Override
+    public void onDisable()
+    {
+        saveConfig();
+    }
+    
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDragonDeath(EntityDeathEvent e)
     {
@@ -125,6 +134,12 @@ public class UtilModule extends Module implements Listener
     {
         if (e.getRightClicked().getType() == EntityType.VILLAGER)
             e.setCancelled(true);
+    }
+    
+    public void onPlayerJoin(PlayerJoinEvent e)
+    {
+        if (getConfig().getBoolean("leap" + e.getPlayer().getUniqueId(), false) && !e.getPlayer().hasMetadata("cl.util.leap"))
+            e.getPlayer().setMetadata("cl.util.leap", new FixedMetadataValue(getPlugin(), null));
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

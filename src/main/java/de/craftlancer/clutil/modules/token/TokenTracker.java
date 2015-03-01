@@ -154,6 +154,9 @@ public class TokenTracker implements Listener
         if(event.getPlayer().getGameMode() == GameMode.CREATIVE)
             event.setCancelled(true);
         
+        if(event.getPlayer().getVehicle() != null)
+            event.setCancelled(true);
+        
         setEntity(event.getPlayer());
     }
     
